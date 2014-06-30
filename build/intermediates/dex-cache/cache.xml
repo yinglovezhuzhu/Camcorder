@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/javacpp-efefa300d7938ab768adc1871e51cb37c68e8f47.jar"
+        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/javacpp.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="ff8f2a518e524ae8de093d6556fc21a6ab8f05b2"/>
+    <item
+        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/javacv-c37ae8e8afd6d448bb22c03d9e78234a81021ccb.jar"
+        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/javacv.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="310927e25b52136954b65608f341dfd5e5ad9d64"/>
+
+</pre-dex-items>

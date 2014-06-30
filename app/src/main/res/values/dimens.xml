@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 14-6-10 下午4:49 Guangzhou Visions Tech Co., Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ 	http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+-->
+
+<resources>
+
+    <dimen name="content_padding">8dip</dimen>
+
+    <!-- 启动页 -->
+    <dimen name="splash_text_size">22sp</dimen>
+
+    <!-- 登陆页 -->
+    <dimen name="login_text_size">15sp</dimen>
+    <dimen name="login_input_text_size">17sp</dimen>
+    <dimen name="login_button_text_size">20sp</dimen>
+    <dimen name="login_input_padding">10dip</dimen>
+    <dimen name="login_input_min_height">50dip</dimen>
+    <dimen name="login_type_icon_padding">2dip</dimen>
+    <dimen name="login_type_icon_marging">10dip</dimen>
+    <dimen name="login_text_padding">5dip</dimen>
+    <dimen name="login_padding_to_top">35dip</dimen>
+    <dimen name="login_padding_to_logo">15dip</dimen>
+    <dimen name="login_padding_to_label">15dip</dimen>
+    <dimen name="login_padding_to_input">20dip</dimen>
+    <dimen name="login_padding_to_button">25dip</dimen>
+
+    <!-- 首页 -->
+    <dimen name="home_header_user_name_text_size">22sp</dimen>
+    <dimen name="home_header_coin_text_size">12sp</dimen>
+    <dimen name="home_header_coin_icon_text_padding">3dip</dimen>
+    <dimen name="home_header_content_padding">8dip</dimen>
+    <dimen name="home_header_avatar_padding_top">14dip</dimen>
+    <dimen name="home_item_avatar_size">50dip</dimen>
+    <dimen name="home_item_content_padding">10dip</dimen>
+    <dimen name="home_item_title_text_size">18sp</dimen>
+    <dimen name="home_item_label_text_size">12sp</dimen>
+    <dimen name="home_item_label_drawable_padding">3dip</dimen>
+    <dimen name="home_item_coin_text_size">16sp</dimen>
+    <dimen name="home_item_desc_text_size">16sp</dimen>
+    <dimen name="home_item_button_text_size">16sp</dimen>
+    <dimen name="home_item_button_divider_height">15dip</dimen>
+    <dimen name="navigation_margin">-18dip</dimen> <!-- 这个是用来解决导航栏的凸出部分导致主容器不能和导航水平对奇的问题 -->
+    <dimen name="navigation_margin_back">18dip</dimen> <!-- 这个跟navigation_margin的绝对值必须一样，上面是看起来主容器的底部喝导航的水平对齐，但是凸出部分会影响最底部的内容，这个可以让最底部网上偏移，防止被遮挡 -->
+
+
+    <!-- 活动 -->
+    <dimen name="event_item_title_text_size">16sp</dimen>
+    <dimen name="event_item_label_text_size">14sp</dimen>
+    <dimen name="event_item_drawable_padding">3dip</dimen>
+
+    <!-- 发现 -->
+    <dimen name="discovery_search_input_padding_horizontal">15dip</dimen>
+    <dimen name="discovery_search_input_padding_vertical">5dip</dimen>
+    <dimen name="discovery_search_input_corners_radius">5dip</dimen>
+    <dimen name="discovery_search_text_size">16sp</dimen>
+    <dimen name="discovery_search_input_drawable_padding">15dip</dimen>
+    <dimen name="discovery_search_label_padding_top">18dip</dimen>
+    <dimen name="discovery_label_text_size">16sp</dimen>
+    <dimen name="discovery_auto_item_padding_horizontal">12dip</dimen>
+    <dimen name="discovery_auto_item_padding_vertical">8dip</dimen>
+    <dimen name="discovery_auto_item_text_size">14sp</dimen>
+    <dimen name="discovery_auto_item_drawable_padding">10dip</dimen>
+    <dimen name="discovery_gragest_content_padding">10dip</dimen>
+    <dimen name="discovery_gragest_textSize">13sp</dimen>
+    <dimen name="discovery_gragest_drawable_padding">3dip</dimen>
+    <dimen name="discovery_chanel_item_text_size">16sp</dimen>
+    <dimen name="discovery_chanel_item_text_padding">5dip</dimen>
+    <dimen name="discovery_chanel_item_grid_spacing">5dip</dimen>
+    <dimen name="discovery_chanel_item_grid_spacing_bak">-5dip</dimen> <!-- 这个和discovery_chanel_item_grid_spacing是相对应的，两个值必须同时改变，绝对值保持一致 -->
+
+    <dimen name="discovery_hot_topic_item_padding">8dip</dimen>
+    <dimen name="discovery_hot_topic_item_divider_height">8dip</dimen>
+    <dimen name="discovery_hot_topic_item_text_size">16sp</dimen>
+
+    <!-- 用户-我 -->
+    <dimen name="user_header_padding_vertical">15dip</dimen>
+    <dimen name="user_header_padding_to_avatar">8dip</dimen>
+    <dimen name="user_header_padding_to_user_name">20dip</dimen>
+    <dimen name="user_header_count_number_text_size">20sp</dimen>
+    <dimen name="user_header_count_label_text_size">18sp</dimen>
+    <dimen name="user_header_count_label_paddint_to_number">3dip</dimen>
+    <dimen name="user_header_count_divider_height">25dip</dimen>
+    <dimen name="user_item_textSize">14sp</dimen>
+    <dimen name="user_item_padding_horizontal">25dip</dimen>
+    <dimen name="user_item_padding_vertical">10dip</dimen>
+    <dimen name="user_item_drawable_padding">8dip</dimen>
+    <dimen name="user_item_marging">12dip</dimen>
+    <dimen name="user_logout_button_marging">15dip</dimen>
+    <dimen name="user_logout_button_marging_bottom">35dip</dimen>
+    <dimen name="user_logout_button_text_size">20sp</dimen>
+
+    <!-- PageIndicator -->
+    <dimen name="indicator_dot_corners_radius">3dip</dimen>
+    <dimen name="indicator_dot_size">6dip</dimen> <!-- indicator_dot_size必须是indicator_dot_corners_radius的两倍，这两个必须同时修改 -->
+
+
+    <!-- 录像标题栏 -->
+    <dimen name="recorder_title_button_minSize">50dip</dimen>
+    <dimen name="recorder_title_button_padding">15dip</dimen>
+    <dimen name="recorder_title_button_marging">15dip</dimen>
+    <dimen name="recorder_title_text_size">20sp</dimen>
+    <dimen name="recorder_toolbar_item_padding">5dip</dimen>
+    <dimen name="recorder_toolbar_item_drawable_padding">3dip</dimen>
+    <dimen name="recorder_toolbar_item_text_size">12sp</dimen>
+
+    <!-- 详细页面 -->
+    <dimen name="item_details_avatar">5dp</dimen>
+    <dimen name="details_item_dialog_btn_marginLeft">30dp</dimen>
+    <dimen name="details_item_dialog_btn_textSize">20dp</dimen>
+    <dimen name="details_item_dialog_btn_marginTop">15dp</dimen>
+    <dimen name="details_item_dialog_ll_marginTop">20dp</dimen>
+    <dimen name="details_item_dialog_padding">10dp</dimen>
+
+</resources>

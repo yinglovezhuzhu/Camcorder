@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/content_backgroud_recorder" >
+    <Button
+        style="@style/RecorderTitleButton"
+        android:id="@+id/btn_recorder_title_left"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:minWidth="80dip"
+        android:text="@string/cancel"/>
+    <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            style="@style/RecorderTitleButton"
+            android:id="@+id/btn_recorder_title_button1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:drawableLeft="@drawable/selector_ic_change_camera"/>
+        <Button
+            style="@style/RecorderTitleButton"
+            android:id="@+id/btn_recorder_title_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/recorder_title_button_marging"
+            android:drawableLeft="@drawable/selector_ic_camera_setting"
+            android:drawableRight="@drawable/ic_arrow_down_right"/>
+
+    </LinearLayout>
+    <Button
+        style="@style/RecorderTitleButton"
+        android:id="@+id/btn_recorder_title_right"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="@string/next_step"
+        android:padding="15dip"/>
+</LinearLayout>

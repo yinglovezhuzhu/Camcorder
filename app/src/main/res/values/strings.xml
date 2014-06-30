@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 14-6-6 下午3:42 Guangzhou Visions Tech Co., Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ 	http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string name="app_name">Camcorder</string>
+
+    <!-- 拍摄 -->
+    <string name="cancel">取消</string>
+    <string name="next_step">下一步</string>
+    <string name="video">视频</string>
+    <string name="image">图片</string>
+    <string name="delay">延时</string>
+    <string name="focus">对焦</string>
+    <string name="delete_back">回删</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- Details dialog "OK" button. Dismisses dialog. -->
+    <string name="details_ok">OK</string>
+    <!-- title for the dialog showing the error of camera hardware -->
+    <string name="camera_error_title">Camera error</string>
+
+    <!-- message for the dialog showing the error of camera hardware -->
+    <string name="cannot_connect_camera">Cannot connect to camera.</string>
+    <!-- alert to the user to wait for some operation to complete -->
+    <string name="wait">Please wait\u2026</string>
+    <!-- Video Camera format string for new video files. Passed to java.text.SimpleDateFormat. -->
+    <string name="video_file_name_format" translatable="false">"'VID'_yyyyMMdd_HHmmss"</string>
+    <!-- The messsage shown when video record reaches size limit. -->
+    <string name="video_reach_size_limit">Size limit reached.</string>
+
+    <!-- alert to the user that USB storage must be available before using the camera [CHAR LIMIT=NONE] -->
+    <!--<string name="no_storage" product="nosdcard">Please mount USB storage before using the camera.</string>-->
+    <!-- alert to the user that an SD card must be installed before using the camera -->
+    <string name="no_storage" product="default">Please insert an SD card before using the camera.</string>
+
+    <!-- alert to the user that the USB storage is too full to complete the operation [CHAR LIMIT=NONE] -->
+    <!--<string name="not_enough_space" product="nosdcard">Your USB storage is full.</string>-->
+    <!-- alert to the user that the SD card is too full to complete the operation -->
+    <string name="not_enough_space" product="default">Your SD card is full.</string>
+
+    <!-- alert to the user that the USB storage is being disk-checked [CHAR LIMIT=30] -->
+    <!--<string name="preparing_sd" product="nosdcard">Preparing USB storage\u2026</string>-->
+    <!-- alert to the user that the SD card is being disk-checked -->
+    <string name="preparing_sd" product="default">Preparing SD card\u2026</string>
+
+    <!-- alert to the user that the camera fails to read or write the USB storage. [CHAR LIMIT=NONE] -->
+    <!--<string name="access_sd_fail" product="nosdcard">Failed to access USB storage.</string>-->
+    <!-- alert to the user that the camera fails to read or write the SD card. -->
+    <string name="access_sd_fail" product="default">Fail to access SD card.</string>
+
+    <!-- Low-memory dialog message [CHAR LIMT=NONE] -->
+    <!--<string name="spaceIsLow_content" product="nosdcard">Your USB storage is running out of space. Change the quality setting or delete some images or other files.</string>-->
+    <!-- Low-memory dialog message [CHAR LIMIT=NONE] -->
+    <string name="spaceIsLow_content" product="default">Your SD card is running out of space. Change the quality setting or delete some images or other files.</string>
+
+    <!-- Default flash mode setting.-->
+    <!--<string name="pref_camera_flashmode_default" translatable="false">auto</string>-->
+
+    <!-- Value for flash off setting-->
+    <string name="camera_flashmode_no_flash" translatable="false">no_flash</string>
+
+    <!-- Settings screen, Flash mode title -->
+    <!--<string name="pref_camera_flashmode_title">Flash mode</string>-->
+
+    <!-- Settings screen, Flash mode dialog radio button choices -->
+    <!--<string name="pref_camera_flashmode_entry_auto">Auto</string>-->
+    <!--<string name="pref_camera_flashmode_entry_on">On</string>-->
+    <!--<string name="pref_camera_flashmode_entry_off">Off</string>-->
+
+    <!-- label for the 'video recording application shown in the top level 'all applications' -->
+    <string name="video_camera_label">Camcorder</string>
+</resources>

@@ -1,0 +1,48 @@
+<!--
+  ~ Copyright (C) 14-6-6 下午3:42 Guangzhou Visions Tech Co., Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ 	http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Light">
+        <!-- Customize your theme here. -->
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="SingleLine">
+        <item name="android:singleLine">true</item>
+    </style>
+    
+
+    <!-- 录像标题栏 -->
+    <style name="RecorderTitleButton" parent="@style/SingleLine">
+        <item name="android:minWidth">@dimen/recorder_title_button_minSize</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="android:padding">@dimen/recorder_title_button_padding</item>
+        <item name="android:textSize">@dimen/recorder_title_text_size</item>
+        <item name="android:textColor">@color/btn_text_color_red_gray</item>
+    </style>
+    
+    <style name="RecorderToolbarButton" parent="@style/SingleLine">
+        <item name="android:padding">@dimen/recorder_toolbar_item_padding</item>
+        <item name="android:drawablePadding">@dimen/recorder_toolbar_item_drawable_padding</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="android:textColor">@color/btn_text_color_red_gray</item>
+        <item name="android:textSize">@dimen/recorder_toolbar_item_text_size</item>
+    </style>
+
+</resources>
