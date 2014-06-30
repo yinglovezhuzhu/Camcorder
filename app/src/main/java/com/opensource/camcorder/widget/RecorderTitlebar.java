@@ -2,6 +2,7 @@ package com.opensource.camcorder.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -133,9 +134,8 @@ public class RecorderTitlebar extends LinearLayout {
 
 
     private void init() {
-//        LayoutInflater inflater = LayoutInflater.from(getContext());
-//        inflater.inflate(R.layout.layout_recorder_title, this);
-        View.inflate(getContext(), R.layout.layout_recorder_title, this);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        inflater.inflate(R.layout.layout_recorder_title, this);
 
         mBtnLeft = (Button) findViewById(R.id.btn_recorder_title_left);
         mBtnRight = (Button) findViewById(R.id.btn_recorder_title_right);
