@@ -61,7 +61,7 @@ public class ProgressView extends View {
     private int mCursorHighColor = Color.argb(0xff, 0x00, 0xEE, 0xFF);
     private int mCursorDarkColor = Color.argb(0x00, 0xFF, 0xFF, 0xFF);
     private int mCursorCurrentColor = mCursorDarkColor;
-    private boolean mCursorHigh = true;
+    private boolean mCursorHigh = false;
     private long mCursorBlinkTime = 500L; //默认闪烁0.5秒
     private int mCusorWidth = 10;
 
@@ -90,8 +90,8 @@ public class ProgressView extends View {
                 case MSG_UPDATE_CURSOR:
                     mCursorCurrentColor = mCursorHigh ? mCursorDarkColor : mCursorHighColor;
                     mCursorHigh = !mCursorHigh;
-                    mHandler.sendEmptyMessageDelayed(MSG_UPDATE_CURSOR, mCursorBlinkTime);
                     postInvalidate();
+                    mHandler.sendEmptyMessageDelayed(MSG_UPDATE_CURSOR, mCursorBlinkTime);
                     break;
                 default:
                     break;
