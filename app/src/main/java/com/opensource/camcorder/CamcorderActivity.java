@@ -353,7 +353,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 			}
 		});
         
-        findViewById(R.id.btn_recorder_title_button1).setOnClickListener(new View.OnClickListener() {
+        /*findViewById(R.id.btn_recorder_title_button1).setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -363,7 +363,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 					switchCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
 				} 
 			}
-		});
+		});*/
         ToggleButton tb = (ToggleButton) findViewById(R.id.tbtn_recorder_delay);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

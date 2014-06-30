@@ -422,6 +422,8 @@ public class ProgressView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
         canvas.drawColor(mBackgroundColor); //Draw background color.
 
         drawMinMask(canvas);
@@ -433,8 +435,6 @@ public class ProgressView extends View {
         if(mShowCursor) {
             drawCursor(canvas);
         }
-
-        super.onDraw(canvas);
     }
 
     private void initProgressBar() {
@@ -469,8 +469,8 @@ public class ProgressView extends View {
 
     private void drawMinMask(Canvas canvas) {
         mPaint.setColor(mMinMaskColor);
-        mRectF.top = getTop();
-        mRectF.bottom = getBottom();
+        mRectF.top = 0f;
+        mRectF.bottom = mRectF.top + getHeight();
         if(mMinMask < mSplitWidth) {
             mRectF.left = 0;
             mRectF.right = mSplitWidth;
@@ -484,9 +484,9 @@ public class ProgressView extends View {
     private void drawSplits(Canvas canvas) {
         int width = getWidth();
         mPaint.setColor(mSplitColor);
+        mRectF.top = 0f;
+        mRectF.bottom = mRectF.top + getHeight();
         for(Integer split : mSplits) {
-            mRectF.top = getTop();
-            mRectF.bottom = getBottom();
             if(split < mSplitWidth) {
                 mRectF.left = 0;
                 mRectF.right = mSplitWidth;
@@ -502,8 +502,8 @@ public class ProgressView extends View {
         int width = getWidth();
         mPaint.setColor(mCursorCurrentColor);
         mRectF.left = ((float)mProgress * width) / mMaxProgress;
-        mRectF.top = getTop();
-        mRectF.bottom = getBottom();
+        mRectF.top = 0f;
+        mRectF.bottom = mRectF.top + getHeight();
         mRectF.right = mRectF.left + mCusorWidth;
         canvas.drawRect(mRectF, mPaint);
     }
