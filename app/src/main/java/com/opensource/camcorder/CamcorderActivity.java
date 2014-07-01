@@ -69,6 +69,7 @@ import java.nio.Buffer;
 import java.nio.ShortBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -1127,34 +1128,30 @@ public class CamcorderActivity extends NoSearchActivity implements
     private void setCameraParameters() {
         mParameters = mCameraDevice.getParameters();
 
-      //获取摄像头的所有支持的分辨率
-  		List<Camera.Size> supportedPreviewSizes = mCameraDevice.getParameters().getSupportedPreviewSizes();
-  		if(supportedPreviewSizes != null && supportedPreviewSizes.size() > 0){
-  			Collections.sort(supportedPreviewSizes, new Util.ResolutionComparator());
-  			Camera.Size previewSize =  null;	
-  			if(defaultScreenResolution == -1){
-  				boolean hasSize = false;
-  				//如果摄像头支持640*480，那么强制设为640*480
-  				for(int i = 0;i<supportedPreviewSizes.size();i++){
-  					Size size = supportedPreviewSizes.get(i);
-  					if(size != null && size.width==640 && size.height==480){
-  						previewSize = size;
-  						hasSize = true;
-  						break;
-  					}
-  				}
-  				//如果不支持设为中间的那个
-  				if(!hasSize){
-  					int mediumResolution = supportedPreviewSizes.size()/2;
-  					if(mediumResolution >= supportedPreviewSizes.size())
-  						mediumResolution = supportedPreviewSizes.size() - 1;
-  					previewSize = supportedPreviewSizes.get(mediumResolution);
-  				}
-  			}else{
-  				if(defaultScreenResolution >= supportedPreviewSizes.size())
-  					defaultScreenResolution = supportedPreviewSizes.size() - 1;
-  				previewSize = supportedPreviewSizes.get(defaultScreenResolution);
-  			}
+        //获取摄像头的所有支持的分辨率
+        List<Camera.Size> supportedPreviewSizes = mParameters.getSupportedPreviewSizes();
+  		if(null != supportedPreviewSizes && !supportedPreviewSizes.isEmpty()){
+  			Collections.sort(supportedPreviewSizes, new SizeComparator());
+  			Camera.Size previewSize =  null;
+            //如果摄像头支持640*480，那么强制设为640*480
+            for(Camera.Size size : supportedPreviewSizes) {
+                if(size.width == 640 && size.height == 480) {
+                    previewSize = size;
+                    break;
+                }
+            }
+            //如果摄像头支持640*480，那么设置为最接近640**480的那个
+            if(null == previewSize) {
+                previewSize = supportedPreviewSizes.get(0);
+                int widthDiffer = Math.abs(previewSize.width - 640);
+                for(int i = 1; i < supportedPreviewSizes.size(); i++) {
+                    Camera.Size size = supportedPreviewSizes.get(i);
+                    int widthDiffer2 = Math.abs(size.width - 640);
+                    if(widthDiffer > widthDiffer2) {
+                        previewSize = size;
+                    }
+                }
+            }
   			//获取计算过的摄像头分辨率
   			if(previewSize != null ){
   				mPreviewWidth = previewSize.width;
@@ -1268,16 +1265,11 @@ public class CamcorderActivity extends NoSearchActivity implements
     /**********************************************************************************************/
 
     
-	//视频文件的存放地址
-//	private String strVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "rec_video.mp4";
-	//视频文件对象
-//	private File fileVideoPath = null;
-
 	//当前录制的质量，会影响视频清晰度和文件大小
 	private int currentResolution = CONSTANTS.RESOLUTION_MEDIUM_VALUE;
 
 	//默认调用摄像头的分辨率
-	int defaultScreenResolution = -1;
+//	int defaultScreenResolution = -1;
 
 	/**
 	 * 初始化Recorder
@@ -1293,8 +1285,6 @@ public class CamcorderActivity extends NoSearchActivity implements
 		mVideoFrameRange = recorderParameters.getVideoFrameRate();
 
 
-//		fileVideoPath = new File(mVideoFilename);
-//		Log.e(TAG, "File Path:" + fileVideoPath);
 		mFFmpegFrameRecorder = new FFmpegFrameRecorder(mVideoFilename, mPreviewWidth, mPreviewHeight, 1);
 		mFFmpegFrameRecorder.setFormat(recorderParameters.getVideoOutputFormat());
 		mFFmpegFrameRecorder.setSampleRate(recorderParameters.getAudioSamplingRate());
@@ -1458,6 +1448,16 @@ public class CamcorderActivity extends NoSearchActivity implements
 		}
 		
 	}*/
+
+    public static class SizeComparator implements Comparator<Size> {
+        @Override
+        public int compare(Camera.Size size1, Camera.Size size2) {
+            if (size1.height != size2.height)
+                return size1.height - size2.height;
+            else
+                return size1.width - size2.width;
+        }
+    }
 
 
     /**
