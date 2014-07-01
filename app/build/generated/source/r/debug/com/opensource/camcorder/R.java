@@ -46,7 +46,7 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int cursorWidth=0x7f01000e;
-        /** <p>Must be an integer value, such as "<code>100</code>".
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form
@@ -54,7 +54,7 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int max=0x7f010007;
-        /** <p>Must be an integer value, such as "<code>100</code>".
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form
@@ -71,7 +71,7 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int minMaskColor=0x7f01000a;
-        /** <p>Must be an integer value, such as "<code>100</code>".
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form
@@ -145,7 +145,8 @@ containing a value of this type.
     }
     public static final class color {
         public static final int black=0x7f040000;
-        public static final int btn_text_color_red_gray=0x7f040012;
+        public static final int btn_text_color_red_gray=0x7f040014;
+        public static final int btn_text_color_red_white=0x7f040015;
         public static final int content_backgroud=0x7f040001;
         public static final int content_backgroud_deep=0x7f040002;
         public static final int content_backgroud_midle=0x7f040003;
@@ -155,156 +156,169 @@ containing a value of this type.
         public static final int input_border=0x7f040007;
         public static final int input_border_deep=0x7f040008;
         public static final int light_gray=0x7f040009;
-        public static final int rbtn_text_color_gray_red=0x7f040013;
-        public static final int red=0x7f04000a;
-        public static final int text_color_black=0x7f04000b;
-        public static final int text_color_black_light=0x7f04000c;
-        public static final int text_color_gray=0x7f04000d;
-        public static final int text_color_hint=0x7f04000e;
-        public static final int theme_red=0x7f04000f;
-        public static final int transparent=0x7f040010;
-        public static final int white=0x7f040011;
+        public static final int progress_view_backgroud=0x7f04000a;
+        public static final int progress_view_progress_color=0x7f04000b;
+        public static final int rbtn_text_color_gray_red=0x7f040016;
+        public static final int rbtn_text_color_white_red=0x7f040017;
+        public static final int red=0x7f04000c;
+        public static final int text_color_black=0x7f04000d;
+        public static final int text_color_black_light=0x7f04000e;
+        public static final int text_color_gray=0x7f04000f;
+        public static final int text_color_hint=0x7f040010;
+        public static final int theme_red=0x7f040011;
+        public static final int transparent=0x7f040012;
+        public static final int white=0x7f040013;
     }
     public static final class dimen {
-        public static final int activity_horizontal_margin=0x7f050055;
-        public static final int content_padding=0x7f050000;
-        public static final int details_item_dialog_btn_marginLeft=0x7f050001;
-        public static final int details_item_dialog_btn_marginTop=0x7f050002;
-        public static final int details_item_dialog_btn_textSize=0x7f050003;
-        public static final int details_item_dialog_ll_marginTop=0x7f050004;
-        public static final int details_item_dialog_padding=0x7f050005;
-        public static final int discovery_auto_item_drawable_padding=0x7f050006;
-        public static final int discovery_auto_item_padding_horizontal=0x7f050007;
-        public static final int discovery_auto_item_padding_vertical=0x7f050008;
-        public static final int discovery_auto_item_text_size=0x7f050009;
-        public static final int discovery_chanel_item_grid_spacing=0x7f05000a;
-        public static final int discovery_chanel_item_grid_spacing_bak=0x7f05000b;
-        public static final int discovery_chanel_item_text_padding=0x7f05000c;
-        public static final int discovery_chanel_item_text_size=0x7f05000d;
-        public static final int discovery_gragest_content_padding=0x7f05000e;
-        public static final int discovery_gragest_drawable_padding=0x7f05000f;
-        public static final int discovery_gragest_textSize=0x7f050010;
-        public static final int discovery_hot_topic_item_divider_height=0x7f050011;
-        public static final int discovery_hot_topic_item_padding=0x7f050012;
-        public static final int discovery_hot_topic_item_text_size=0x7f050013;
-        public static final int discovery_label_text_size=0x7f050014;
-        public static final int discovery_search_input_corners_radius=0x7f050015;
-        public static final int discovery_search_input_drawable_padding=0x7f050016;
-        public static final int discovery_search_input_padding_horizontal=0x7f050017;
-        public static final int discovery_search_input_padding_vertical=0x7f050018;
-        public static final int discovery_search_label_padding_top=0x7f050019;
-        public static final int discovery_search_text_size=0x7f05001a;
-        public static final int event_item_drawable_padding=0x7f05001b;
-        public static final int event_item_label_text_size=0x7f05001c;
-        public static final int event_item_title_text_size=0x7f05001d;
-        public static final int home_header_avatar_padding_top=0x7f05001e;
-        public static final int home_header_coin_icon_text_padding=0x7f05001f;
-        public static final int home_header_coin_text_size=0x7f050020;
-        public static final int home_header_content_padding=0x7f050021;
-        public static final int home_header_user_name_text_size=0x7f050022;
-        public static final int home_item_avatar_size=0x7f050023;
-        public static final int home_item_button_divider_height=0x7f050024;
-        public static final int home_item_button_text_size=0x7f050025;
-        public static final int home_item_coin_text_size=0x7f050026;
-        public static final int home_item_content_padding=0x7f050027;
-        public static final int home_item_desc_text_size=0x7f050028;
-        public static final int home_item_label_drawable_padding=0x7f050029;
-        public static final int home_item_label_text_size=0x7f05002a;
-        public static final int home_item_title_text_size=0x7f05002b;
-        public static final int indicator_dot_corners_radius=0x7f05002c;
-        public static final int indicator_dot_size=0x7f05002d;
-        public static final int item_details_avatar=0x7f05002e;
-        public static final int login_button_text_size=0x7f05002f;
-        public static final int login_input_min_height=0x7f050030;
-        public static final int login_input_padding=0x7f050031;
-        public static final int login_input_text_size=0x7f050032;
-        public static final int login_padding_to_button=0x7f050033;
-        public static final int login_padding_to_input=0x7f050034;
-        public static final int login_padding_to_label=0x7f050035;
-        public static final int login_padding_to_logo=0x7f050036;
-        public static final int login_padding_to_top=0x7f050037;
-        public static final int login_text_padding=0x7f050038;
-        public static final int login_text_size=0x7f050039;
-        public static final int login_type_icon_marging=0x7f05003a;
-        public static final int login_type_icon_padding=0x7f05003b;
-        public static final int navigation_margin=0x7f05003c;
-        public static final int navigation_margin_back=0x7f05003d;
-        public static final int recorder_title_button_marging=0x7f05003e;
-        public static final int recorder_title_button_minSize=0x7f05003f;
-        public static final int recorder_title_button_padding=0x7f050040;
-        public static final int recorder_title_text_size=0x7f050041;
-        public static final int recorder_toolbar_item_drawable_padding=0x7f050042;
-        public static final int recorder_toolbar_item_padding=0x7f050043;
-        public static final int recorder_toolbar_item_text_size=0x7f050044;
-        public static final int splash_text_size=0x7f050045;
-        public static final int user_header_count_divider_height=0x7f050046;
-        public static final int user_header_count_label_paddint_to_number=0x7f050047;
-        public static final int user_header_count_label_text_size=0x7f050048;
-        public static final int user_header_count_number_text_size=0x7f050049;
-        public static final int user_header_padding_to_avatar=0x7f05004a;
-        public static final int user_header_padding_to_user_name=0x7f05004b;
-        public static final int user_header_padding_vertical=0x7f05004c;
-        public static final int user_item_drawable_padding=0x7f05004d;
-        public static final int user_item_marging=0x7f05004e;
-        public static final int user_item_padding_horizontal=0x7f05004f;
-        public static final int user_item_padding_vertical=0x7f050050;
-        public static final int user_item_textSize=0x7f050051;
-        public static final int user_logout_button_marging=0x7f050052;
-        public static final int user_logout_button_marging_bottom=0x7f050053;
-        public static final int user_logout_button_text_size=0x7f050054;
+        public static final int activity_horizontal_margin=0x7f05005a;
+        public static final int camcorder_setting_item_drawable_padding=0x7f050000;
+        public static final int camcorder_setting_item_minWidth=0x7f050001;
+        public static final int camcorder_setting_item_padding_horizontal=0x7f050002;
+        public static final int camcorder_setting_item_padding_vertical=0x7f050003;
+        public static final int camcorder_setting_item_text_size=0x7f050004;
+        public static final int camcorder_title_button_marging=0x7f050005;
+        public static final int camcorder_title_button_minSize=0x7f050006;
+        public static final int camcorder_title_button_padding=0x7f050007;
+        public static final int camcorder_title_text_size=0x7f050008;
+        public static final int camcorder_toolbar_item_drawable_padding=0x7f050009;
+        public static final int camcorder_toolbar_item_padding=0x7f05000a;
+        public static final int camcorder_toolbar_item_text_size=0x7f05000b;
+        public static final int content_padding=0x7f05000c;
+        public static final int details_item_dialog_btn_marginLeft=0x7f05000d;
+        public static final int details_item_dialog_btn_marginTop=0x7f05000e;
+        public static final int details_item_dialog_btn_textSize=0x7f05000f;
+        public static final int details_item_dialog_ll_marginTop=0x7f050010;
+        public static final int details_item_dialog_padding=0x7f050011;
+        public static final int discovery_auto_item_drawable_padding=0x7f050012;
+        public static final int discovery_auto_item_padding_horizontal=0x7f050013;
+        public static final int discovery_auto_item_padding_vertical=0x7f050014;
+        public static final int discovery_auto_item_text_size=0x7f050015;
+        public static final int discovery_chanel_item_grid_spacing=0x7f050016;
+        public static final int discovery_chanel_item_grid_spacing_bak=0x7f050017;
+        public static final int discovery_chanel_item_text_padding=0x7f050018;
+        public static final int discovery_chanel_item_text_size=0x7f050019;
+        public static final int discovery_gragest_content_padding=0x7f05001a;
+        public static final int discovery_gragest_drawable_padding=0x7f05001b;
+        public static final int discovery_gragest_textSize=0x7f05001c;
+        public static final int discovery_hot_topic_item_divider_height=0x7f05001d;
+        public static final int discovery_hot_topic_item_padding=0x7f05001e;
+        public static final int discovery_hot_topic_item_text_size=0x7f05001f;
+        public static final int discovery_label_text_size=0x7f050020;
+        public static final int discovery_search_input_corners_radius=0x7f050021;
+        public static final int discovery_search_input_drawable_padding=0x7f050022;
+        public static final int discovery_search_input_padding_horizontal=0x7f050023;
+        public static final int discovery_search_input_padding_vertical=0x7f050024;
+        public static final int discovery_search_label_padding_top=0x7f050025;
+        public static final int discovery_search_text_size=0x7f050026;
+        public static final int event_item_drawable_padding=0x7f050027;
+        public static final int event_item_label_text_size=0x7f050028;
+        public static final int event_item_title_text_size=0x7f050029;
+        public static final int home_header_avatar_padding_top=0x7f05002a;
+        public static final int home_header_coin_icon_text_padding=0x7f05002b;
+        public static final int home_header_coin_text_size=0x7f05002c;
+        public static final int home_header_content_padding=0x7f05002d;
+        public static final int home_header_user_name_text_size=0x7f05002e;
+        public static final int home_item_avatar_size=0x7f05002f;
+        public static final int home_item_button_divider_height=0x7f050030;
+        public static final int home_item_button_text_size=0x7f050031;
+        public static final int home_item_coin_text_size=0x7f050032;
+        public static final int home_item_content_padding=0x7f050033;
+        public static final int home_item_desc_text_size=0x7f050034;
+        public static final int home_item_label_drawable_padding=0x7f050035;
+        public static final int home_item_label_text_size=0x7f050036;
+        public static final int home_item_title_text_size=0x7f050037;
+        public static final int indicator_dot_corners_radius=0x7f050038;
+        public static final int indicator_dot_size=0x7f050039;
+        public static final int item_details_avatar=0x7f05003a;
+        public static final int login_button_text_size=0x7f05003b;
+        public static final int login_input_min_height=0x7f05003c;
+        public static final int login_input_padding=0x7f05003d;
+        public static final int login_input_text_size=0x7f05003e;
+        public static final int login_padding_to_button=0x7f05003f;
+        public static final int login_padding_to_input=0x7f050040;
+        public static final int login_padding_to_label=0x7f050041;
+        public static final int login_padding_to_logo=0x7f050042;
+        public static final int login_padding_to_top=0x7f050043;
+        public static final int login_text_padding=0x7f050044;
+        public static final int login_text_size=0x7f050045;
+        public static final int login_type_icon_marging=0x7f050046;
+        public static final int login_type_icon_padding=0x7f050047;
+        public static final int navigation_margin=0x7f050048;
+        public static final int navigation_margin_back=0x7f050049;
+        public static final int splash_text_size=0x7f05004a;
+        public static final int user_header_count_divider_height=0x7f05004b;
+        public static final int user_header_count_label_paddint_to_number=0x7f05004c;
+        public static final int user_header_count_label_text_size=0x7f05004d;
+        public static final int user_header_count_number_text_size=0x7f05004e;
+        public static final int user_header_padding_to_avatar=0x7f05004f;
+        public static final int user_header_padding_to_user_name=0x7f050050;
+        public static final int user_header_padding_vertical=0x7f050051;
+        public static final int user_item_drawable_padding=0x7f050052;
+        public static final int user_item_marging=0x7f050053;
+        public static final int user_item_padding_horizontal=0x7f050054;
+        public static final int user_item_padding_vertical=0x7f050055;
+        public static final int user_item_textSize=0x7f050056;
+        public static final int user_logout_button_marging=0x7f050057;
+        public static final int user_logout_button_marging_bottom=0x7f050058;
+        public static final int user_logout_button_text_size=0x7f050059;
     }
     public static final class drawable {
-        public static final int ic_arrow_down_right=0x7f020000;
-        public static final int ic_camera_setting=0x7f020001;
-        public static final int ic_camera_setting2=0x7f020002;
-        public static final int ic_change_camera=0x7f020003;
-        public static final int ic_change_camera2=0x7f020004;
-        public static final int ic_delay=0x7f020005;
-        public static final int ic_delay2=0x7f020006;
-        public static final int ic_delete=0x7f020007;
-        public static final int ic_delete2=0x7f020008;
-        public static final int ic_discovery=0x7f020009;
-        public static final int ic_discovery2=0x7f02000a;
-        public static final int ic_flash=0x7f02000b;
-        public static final int ic_flash2=0x7f02000c;
-        public static final int ic_focus=0x7f02000d;
-        public static final int ic_focus2=0x7f02000e;
-        public static final int ic_grid=0x7f02000f;
-        public static final int ic_grid2=0x7f020010;
-        public static final int ic_image=0x7f020011;
-        public static final int ic_image2=0x7f020012;
-        public static final int ic_launcher=0x7f020013;
-        public static final int ic_user_item_coin=0x7f020014;
-        public static final int ic_user_item_contact_friend=0x7f020015;
-        public static final int ic_video=0x7f020016;
-        public static final int ic_video2=0x7f020017;
-        public static final int selector_ic_camera_setting=0x7f020018;
-        public static final int selector_ic_change_camera=0x7f020019;
-        public static final int selector_ic_delay=0x7f02001a;
-        public static final int selector_ic_delete=0x7f02001b;
-        public static final int selector_ic_flash=0x7f02001c;
-        public static final int selector_ic_focus=0x7f02001d;
-        public static final int selector_ic_grid=0x7f02001e;
-        public static final int selector_ic_image=0x7f02001f;
-        public static final int selector_ic_video=0x7f020020;
+        public static final int bg_camcorder_setting=0x7f020000;
+        public static final int bg_camera_setting=0x7f020001;
+        public static final int ic_arrow_down_right=0x7f020002;
+        public static final int ic_camera_setting=0x7f020003;
+        public static final int ic_camera_setting2=0x7f020004;
+        public static final int ic_change_camera=0x7f020005;
+        public static final int ic_change_camera2=0x7f020006;
+        public static final int ic_delay=0x7f020007;
+        public static final int ic_delay2=0x7f020008;
+        public static final int ic_delete=0x7f020009;
+        public static final int ic_delete2=0x7f02000a;
+        public static final int ic_discovery=0x7f02000b;
+        public static final int ic_discovery2=0x7f02000c;
+        public static final int ic_flash=0x7f02000d;
+        public static final int ic_flash2=0x7f02000e;
+        public static final int ic_focus=0x7f02000f;
+        public static final int ic_focus2=0x7f020010;
+        public static final int ic_grid=0x7f020011;
+        public static final int ic_grid2=0x7f020012;
+        public static final int ic_image=0x7f020013;
+        public static final int ic_image2=0x7f020014;
+        public static final int ic_launcher=0x7f020015;
+        public static final int ic_user_item_coin=0x7f020016;
+        public static final int ic_user_item_contact_friend=0x7f020017;
+        public static final int ic_video=0x7f020018;
+        public static final int ic_video2=0x7f020019;
+        public static final int selector_ic_camera_setting=0x7f02001a;
+        public static final int selector_ic_change_camera=0x7f02001b;
+        public static final int selector_ic_delay=0x7f02001c;
+        public static final int selector_ic_delete=0x7f02001d;
+        public static final int selector_ic_flash=0x7f02001e;
+        public static final int selector_ic_focus=0x7f02001f;
+        public static final int selector_ic_grid=0x7f020020;
+        public static final int selector_ic_image=0x7f020021;
+        public static final int selector_ic_video=0x7f020022;
     }
     public static final class id {
-        public static final int btn_recorder_delete=0x7f080007;
-        public static final int btn_recorder_image=0x7f080004;
-        public static final int btn_recorder_title_button1=0x7f080009;
-        public static final int btn_recorder_title_button2=0x7f08000a;
-        public static final int btn_recorder_title_left=0x7f080008;
-        public static final int btn_recorder_title_right=0x7f08000b;
-        public static final int btn_recorder_video=0x7f080003;
+        public static final int btn_camcorder_delete=0x7f080007;
+        public static final int btn_camcorder_image=0x7f080004;
+        public static final int btn_camcorder_title_button1=0x7f08000b;
+        public static final int btn_camcorder_title_button2=0x7f08000c;
+        public static final int btn_camcorder_title_left=0x7f08000a;
+        public static final int btn_camcorder_title_right=0x7f08000d;
+        public static final int btn_camcorder_video=0x7f080003;
         public static final int pv_recorder_progress=0x7f080001;
         public static final int sv_recorder_preview=0x7f080002;
-        public static final int tb_recorder=0x7f080000;
-        public static final int tbtn_recorder_delay=0x7f080005;
-        public static final int tbtn_recorder_focus=0x7f080006;
+        public static final int tb_camcorder=0x7f080000;
+        public static final int tbtn_camcorder_delay=0x7f080005;
+        public static final int tbtn_camcorder_focus=0x7f080006;
+        public static final int tbtn_camcorder_setting_flash=0x7f080009;
+        public static final int tbtn_camcorder_setting_grid=0x7f080008;
     }
     public static final class layout {
         public static final int activity_camcorder=0x7f030000;
-        public static final int layout_recorder_title=0x7f030001;
+        public static final int layout_camcorder_setting=0x7f030001;
+        public static final int layout_camcorder_title=0x7f030002;
     }
     public static final class string {
         public static final int access_sd_fail=0x7f060000;
@@ -316,30 +330,33 @@ containing a value of this type.
         public static final int delay=0x7f060006;
         public static final int delete_back=0x7f060007;
         public static final int details_ok=0x7f060008;
-        public static final int focus=0x7f060009;
-        public static final int image=0x7f06000a;
-        public static final int next_step=0x7f06000b;
-        public static final int no_storage=0x7f06000c;
-        public static final int not_enough_space=0x7f06000d;
-        public static final int preparing_sd=0x7f06000e;
-        public static final int spaceIsLow_content=0x7f06000f;
-        public static final int video=0x7f060010;
-        public static final int video_camera_label=0x7f060011;
-        public static final int video_file_name_format=0x7f060012;
-        public static final int video_reach_size_limit=0x7f060013;
-        public static final int wait=0x7f060014;
+        public static final int flash=0x7f060009;
+        public static final int focus=0x7f06000a;
+        public static final int grid=0x7f06000b;
+        public static final int image=0x7f06000c;
+        public static final int next_step=0x7f06000d;
+        public static final int no_storage=0x7f06000e;
+        public static final int not_enough_space=0x7f06000f;
+        public static final int preparing_sd=0x7f060010;
+        public static final int spaceIsLow_content=0x7f060011;
+        public static final int video=0x7f060012;
+        public static final int video_camera_label=0x7f060013;
+        public static final int video_file_name_format=0x7f060014;
+        public static final int video_reach_size_limit=0x7f060015;
+        public static final int wait=0x7f060016;
     }
     public static final class style {
         public static final int AppTheme=0x7f070000;
+        public static final int CamcorderSettingButton=0x7f070001;
         /**  背景是否半透明 
          */
-        public static final int Dialog_loading=0x7f070001;
+        public static final int Dialog_loading=0x7f070002;
         /**  背景是否模糊 
          */
-        public static final int Dialog_loading_noDim=0x7f070002;
-        public static final int RecorderTitleButton=0x7f070003;
-        public static final int RecorderToolbarButton=0x7f070004;
-        public static final int SingleLine=0x7f070005;
+        public static final int Dialog_loading_noDim=0x7f070003;
+        public static final int RecorderTitleButton=0x7f070004;
+        public static final int RecorderToolbarButton=0x7f070005;
+        public static final int SingleLine=0x7f070006;
     }
     public static final class styleable {
         /** Attributes that can be used with a ButtonEx.
@@ -493,7 +510,7 @@ containing a value of this type.
           attribute's value can be found in the {@link #ProgressView} array.
 
 
-          <p>Must be an integer value, such as "<code>100</code>".
+          <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form
@@ -507,7 +524,7 @@ containing a value of this type.
           attribute's value can be found in the {@link #ProgressView} array.
 
 
-          <p>Must be an integer value, such as "<code>100</code>".
+          <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form
@@ -536,7 +553,7 @@ containing a value of this type.
           attribute's value can be found in the {@link #ProgressView} array.
 
 
-          <p>Must be an integer value, such as "<code>100</code>".
+          <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form

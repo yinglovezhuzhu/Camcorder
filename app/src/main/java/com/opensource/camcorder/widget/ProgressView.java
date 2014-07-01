@@ -45,10 +45,10 @@ public class ProgressView extends View {
     private static final int MIN_SPLIT_WIDTH = 2;
     private static final int INVALID_POSITION = -1;
 
-    private int mMaxProgress = 100;
-    private int mProgress = 0;
+    private float mMaxProgress = 100f;
+    private float mProgress = 0f;
     private int mSplitWidth = MIN_SPLIT_WIDTH;
-    private int mMinMask = 10;
+    private float mMinMask = 10f;
 
     /** Background color */
     private int mBackgroundColor = Color.TRANSPARENT;
@@ -66,13 +66,13 @@ public class ProgressView extends View {
     private int mCusorWidth = 10;
 
     private int mDeleteComfirmColor = Color.RED;
-    private int mLastSplitPosition = INVALID_POSITION;
+    private float mLastSplitPosition = INVALID_POSITION;
 
 
     private RectF mRectF;
     private Paint mPaint;
 
-    private Stack<Integer> mSplits = new Stack<Integer>();
+    private Stack<Float> mSplits = new Stack<Float>();
 
     private long mUiThreadId;
 
@@ -119,10 +119,10 @@ public class ProgressView extends View {
         setBackgroundColor(a.getColor(R.styleable.ProgressView_backgroundColor, mBackgroundColor));
         setProgressColor(a.getColor(R.styleable.ProgressView_progressColor, mProgressColor));
         setSplitColor(a.getColor(R.styleable.ProgressView_splitColor, mSplitColor));
-        setMaxProgress(a.getInt(R.styleable.ProgressView_max, mMaxProgress));
-        setProgress(a.getInt(R.styleable.ProgressView_progress, mProgress));
+        setMaxProgress(a.getFloat(R.styleable.ProgressView_max, mMaxProgress));
+        setProgress(a.getFloat(R.styleable.ProgressView_progress, mProgress));
         setSplitWidth(a.getDimensionPixelSize(R.styleable.ProgressView_splitWidth, MIN_SPLIT_WIDTH));
-        setMinMask(a.getInt(R.styleable.ProgressView_minMask, 0));
+        setMinMask(a.getFloat(R.styleable.ProgressView_minMask, 0f));
         setMinMaskColor(a.getColor(R.styleable.ProgressView_minMaskColor, mMinMaskColor));
         showCursor(a.getBoolean(R.styleable.ProgressView_showCursor, true));
         setCursorHighColor(a.getColor(R.styleable.ProgressView_cursorHightlightColor, mCursorHighColor));
@@ -182,7 +182,7 @@ public class ProgressView extends View {
      * Set max progress
      * @param maxProgress
      */
-    public void setMaxProgress(int maxProgress) {
+    public void setMaxProgress(float maxProgress) {
         this.mMaxProgress = maxProgress;
     }
 
@@ -190,7 +190,7 @@ public class ProgressView extends View {
      * Get max progress
      * @return
      */
-    public int getMaxProgress() {
+    public float getMaxProgress() {
         return mMaxProgress;
     }
 
@@ -198,7 +198,7 @@ public class ProgressView extends View {
      * Set progress
      * @param progress
      */
-    public synchronized void setProgress(int progress) {
+    public synchronized void setProgress(float progress) {
         if(progress < 0) {
             progress = 0;
         }
@@ -219,7 +219,7 @@ public class ProgressView extends View {
      * Get current progress.
      * @return
      */
-    public int getProgress() {
+    public float getProgress() {
         return mProgress;
     }
 
@@ -242,7 +242,7 @@ public class ProgressView extends View {
      * <p/>The min mask position is a progress value
      * @param progress
      */
-    public void setMinMask(int progress) {
+    public void setMinMask(float progress) {
         this.mMinMask = progress;
         refreshProgress();
     }
@@ -250,7 +250,7 @@ public class ProgressView extends View {
     /**
      * Get min mask position
      */
-    public int getmMinMask() {
+    public float getmMinMask() {
         return this.mMinMask;
     }
 
@@ -276,7 +276,7 @@ public class ProgressView extends View {
      * <p/> The split position is a progress value.
      * @param progress
      */
-    public void pushSplit(int progress) {
+    public void pushSplit(float progress) {
         if(progress == 0 || mSplits.contains(progress)) {
             return;
         }
@@ -288,11 +288,11 @@ public class ProgressView extends View {
      * Delete the last split position.
      * @return the las split position.
      */
-    public int popSplit() {
+    public float popSplit() {
         if(mSplits.empty()) {
             return 0;
         }
-        Integer split = mSplits.pop();
+        Float split = mSplits.pop();
         refreshProgress();
         return split == null ? 0 : split;
     }
@@ -301,11 +301,11 @@ public class ProgressView extends View {
      * Peek the last split position
      * @return the last split position
      */
-    public int peekSplit() {
+    public float peekSplit() {
         if(mSplits.empty()) {
             return 0;
         }
-        Integer split = mSplits.peek();
+        Float split = mSplits.peek();
         return split == null ? 0 : split;
     }
 
@@ -344,7 +344,7 @@ public class ProgressView extends View {
                 mLastSplitPosition = INVALID_POSITION;
                 mConfirming = false;
             } else {
-                int latest = INVALID_POSITION;
+                float latest = INVALID_POSITION;
                 if(mProgress < mMaxProgress) {
                     latest = popSplit();
                 }
@@ -362,7 +362,7 @@ public class ProgressView extends View {
             if(mProgress < mMaxProgress) {
                 popSplit();
             }
-            int split = peekSplit();
+            float split = peekSplit();
             if(mDeleteListener != null) {
                 mDeleteListener.onDelete(split, mProgress);
             }
@@ -451,18 +451,18 @@ public class ProgressView extends View {
         if(mLastSplitPosition == INVALID_POSITION) {
             mPaint.setColor(mProgressColor);
             mRectF.left = getLeft();
-            mRectF.right = mRectF.left + ((float)mProgress * width) / mMaxProgress;
+            mRectF.right = mRectF.left + (mProgress * width) / mMaxProgress;
             canvas.drawRect(mRectF, mPaint);
         } else {
             if(mLastSplitPosition > 0) {
                 mPaint.setColor(mProgressColor);
                 mRectF.left = getLeft();
-                mRectF.right = mRectF.left + ((float)mLastSplitPosition * width) / mMaxProgress;
+                mRectF.right = mRectF.left + (mLastSplitPosition * width) / mMaxProgress;
                 canvas.drawRect(mRectF, mPaint);
             }
             mPaint.setColor(mDeleteComfirmColor);
-            mRectF.left = ((float)mLastSplitPosition * width) / mMaxProgress;
-            mRectF.right = mRectF.left + ((float)(mProgress - mLastSplitPosition) * width) / mMaxProgress;
+            mRectF.left = (mLastSplitPosition * width) / mMaxProgress;
+            mRectF.right = mRectF.left + ((mProgress - mLastSplitPosition) * width) / mMaxProgress;
             canvas.drawRect(mRectF, mPaint);
         }
     }
@@ -475,7 +475,7 @@ public class ProgressView extends View {
             mRectF.left = 0;
             mRectF.right = mSplitWidth;
         } else {
-            mRectF.right = ((float)mMinMask * getWidth()) / mMaxProgress;
+            mRectF.right = (mMinMask * getWidth()) / mMaxProgress;
             mRectF.left = mRectF.right - mSplitWidth;
         }
         canvas.drawRect(mRectF, mPaint);
@@ -486,12 +486,12 @@ public class ProgressView extends View {
         mPaint.setColor(mSplitColor);
         mRectF.top = 0f;
         mRectF.bottom = mRectF.top + getHeight();
-        for(Integer split : mSplits) {
+        for(Float split : mSplits) {
             if(split < mSplitWidth) {
                 mRectF.left = 0;
                 mRectF.right = mSplitWidth;
             } else {
-                mRectF.right = ((float)split * width) / mMaxProgress;
+                mRectF.right = (split * width) / mMaxProgress;
                 mRectF.left = mRectF.right - mSplitWidth;
             }
             canvas.drawRect(mRectF, mPaint);
@@ -501,7 +501,7 @@ public class ProgressView extends View {
     private void drawCursor(Canvas canvas) {
         int width = getWidth();
         mPaint.setColor(mCursorCurrentColor);
-        mRectF.left = ((float)mProgress * width) / mMaxProgress;
+        mRectF.left = (mProgress * width) / mMaxProgress;
         mRectF.top = 0f;
         mRectF.bottom = mRectF.top + getHeight();
         mRectF.right = mRectF.left + mCusorWidth;
@@ -517,9 +517,9 @@ public class ProgressView extends View {
     /**
      * The listener to listen delete back<br/>
      * <p/>when sue {@link #deleteBack(boolean)} with value true, it would <br/>
-     * callback {@link com.opensource.camcorder.widget.ProgressView.OnDeleteListener#onConfirm(int, int)}<br/>
-     * and {@link com.opensource.camcorder.widget.ProgressView.OnDeleteListener#onDelete(int, int)}<br/>
-     * But only {@link com.opensource.camcorder.widget.ProgressView.OnDeleteListener#onDelete(int, int)} callback<br/>
+     * callback {@link com.opensource.camcorder.widget.ProgressView.OnDeleteListener#onConfirm(float, float)}<br/>
+     * and {@link com.opensource.camcorder.widget.ProgressView.OnDeleteListener#onDelete(float, float)}<br/>
+     * But only {@link com.opensource.camcorder.widget.ProgressView.OnDeleteListener#onDelete(float, float)} callback<br/>
      * when delete with not confirm mode.
      */
     public static interface OnDeleteListener {
@@ -529,13 +529,13 @@ public class ProgressView extends View {
          * @param lastProgress
          * @param progress
          */
-        public void onConfirm(int lastProgress, int progress);
+        public void onConfirm(float lastProgress, float progress);
 
         /**
          * Delete back
          * @param lastProgress
          * @param progress
          */
-        public void onDelete(int lastProgress, int progress);
+        public void onDelete(float lastProgress, float progress);
     }
 }

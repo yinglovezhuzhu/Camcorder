@@ -24,9 +24,9 @@
         <attr name="progressBackgroundColor" format="color"/>
         <attr name="splitColor" format="color" />
         <attr name="splitWidth" format="dimension" />
-        <attr name="max" format="integer"/>
-        <attr name="progress" format="integer"/>
-        <attr name="minMask" format="integer" />
+        <attr name="max" format="float"/>
+        <attr name="progress" format="float"/>
+        <attr name="minMask" format="float" />
         <attr name="minMaskColor" format="color" />
         <attr name="showCursor" format="boolean" />
         <attr name="cursorHightlightColor" format="color" />

@@ -108,13 +108,19 @@
 
 
     <!-- 录像标题栏 -->
-    <dimen name="recorder_title_button_minSize">50dip</dimen>
-    <dimen name="recorder_title_button_padding">15dip</dimen>
-    <dimen name="recorder_title_button_marging">15dip</dimen>
-    <dimen name="recorder_title_text_size">20sp</dimen>
-    <dimen name="recorder_toolbar_item_padding">5dip</dimen>
-    <dimen name="recorder_toolbar_item_drawable_padding">3dip</dimen>
-    <dimen name="recorder_toolbar_item_text_size">12sp</dimen>
+    <dimen name="camcorder_title_button_minSize">50dip</dimen>
+    <dimen name="camcorder_title_button_padding">15dip</dimen>
+    <dimen name="camcorder_title_button_marging">15dip</dimen>
+    <dimen name="camcorder_title_text_size">20sp</dimen>
+    <dimen name="camcorder_toolbar_item_padding">5dip</dimen>
+    <dimen name="camcorder_toolbar_item_drawable_padding">3dip</dimen>
+    <dimen name="camcorder_toolbar_item_text_size">12sp</dimen>
+
+    <dimen name="camcorder_setting_item_padding_horizontal">16dip</dimen>
+    <dimen name="camcorder_setting_item_padding_vertical">10dip</dimen>
+    <dimen name="camcorder_setting_item_drawable_padding">8dip</dimen>
+    <dimen name="camcorder_setting_item_text_size">18sp</dimen>
+    <dimen name="camcorder_setting_item_minWidth">150dip</dimen>
 
     <!-- 详细页面 -->
     <dimen name="item_details_avatar">5dp</dimen>

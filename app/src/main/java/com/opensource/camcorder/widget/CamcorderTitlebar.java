@@ -14,7 +14,7 @@ import com.opensource.camcorder.R;
  * Use:
  * Created by yinglovezhuzhu@gmail.com on 2014-06-23.
  */
-public class RecorderTitlebar extends LinearLayout {
+public class CamcorderTitlebar extends LinearLayout {
 
     private Button mBtnLeft;
     private Button mBtnRight;
@@ -22,17 +22,17 @@ public class RecorderTitlebar extends LinearLayout {
     private Button mButton2;
 
 
-    public RecorderTitlebar(Context context) {
+    public CamcorderTitlebar(Context context) {
         super(context);
         init();
     }
 
-    public RecorderTitlebar(Context context, AttributeSet attrs) {
+    public CamcorderTitlebar(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public RecorderTitlebar(Context context, AttributeSet attrs, int defStyle) {
+    public CamcorderTitlebar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs);
         init();
     }
@@ -131,16 +131,56 @@ public class RecorderTitlebar extends LinearLayout {
         mButton2.setOnClickListener(listener);
     }
 
+    /**
+     * 启用/禁用左边按钮
+     * @param enabled
+     */
+    public void setLeftButtonEnabled(boolean enabled) {
+        mBtnLeft.setEnabled(enabled);
+    }
+
+    /**
+     * 启用/禁用按钮1
+     * @param enabled
+     */
+    public void setButton1Enabled(boolean enabled) {
+        mButton1.setEnabled(enabled);
+    }
+
+    /**
+     * 启用/禁用按钮2
+     * @param enabled
+     */
+    public void setButton2Enabled(boolean enabled) {
+        mButton2.setEnabled(enabled);
+    }
+
+    /**
+     * 启用/禁用右边按钮
+     * @param enabled
+     */
+    public void setRightButtonEnabled(boolean enabled) {
+        mBtnRight.setEnabled(enabled);
+    }
+
+    public Button getButton1() {
+        return mButton1;
+    }
+
+    public Button getButton2() {
+        return mButton2;
+    }
+
 
 
     private void init() {
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        inflater.inflate(R.layout.layout_recorder_title, this);
+        inflater.inflate(R.layout.layout_camcorder_title, this);
 
-        mBtnLeft = (Button) findViewById(R.id.btn_recorder_title_left);
-        mBtnRight = (Button) findViewById(R.id.btn_recorder_title_right);
-        mButton1 = (Button) findViewById(R.id.btn_recorder_title_button1);
-        mButton2 = (Button) findViewById(R.id.btn_recorder_title_button2);
+        mBtnLeft = (Button) findViewById(R.id.btn_camcorder_title_left);
+        mBtnRight = (Button) findViewById(R.id.btn_camcorder_title_right);
+        mButton1 = (Button) findViewById(R.id.btn_camcorder_title_button1);
+        mButton2 = (Button) findViewById(R.id.btn_camcorder_title_button2);
 
     }
 }

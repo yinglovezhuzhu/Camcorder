@@ -4,19 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/content_backgroud_recorder">
-    <com.opensource.camcorder.widget.RecorderTitlebar
-        android:id="@+id/tb_recorder"
+    <com.opensource.camcorder.widget.CamcorderTitlebar
+        android:id="@+id/tb_camcorder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <com.opensource.camcorder.widget.ProgressView
         android:id="@+id/pv_recorder_progress"
         android:layout_width="match_parent"
         android:layout_height="15dip"
-        progress:backgroundColor="#FF000000"
+        progress:backgroundColor="@color/progress_view_backgroud"
+        progress:progressColor="@color/progress_view_progress_color"
+        progress:cursorDarkColor="@color/transparent"
+        progress:minMaskColor="@color/black"
+        progress:splitColor="@color/black"
+        progress:cursorHightlightColor="@color/theme_red"
+        progress:showCursor="true"
         progress:splitWidth="2dp"
-        progress:progress="50"
+        progress:progress="0"
         progress:max="100"
-        progress:minMask="15" />
+        progress:minMask="15"
+        progress:cursorWidth="5dip"/>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
@@ -33,7 +40,7 @@
         android:paddingBottom="10dip" >
         <Button
             style="@style/RecorderToolbarButton"
-            android:id="@+id/btn_recorder_video"
+            android:id="@+id/btn_camcorder_video"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -41,7 +48,7 @@
             android:text="@string/video"/>
         <Button
             style="@style/RecorderToolbarButton"
-            android:id="@+id/btn_recorder_image"
+            android:id="@+id/btn_camcorder_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -50,7 +57,7 @@
 
         <ToggleButton 
             style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_recorder_delay"
+            android:id="@+id/tbtn_camcorder_delay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -60,7 +67,7 @@
             android:textOff="@string/delay"/>
         <ToggleButton 
             style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_recorder_focus"
+            android:id="@+id/tbtn_camcorder_focus"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -70,7 +77,7 @@
             android:textOff="@string/focus"/>
         <Button
             style="@style/RecorderToolbarButton"
-            android:id="@+id/btn_recorder_delete"
+            android:id="@+id/btn_camcorder_delete"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"

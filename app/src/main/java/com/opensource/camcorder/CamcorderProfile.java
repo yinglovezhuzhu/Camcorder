@@ -10,6 +10,10 @@ import com.googlecode.javacv.cpp.avcodec;
  */
 public class CamcorderProfile {
 
+    public static final int QUALITY_HIGHT = 0;
+    public static final int QUALITY_LOW = 0;
+//    public static final int QUALITY_HIGHT = 0;
+
     public static final String OUTPUT_FORMAT_MP4 = "mp4";
     public static final String OUTPUT_FORMAT_3GP = "3gp";
 
@@ -25,5 +29,21 @@ public class CamcorderProfile {
     private int audioBitrate = 96000;//192000;//AAC_SUPPORTED ? 96000 : 12200;
     private int audioSamplingRate = AAC_SUPPORTED ? 44100 : 8000;
     private int audioQuality = 12;
+
+    public static CamcorderProfile getRecorderParameter(int currentResolution) {
+        CamcorderProfile profile = new CamcorderProfile();
+        RecorderParameters parameters = new RecorderParameters();
+        if (currentResolution == CONSTANTS.RESOLUTION_HIGH_VALUE) {
+            parameters.setAudioBitrate(128000);
+            parameters.setVideoQuality(0);
+        } else if (currentResolution == CONSTANTS.RESOLUTION_MEDIUM_VALUE) {
+            parameters.setAudioBitrate(128000);
+            parameters.setVideoQuality(5);
+        } else if (currentResolution == CONSTANTS.RESOLUTION_LOW_VALUE) {
+            parameters.setAudioBitrate(96000);
+            parameters.setVideoQuality(20);
+        }
+        return profile;
+    }
 
 }

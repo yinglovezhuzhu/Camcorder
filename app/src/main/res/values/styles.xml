@@ -29,20 +29,33 @@
 
     <!-- 录像标题栏 -->
     <style name="RecorderTitleButton" parent="@style/SingleLine">
-        <item name="android:minWidth">@dimen/recorder_title_button_minSize</item>
+        <item name="android:minWidth">@dimen/camcorder_title_button_minSize</item>
         <item name="android:background">@color/transparent</item>
-        <item name="android:padding">@dimen/recorder_title_button_padding</item>
-        <item name="android:textSize">@dimen/recorder_title_text_size</item>
+        <item name="android:padding">@dimen/camcorder_title_button_padding</item>
+        <item name="android:textSize">@dimen/camcorder_title_text_size</item>
         <item name="android:textColor">@color/btn_text_color_red_gray</item>
     </style>
     
     <style name="RecorderToolbarButton" parent="@style/SingleLine">
-        <item name="android:padding">@dimen/recorder_toolbar_item_padding</item>
-        <item name="android:drawablePadding">@dimen/recorder_toolbar_item_drawable_padding</item>
+        <item name="android:padding">@dimen/camcorder_toolbar_item_padding</item>
+        <item name="android:drawablePadding">@dimen/camcorder_toolbar_item_drawable_padding</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@color/transparent</item>
         <item name="android:textColor">@color/btn_text_color_red_gray</item>
-        <item name="android:textSize">@dimen/recorder_toolbar_item_text_size</item>
+        <item name="android:textSize">@dimen/camcorder_toolbar_item_text_size</item>
+    </style>
+
+    <style name="CamcorderSettingButton" parent="SingleLine">
+        <item name="android:paddingLeft">@dimen/camcorder_setting_item_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/camcorder_setting_item_padding_vertical</item>
+        <item name="android:paddingRight">@dimen/camcorder_setting_item_padding_horizontal</item>
+        <item name="android:paddingBottom">@dimen/camcorder_setting_item_padding_vertical</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:minWidth">@dimen/camcorder_setting_item_minWidth</item>
+        <item name="android:drawablePadding">@dimen/camcorder_setting_item_drawable_padding</item>
+        <item name="android:textSize">@dimen/camcorder_setting_item_text_size</item>
+        <item name="android:textColor">@color/rbtn_text_color_white_red</item>
+        <item name="android:background">@color/transparent</item>
     </style>
 
 </resources>

@@ -25,15 +25,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -56,13 +53,16 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.googlecode.javacv.FFmpegFrameRecorder;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.opensource.camcorder.widget.CamcorderTitlebar;
+import com.opensource.camcorder.widget.ProgressView;
+import com.opensource.camcorder.widget.SettingPopupWindow;
 
 import java.io.File;
 import java.nio.Buffer;
@@ -78,14 +78,10 @@ import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
  * The Camcorder activity.
  */
 public class CamcorderActivity extends NoSearchActivity implements
-		View.OnClickListener, View.OnTouchListener,
+		View.OnClickListener, CompoundButton.OnCheckedChangeListener, View.OnTouchListener,
         SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private static final String TAG = "CamcorderActivity";
-
-    private static final int CLEAR_SCREEN_DELAY = 4;
-    private static final int UPDATE_RECORD_TIME = 5;
-    private static final int ENABLE_SHUTTER_BUTTON = 6;
 
     private static final int SCREEN_DELAY = 2 * 60 * 1000;
 
@@ -102,10 +98,28 @@ public class CamcorderActivity extends NoSearchActivity implements
     private static final int STORAGE_STATUS_NONE = 2;
     private static final int STORAGE_STATUS_FAIL = 3;
 
+    private static final int CLEAR_SCREEN_DELAY = 4;
+    private static final int UPDATE_RECORD_TIME = 5;
+    private static final int ENABLE_SHUTTER_BUTTON = 6;
+
+
+    private static final int UPDATE_PROGRESS = 7;
+
+    private static final long VIDEO_MAX_DURATION = 8 * 1000;
+
 
     private SurfaceView mVideoPreview;
     private SurfaceHolder mSurfaceHolder = null;
-    private ImageView mVideoFrame;
+
+    private CamcorderTitlebar mTitlebar;
+    private Button mBtnVideo;
+    private Button mBtnImage;
+    private ToggleButton mTBtnDelay;
+    private ToggleButton mTBtnFocus;
+    private Button mBtnDelete;
+
+    private SettingPopupWindow mSettingWindow;
+
 
     private boolean mStartPreviewFail = false;
 
@@ -118,11 +132,12 @@ public class CamcorderActivity extends NoSearchActivity implements
     /** 录制的时间 **/
     private long mRecordedDuration = 0L;
 
-    // The video file that the hardware camera is about to record into
+    // The video file that the hardware camera is about to startRecord into
     // (or is recording into.)
     private String mVideoFilename;
-    private ParcelFileDescriptor mVideoFileDescriptor;
 
+
+    private ParcelFileDescriptor mVideoFileDescriptor;
     // The video file that has already been recorded, and that is being
     // examined by the user.
     private String mCurrentVideoFilename;
@@ -175,24 +190,32 @@ public class CamcorderActivity extends NoSearchActivity implements
 	
 	//音频录制
 	//录制音频的线程
-//	private AudioRecordRunnable audioRecordRunnable;
 	private Thread mAudioRecordThread;
 	/** 音频采样平率Hz **/
 	private int mAudioSampleRate = 44100;
+    /**  **/
+	private boolean mRecordFinished = false;
 
-	private boolean isFinished = false;
+    private ProgressView mProgressView;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                Log.w(TAG, "Touch ++ ACTION_DOWN");
+                startRecord();
                 break;
             case MotionEvent.ACTION_UP:
+                Log.w(TAG, "Touch ++ ACTION_UP");
+                if(mProgressView.getProgress() < mProgressView.getMaxProgress()) {
+                    mProgressView.pushSplit(mProgressView.getProgress());
+                }
+                pauseRecord();
                 break;
             default:
                 break;
         }
-        return false;
+        return true;
     }
 
 
@@ -215,7 +238,15 @@ public class CamcorderActivity extends NoSearchActivity implements
                     updateRecordingTime();
                     break;
                 }
-
+                case UPDATE_PROGRESS:
+                    long time = (Long) msg.obj;
+                    if(time < VIDEO_MAX_DURATION) {
+                        mProgressView.setProgress((Long) msg.obj);
+                    } else {
+                        mProgressView.setProgress(VIDEO_MAX_DURATION);
+                        pauseRecord();
+                    }
+                    break;
                 default:
                     Log.v(TAG, "Unhandled message: " + msg.what);
                     break;
@@ -328,56 +359,8 @@ public class CamcorderActivity extends NoSearchActivity implements
         requestWindowFeature(Window.FEATURE_PROGRESS);
         setContentView(R.layout.activity_camcorder);
 
-        mVideoPreview = (SurfaceView) findViewById(R.id.sv_recorder_preview);
-        
-        
-        findViewById(R.id.btn_recorder_video).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-//				prepare();
-//				initiateRecording(true);
-                record();
-			}
-		});
-        
-        findViewById(R.id.btn_recorder_image).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-//				saveRecording();
-                pause();
-                releaseResources();
-			}
-		});
-        
-        /*findViewById(R.id.btn_recorder_title_button1).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if(mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
-					switchCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
-				} else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-					switchCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
-				} 
-			}
-		});*/
-        ToggleButton tb = (ToggleButton) findViewById(R.id.tbtn_recorder_delay);
-        tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setVideoFlash(isChecked);
-            }
-        });
+        initView();
 
-        findViewById(R.id.btn_recorder_delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pause();
-            }
-        });
 
         // don't set mSurfaceHolder here. We have it set ONLY within
         // surfaceCreated / surfaceDestroyed, other parts of the code
@@ -435,6 +418,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 				}
 				mFFmpegFrameRecorder.setTimestamp(1000 * frameTime);
 				mFFmpegFrameRecorder.record(mYUVIplImage);
+                mHandler.sendMessage(mHandler.obtainMessage(UPDATE_PROGRESS, frameTime));
 			} catch (FFmpegFrameRecorder.Exception e) {
 				Log.v(TAG, e.getMessage());
 				e.printStackTrace();
@@ -473,6 +457,44 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btn_camcorder_title_button1: //摄像头切换
+                if(mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                    switchCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
+                } else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    switchCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
+                }
+                break;
+            case R.id.btn_camcorder_title_button2: //设置
+                mSettingWindow.showAsDropDown(mTitlebar.getButton2());
+                break;
+            case R.id.btn_camcorder_title_left: //取消
+
+                break;
+            case R.id.btn_camcorder_title_right: //下一步
+                break;
+            case R.id.btn_camcorder_video: //视频
+                break;
+            case R.id.btn_camcorder_image: //图片
+                break;
+            case R.id.btn_camcorder_delete: //删除
+                break;
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        switch (buttonView.getId()) {
+            case R.id.tbtn_camcorder_setting_grid: //网格
+                break;
+            case R.id.tbtn_camcorder_setting_flash: //闪光
+                setVideoFlash(isChecked);
+                break;
+            case R.id.tbtn_camcorder_delay: //延时
+                break;
+            case R.id.tbtn_camcorder_focus: //对焦
+                break;
+            default:
+                break;
         }
     }
 
@@ -508,18 +530,61 @@ public class CamcorderActivity extends NoSearchActivity implements
 //        }
     }
 
-    private void record() {
+    /**
+     * 开始录制
+     */
+    private void startRecord() {
         mRecordStartTime = System.currentTimeMillis();
         mRecorderRecording = true;
     }
 
-    private void pause() {
+    /**
+     * 暂停录制
+     */
+    private void pauseRecord() {
         mRecorderRecording = false;
-//        isFinished = true;
         mRecordedDuration += System.currentTimeMillis() - mRecordStartTime;
     }
 
-    private void reset() {
+    /**
+     * 停止录制（暂停并且释放资源）
+     */
+    private void stopRecord() {
+        mRecordFinished = true;
+        pauseRecord();
+        releaseResources();
+    }
+
+    /**
+     * 释放资源，停止录制视频和音频
+     */
+    private void releaseResources(){
+        mRecorderRecording = false;
+        try {
+            if(mFFmpegFrameRecorder != null) {
+                mFFmpegFrameRecorder.stop();
+                mFFmpegFrameRecorder.release();
+            }
+        } catch (com.googlecode.javacv.FrameRecorder.Exception e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(mYUVIplImage != null) {
+            mYUVIplImage.release();
+        }
+
+        mFFmpegFrameRecorder = null;
+        mYUVIplImage = null;
+
+        if(mAudioRecordThread != null) {
+            if(mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
+                mAudioRecordThread.interrupt();
+            }
+            mAudioRecordThread = null;
+        }
+
     }
 
 
@@ -659,15 +724,22 @@ public class CamcorderActivity extends NoSearchActivity implements
         } else {
             stopVideoRecording();
         }
-        closeCamera();
+        closeCamera();*/
 
         if (mReceiver != null) {
             unregisterReceiver(mReceiver);
             mReceiver = null;
         }
-        resetScreenOn();*/
+        resetScreenOn();
 
         mOrientationListener.disable();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopRecord();
+        closeCamera();
     }
 
     @Override
@@ -909,40 +981,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         keepScreenOn();
     }
 
-
-    /*private void stopVideoRecordingAndGetThumbnail() {
-        stopVideoRecording();
-        acquireVideoThumb();
-    }*/
-
-    /*private void stopVideoRecordingAndReturn(boolean valid) {
-        stopVideoRecording();
-        doReturnToCaller(valid);
-    }*/
-
-    /*private void stopVideoRecordingAndShowAlert() {
-        stopVideoRecording();
-        showAlert();
-    }*/
-
-    private void showAlert() {
-//        fadeOut(findViewById(R.id.shutter_button));
-        if (mCurrentVideoFilename != null) {
-            Bitmap src = ThumbnailUtils.createVideoThumbnail(
-                    mCurrentVideoFilename, Video.Thumbnails.MINI_KIND);
-            // MetadataRetriever already rotates the thumbnail. We should rotate
-            // it back (and mirror if it is front-facing camera).
-            CameraInfo[] info = CameraHolder.instance().getCameraInfo();
-            if (info[mCameraId].facing == CameraInfo.CAMERA_FACING_BACK) {
-                src = Util.rotateAndMirror(src, -mOrientationHint, false);
-            } else {
-                src = Util.rotateAndMirror(src, -mOrientationHint, true);
-            }
-            mVideoFrame.setImageBitmap(src);
-            mVideoFrame.setVisibility(View.VISIBLE);
-        }
-    }
-
     private static void fadeIn(View view) {
         view.setVisibility(View.VISIBLE);
         Animation animation = new AlphaAnimation(0F, 1F);
@@ -955,10 +993,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         Animation animation = new AlphaAnimation(1F, 0F);
         animation.setDuration(500);
         view.startAnimation(animation);
-    }
-
-    private boolean isAlertVisible() {
-        return this.mVideoFrame.getVisibility() == View.VISIBLE;
     }
 
 //    private void stopVideoRecording() {
@@ -1181,11 +1215,63 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     /**********************************************************************************************/
 
+
+    /** 初始化View、 View相关 ***********************************************************************/
+    private void initView() {
+
+        initTitleBar();
+
+        mProgressView = (ProgressView) findViewById(R.id.pv_recorder_progress);
+
+        mVideoPreview = (SurfaceView) findViewById(R.id.sv_recorder_preview);
+
+        mBtnVideo = (Button) findViewById(R.id.btn_camcorder_video);
+        mBtnImage = (Button) findViewById(R.id.btn_camcorder_image);
+        mTBtnDelay = (ToggleButton) findViewById(R.id.tbtn_camcorder_delay);
+        mTBtnFocus = (ToggleButton) findViewById(R.id.tbtn_camcorder_focus);
+        mBtnDelete = (Button) findViewById(R.id.btn_camcorder_delete);
+
+        mVideoPreview.setOnTouchListener(this);
+        mBtnVideo.setOnClickListener(this);
+        mBtnImage.setOnClickListener(this);
+        mTBtnDelay.setOnClickListener(this);
+        mTBtnFocus.setOnClickListener(this);
+        mBtnDelete.setOnClickListener(this);
+
+        mProgressView.setMaxProgress(VIDEO_MAX_DURATION); //八秒毫秒值8000
+        mProgressView.setMinMask(2 * 1000); //最小两秒毫秒值2000
+
+        initSettingPopWindow(); //初始化设置弹出框
+
+    }
+
+    /**
+     * 初始化标题栏
+     */
+    private void initTitleBar() {
+        mTitlebar = (CamcorderTitlebar) findViewById(R.id.tb_camcorder);
+        mTitlebar.setLeftButton(R.string.cancel, this);
+        mTitlebar.setRightButton(R.string.next_step, this);
+        mTitlebar.setButton1(R.drawable.selector_ic_change_camera, 0, this);
+        mTitlebar.setButton2(R.drawable.selector_ic_camera_setting, R.drawable.ic_arrow_down_right, this);
+        mTitlebar.setRightButtonEnabled(false);
+    }
+
+    /**
+     * 初始化设置弹出框
+     */
+    private void initSettingPopWindow() {
+        mSettingWindow = new SettingPopupWindow(this);
+        mSettingWindow.setGridCheckChangedListener(this);
+        mSettingWindow.setFlashCheckChangedListener(this);
+    }
+    /**********************************************************************************************/
+
     
 	//视频文件的存放地址
-	private String strVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "rec_video.mp4";
+//	private String strVideoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "rec_video.mp4";
 	//视频文件对象
-	private File fileVideoPath = null;
+//	private File fileVideoPath = null;
 
 	//当前录制的质量，会影响视频清晰度和文件大小
 	private int currentResolution = CONSTANTS.RESOLUTION_MEDIUM_VALUE;
@@ -1197,16 +1283,19 @@ public class CamcorderActivity extends NoSearchActivity implements
 	 * 初始化Recorder
 	 */
 	private void initRecorder() {
-		strVideoPath = Util.createFinalPath(this);//Util.createTempPath(tempFolderPath);
-		
+        if(null == mVideoFilename) {
+//            mVideoFilename  = null == mCurrentVideoFilename ? Util.createFinalPath(this) : mCurrentVideoFilename;
+            mVideoFilename = Util.createFinalPath(this);
+        }
+
 		RecorderParameters recorderParameters = Util.getRecorderParameter(currentResolution);
 		mAudioSampleRate = recorderParameters.getAudioSamplingRate();
 		mVideoFrameRange = recorderParameters.getVideoFrameRate();
 
 
-		fileVideoPath = new File(strVideoPath); 
-		Log.e(TAG, "File Path:" + fileVideoPath);
-		mFFmpegFrameRecorder = new FFmpegFrameRecorder(strVideoPath, mPreviewWidth, mPreviewHeight, 1);
+//		fileVideoPath = new File(mVideoFilename);
+//		Log.e(TAG, "File Path:" + fileVideoPath);
+		mFFmpegFrameRecorder = new FFmpegFrameRecorder(mVideoFilename, mPreviewWidth, mPreviewHeight, 1);
 		mFFmpegFrameRecorder.setFormat(recorderParameters.getVideoOutputFormat());
 		mFFmpegFrameRecorder.setSampleRate(recorderParameters.getAudioSamplingRate());
 		mFFmpegFrameRecorder.setFrameRate(recorderParameters.getVideoFrameRate());
@@ -1217,9 +1306,9 @@ public class CamcorderActivity extends NoSearchActivity implements
 		mFFmpegFrameRecorder.setVideoBitrate(recorderParameters.getVideoBitrate());
 		mFFmpegFrameRecorder.setAudioBitrate(recorderParameters.getAudioBitrate());
 		
-		mAudioRecordThread = new Thread(new AudioRecordRunnable());
+		mAudioRecordThread = new AudioRecordThread();
 
-//        prepare();
+        prepare();
 	}
 
     /**
@@ -1235,41 +1324,7 @@ public class CamcorderActivity extends NoSearchActivity implements
             e.printStackTrace();
         }
 	}
-	
-	/**
-	 * 释放资源，停止录制视频和音频
-	 */
-	private void releaseResources(){
-        mRecorderRecording = false;
-		try {
-			if(mFFmpegFrameRecorder != null) {
-				mFFmpegFrameRecorder.stop();
-				mFFmpegFrameRecorder.release();
-			}
-		} catch (com.googlecode.javacv.FrameRecorder.Exception e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        if(mYUVIplImage != null) {
-            mYUVIplImage.release();
-        }
-
-		mFFmpegFrameRecorder = null;
-		mYUVIplImage = null;
-
-        if(mAudioRecordThread != null) {
-            if(mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
-                mAudioRecordThread.interrupt();
-            }
-            mAudioRecordThread = null;
-        }
-
-		//progressView.putProgressList((int) totalTime);
-		//停止刷新进度
-//		progressView.setCurrentState(State.PAUSE);
-	}
 	
 	/**
 	 * 停止录制
@@ -1310,14 +1365,14 @@ public class CamcorderActivity extends NoSearchActivity implements
 		protected void onProgressUpdate(Integer... values) {
 //			progress.setText(values[0]+"%");
 //			bar.setProgress(values[0]);
-		}
+		}*/
 		
-		*//**
+		/**
 		 * 依据byte[]里的数据合成一张bitmap，
 		 * 截成480*480，并且旋转90度后，保存到文件
 		 * @param data
-		 *//*
-		private void getFirstCapture(byte[] data){
+		 */
+		/*private void getFirstCapture(byte[] data){
 			
 			publishProgress(10);
 			
@@ -1399,72 +1454,69 @@ public class CamcorderActivity extends NoSearchActivity implements
 //			returnToCaller(true);
 			mFFmpegFrameRecorder = null;
 
-			isFinished = true;
+			mRecordFinished = true;
 		}
 		
 	}*/
-	
-	/**
-	 * 录制音频的线程
-	 *
-	 */
-	class AudioRecordRunnable implements Runnable {
 
-		@Override
-		public void run() {
-			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-            /* audio data getting thread */
-            AudioRecord audioRecord;
-			// Audio
-			int bufferSize;
-			short [] audioData;
-			int bufferReadResult;
+    /**
+     * 录制音频的线程
+     */
+    class AudioRecordThread extends Thread {
 
-			bufferSize = AudioRecord.getMinBufferSize(mAudioSampleRate, AudioFormat.CHANNEL_IN_MONO,
-					AudioFormat.ENCODING_PCM_16BIT);
-			audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mAudioSampleRate, 
-					AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-			audioData = new short[bufferSize];
+        @Override
+        public void run() {
+            super.run();
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-			Log.d(TAG, "audioRecord.prepare()");
-			audioRecord.startRecording();
+            int bufferSize = AudioRecord.getMinBufferSize(mAudioSampleRate, AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT);
+
+             /* audio data getting thread */
+            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mAudioSampleRate,
+                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+            short [] audioData = new short[bufferSize];
+            int bufferReadResult;
+
+            Log.d(TAG, "audioRecord.prepare()");
+            audioRecord.startRecording();
 
 			/* ffmpeg_audio encoding loop */
-			while (!isFinished) {
-				// Log.v(LOG_TAG,"recording? " + recording);
-				bufferReadResult = audioRecord.read(audioData, 0, audioData.length);
-				if (bufferReadResult > 0) {
-					// Log.v(LOG_TAG, "bufferReadResult: " + bufferReadResult);
-					// If "recording" isn't true when start this thread, it
-					// never get's set according to this if statement...!!!
-					// Why? Good question...
-					if (mRecorderRecording) {
-						try {
-							Buffer[] barray = new Buffer[1];
-							barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
-							mFFmpegFrameRecorder.record(barray);
-							// Log.v(LOG_TAG,"recording " + 1024*i + " to " +
-							// 1024*i+1024);
-						} catch (FFmpegFrameRecorder.Exception e) {
-							Log.v(TAG, e.getMessage());
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-			Log.v(TAG, "AudioThread Finished, release audioRecord");
+            while (!mRecordFinished && !interrupted()) {
+                // Log.v(LOG_TAG,"recording? " + recording);
+                bufferReadResult = audioRecord.read(audioData, 0, audioData.length);
+                if (bufferReadResult > 0) {
+                    // Log.v(LOG_TAG, "mmBufferReadResult: " + mmBufferReadResult);
+                    // If "recording" isn't true when start this thread, it
+                    // never get's set according to this if statement...!!!
+                    // Why? Good question...
+                    if (mRecorderRecording) {
+                        try {
+                            Buffer[] barray = new Buffer[1];
+                            barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
+                            mFFmpegFrameRecorder.record(barray);
+                            // Log.v(LOG_TAG,"recording " + 1024*i + " to " +
+                            // 1024*i+1024);
+                        } catch (FFmpegFrameRecorder.Exception e) {
+                            Log.v(TAG, e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            Log.v(TAG, "AudioThread Finished, release audioRecord");
 
 			/* encoding finish, release audio recorder */
-			if (audioRecord != null) {
-				audioRecord.stop();
-				audioRecord.release();
-				Log.v(TAG, "audioRecord released");
-			}
-		}
-	}
+            if (audioRecord != null) {
+                audioRecord.stop();
+                audioRecord.release();
+                Log.v(TAG, "audioRecord released");
+            }
+        }
 
-	
+    }
+
 	private byte[] rotateYUV420Degree90(byte[] data, int imageWidth, int imageHeight) {
         byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
         // Rotate the Y luma

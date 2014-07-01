@@ -7,7 +7,7 @@
     android:background="@color/content_backgroud_recorder" >
     <Button
         style="@style/RecorderTitleButton"
-        android:id="@+id/btn_recorder_title_left"
+        android:id="@+id/btn_camcorder_title_left"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:minWidth="80dip"
@@ -20,23 +20,23 @@
         android:gravity="center">
         <Button
             style="@style/RecorderTitleButton"
-            android:id="@+id/btn_recorder_title_button1"
+            android:id="@+id/btn_camcorder_title_button1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:drawableLeft="@drawable/selector_ic_change_camera"/>
         <Button
             style="@style/RecorderTitleButton"
-            android:id="@+id/btn_recorder_title_button2"
+            android:id="@+id/btn_camcorder_title_button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/recorder_title_button_marging"
+            android:layout_marginLeft="@dimen/camcorder_title_button_marging"
             android:drawableLeft="@drawable/selector_ic_camera_setting"
             android:drawableRight="@drawable/ic_arrow_down_right"/>
 
     </LinearLayout>
     <Button
         style="@style/RecorderTitleButton"
-        android:id="@+id/btn_recorder_title_right"
+        android:id="@+id/btn_camcorder_title_right"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:text="@string/next_step"
