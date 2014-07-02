@@ -478,6 +478,17 @@ public class CamcorderActivity extends NoSearchActivity implements
                 //TODO 取消拍摄
                 break;
             case R.id.btn_camcorder_title_right: //下一步
+                resetRecorder();
+                if(null != mVideoFilename) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(new File(mVideoFilename)), "video/*");
+                    try {
+                        startActivity(intent);
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        Log.e(TAG, "Couldn't view video " + mCurrentVideoUri, ex);
+                    }
+                }
+                finish();
                 break;
             case R.id.btn_camcorder_video: //视频
                 break;
@@ -769,7 +780,9 @@ public class CamcorderActivity extends NoSearchActivity implements
     @Override
     public void onUserInteraction() {
         super.onUserInteraction();
-        if (!mRecorderRecording) keepScreenOnAwhile();
+        if (!mRecorderRecording) {
+            keepScreenOnAwhile();
+        }
     }
 
     @Override
@@ -791,28 +804,8 @@ public class CamcorderActivity extends NoSearchActivity implements
         if (mPausing) {
             return true;
         }
-
         switch (keyCode) {
-            case KeyEvent.KEYCODE_CAMERA:
-                if (event.getRepeatCount() == 0) {
-//                    mShutterButton.performClick();
-                    return true;
-                }
-                break;
-            case KeyEvent.KEYCODE_DPAD_CENTER:
-                if (event.getRepeatCount() == 0) {
-//                    mShutterButton.performClick();
-                    return true;
-                }
-                break;
-            case KeyEvent.KEYCODE_MENU:
-                if (mRecorderRecording) {
-//                    onStopVideoRecording(true);
-                    return true;
-                }
-                break;
         }
-
         return super.onKeyDown(keyCode, event);
     }
 
