@@ -106,6 +106,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     private static final int UPDATE_PROGRESS = 7;
 
+    private static final long VIDEO_MIN_DURATION = 2 * 1000;
     private static final long VIDEO_MAX_DURATION = 8 * 1000;
 
 
@@ -208,10 +209,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                 break;
             case MotionEvent.ACTION_UP:
                 Log.w(TAG, "Touch ++ ACTION_UP");
-                if(mProgressView.getProgress() < mProgressView.getMaxProgress()) {
-                    mProgressView.pushSplit(mProgressView.getProgress());
-                }
-                pauseRecord();
+                stopRecord();
                 break;
             default:
                 break;
@@ -240,12 +238,23 @@ public class CamcorderActivity extends NoSearchActivity implements
                     break;
                 }
                 case UPDATE_PROGRESS:
-                    long time = (Long) msg.obj;
-                    if(time < VIDEO_MAX_DURATION) {
-                        mProgressView.setProgress((Long) msg.obj);
+                    if(mRecorderRecording) {
+                        long time = (Long) msg.obj;
+                        if(time < VIDEO_MAX_DURATION) {
+                            mProgressView.setProgress((Long) msg.obj);
+                        } else {
+                            mProgressView.setProgress(VIDEO_MAX_DURATION);
+                            stopRecord();
+                        }
                     } else {
-                        mProgressView.setProgress(VIDEO_MAX_DURATION);
-                        pauseRecord();
+                        if(mProgressView.getProgress() < mProgressView.getMaxProgress()) {
+                            mProgressView.pushSplit(mProgressView.getProgress());
+                        }
+                    }
+                    if(mProgressView.getProgress() >= VIDEO_MIN_DURATION) {
+                        mTitlebar.setRightButtonEnabled(true);
+                    } else {
+                        mTitlebar.setRightButtonEnabled(false);
                     }
                     break;
                 default:
@@ -404,6 +413,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 				tempData = rotateYUV420Degree90(data, mPreviewWidth, mPreviewHeight);
 			} else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 				//FIXME 这里需要判断横竖屏
+//				tempData = rotateYUV420Degree90(data, mPreviewWidth, mPreviewHeight);
 				tempData = rotateYUV420Degree270(data, mPreviewWidth, mPreviewHeight);
 			} else {
 				tempData = data;
@@ -459,17 +469,13 @@ public class CamcorderActivity extends NoSearchActivity implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_camcorder_title_button1: //摄像头切换
-                if(mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                    switchCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
-                } else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                    switchCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
-                }
+                switchCamera();
                 break;
             case R.id.btn_camcorder_title_button2: //设置
                 mSettingWindow.showAsDropDown(mTitlebar.getButton2());
                 break;
             case R.id.btn_camcorder_title_left: //取消
-
+                //TODO 取消拍摄
                 break;
             case R.id.btn_camcorder_title_right: //下一步
                 break;
@@ -532,27 +538,49 @@ public class CamcorderActivity extends NoSearchActivity implements
     }
 
     /**
+     * 初始化完成，启动画面录制线程和音频录制线程
+     */
+    public void prepare() {
+        mRecordFinished = true;
+        mRecorderRecording = false;
+        try {
+            mFFmpegFrameRecorder.start();
+            mAudioRecordThread.start();
+        } catch (FFmpegFrameRecorder.Exception e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 开始录制
      */
     private void startRecord() {
         mRecordStartTime = System.currentTimeMillis();
         mRecorderRecording = true;
+        mRecordFinished = false;
     }
 
     /**
-     * 暂停录制
-     */
-    private void pauseRecord() {
-        mRecorderRecording = false;
-        mRecordedDuration += System.currentTimeMillis() - mRecordStartTime;
-    }
-
-    /**
-     * 停止录制（暂停并且释放资源）
+     * 停止录制
      */
     private void stopRecord() {
+        if(mRecorderRecording) {
+            mRecorderRecording = false;
+            mRecordedDuration += System.currentTimeMillis() - mRecordStartTime;
+            mHandler.sendEmptyMessage(UPDATE_PROGRESS);
+        }
+    }
+
+    /**
+     * 重置，会释放资源
+     */
+    private void resetRecorder() {
+        if(mRecorderRecording) {
+            stopRecord();
+        }
         mRecordFinished = true;
-        pauseRecord();
         releaseResources();
     }
 
@@ -663,8 +691,7 @@ public class CamcorderActivity extends NoSearchActivity implements
             mCameraDevice = CameraHolder.instance().open(mCameraId);
         }
         
-        initRecorder();
-        
+
         if (mPreviewing) {
             mCameraDevice.stopPreview();
             mPreviewing = false;
@@ -673,12 +700,8 @@ public class CamcorderActivity extends NoSearchActivity implements
         Util.setCameraDisplayOrientation(this, mCameraId, mCameraDevice);
 
         setCameraParameters();
-        
-        if(null != mYUVIplImage) {
-        	mYUVIplImage.release();
-            mYUVIplImage = null;
-        }
-        mYUVIplImage = IplImage.create(mPreviewHeight, mPreviewWidth,IPL_DEPTH_8U, 2);
+
+        initRecorder();
 
         try {
             mCameraDevice.startPreview();
@@ -739,7 +762,7 @@ public class CamcorderActivity extends NoSearchActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopRecord();
+        resetRecorder();
         closeCamera();
     }
 
@@ -955,7 +978,7 @@ public class CamcorderActivity extends NoSearchActivity implements
     }
 
     /**
-     * 切换摄像头
+     * 切换摄像头，并且重新开启预览
      * @param cameraId 摄像头id
      * @see {@link android.hardware.Camera.CameraInfo#CAMERA_FACING_BACK}
      * @see {@link android.hardware.Camera.CameraInfo#CAMERA_FACING_FRONT}
@@ -969,6 +992,18 @@ public class CamcorderActivity extends NoSearchActivity implements
         closeCamera();
 
         restartPreview();
+    }
+
+    /**
+     * 切换摄像头</br>
+     * 如果当前是后置，则切换为前置；当前是前置，则切换为后置
+     */
+    private void switchCamera() {
+        if(mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            switchCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
+        } else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            switchCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
+        }
     }
 
 
@@ -1235,8 +1270,14 @@ public class CamcorderActivity extends NoSearchActivity implements
         mTBtnFocus.setOnClickListener(this);
         mBtnDelete.setOnClickListener(this);
 
+        mBtnVideo.setEnabled(false);
+        mBtnImage.setEnabled(false);
+        mTBtnDelay.setEnabled(false);
+        mTBtnFocus.setEnabled(false);
+        mBtnDelete.setEnabled(false);
+
         mProgressView.setMaxProgress(VIDEO_MAX_DURATION); //八秒毫秒值8000
-        mProgressView.setMinMask(2 * 1000); //最小两秒毫秒值2000
+        mProgressView.setMinMask(VIDEO_MIN_DURATION); //最小两秒毫秒值2000
 
         initSettingPopWindow(); //初始化设置弹出框
 
@@ -1268,17 +1309,17 @@ public class CamcorderActivity extends NoSearchActivity implements
 	//当前录制的质量，会影响视频清晰度和文件大小
 	private int currentResolution = CONSTANTS.RESOLUTION_MEDIUM_VALUE;
 
-	//默认调用摄像头的分辨率
-//	int defaultScreenResolution = -1;
 
 	/**
 	 * 初始化Recorder
 	 */
 	private void initRecorder() {
-        if(null == mVideoFilename) {
-//            mVideoFilename  = null == mCurrentVideoFilename ? Util.createFinalPath(this) : mCurrentVideoFilename;
-            mVideoFilename = Util.createFinalPath(this);
-        }
+
+        // 初始化状态
+        mRecorderRecording = false; // 非录制中状态
+        mRecordFinished = true; //录制完成状态
+
+        mVideoFilename = Util.createFinalPath(this);
 
 		RecorderParameters recorderParameters = Util.getRecorderParameter(currentResolution);
 		mAudioSampleRate = recorderParameters.getAudioSamplingRate();
@@ -1295,24 +1336,23 @@ public class CamcorderActivity extends NoSearchActivity implements
 		mFFmpegFrameRecorder.setAudioCodec(recorderParameters.getAudioCodec());
 		mFFmpegFrameRecorder.setVideoBitrate(recorderParameters.getVideoBitrate());
 		mFFmpegFrameRecorder.setAudioBitrate(recorderParameters.getAudioBitrate());
-		
+
+        //如果YUVIplImage已经存在，释放它
+        if(null != mYUVIplImage) {
+            mYUVIplImage.release();
+            mYUVIplImage = null;
+        }
+        mYUVIplImage = IplImage.create(mPreviewHeight, mPreviewWidth,IPL_DEPTH_8U, 2);
+//        mYUVIplImage = IplImage.create(mPreviewWidth, mPreviewHeight,IPL_DEPTH_8U, 2);
+
+        //如果音频录制线程正在运行，则中断它
+        if(null != mAudioRecordThread && mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
+            mAudioRecordThread.interrupt();
+            mAudioRecordThread = null;
+        }
 		mAudioRecordThread = new AudioRecordThread();
 
         prepare();
-	}
-
-    /**
-     * 初始化完成，启动画面录制线程和音频录制线程
-     */
-	public void prepare() {
-		try {
-			mFFmpegFrameRecorder.start();
-			mAudioRecordThread.start();
-		} catch (FFmpegFrameRecorder.Exception e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-            e.printStackTrace();
-        }
 	}
 
 	
@@ -1561,6 +1601,41 @@ public class CamcorderActivity extends NoSearchActivity implements
     }
 	
 	private byte[] rotateYUV420Degree270(byte[] data, int imageWidth, int imageHeight) {
+
+        /*byte [] yuv = new byte[imageWidth*imageHeight*3/2];
+        int nWidth = 0, nHeight = 0;
+        int wh = 0;
+        int uvHeight = 0;
+        if(imageWidth != nWidth || imageHeight != nHeight)
+        {
+            nWidth = imageWidth;
+            nHeight = imageHeight;
+            wh = imageWidth * imageHeight;
+            uvHeight = imageHeight >> 1;//uvHeight = height / 2
+        }
+
+        //旋转Y
+        int k = 0;
+        for(int i = 0; i < imageWidth; i++) {
+            int nPos = 0;
+            for(int j = 0; j < imageHeight; j++) {
+                yuv[k] = data[nPos + i];
+                k++;
+                nPos += imageWidth;
+            }
+        }
+
+        for(int i = 0; i < imageWidth; i+=2){
+            int nPos = wh;
+            for(int j = 0; j < uvHeight; j++) {
+                yuv[k] = data[nPos + i];
+                yuv[k + 1] = data[nPos + i + 1];
+                k += 2;
+                nPos += imageWidth;
+            }
+        }
+        return rotateYUV420Degree180(yuv, imageWidth, imageHeight);*/
+
         byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
         // Rotate the Y luma
         int i = 0;

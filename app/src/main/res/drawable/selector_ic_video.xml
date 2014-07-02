@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:state_enabled="false" android:drawable="@drawable/ic_video3" />
     <!-- 没有焦点时的背景图片 -->
     <item android:drawable="@drawable/ic_video" android:state_window_focused="false"/>
     <!-- 非触摸模式下获得焦点并单击时的背景图片 -->

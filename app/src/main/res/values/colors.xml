@@ -34,6 +34,7 @@
     <color name="text_color_black">#FF323232</color>
     <color name="text_color_black_light">#FF666666</color>
     <color name="text_color_gray">#FF878787</color>
+    <color name="text_color_desabled">#FF4C4C4C</color>
     <color name="theme_red">#FFBF3434</color>
 
     <color name="progress_view_backgroud">#FFA7A7A7</color>
