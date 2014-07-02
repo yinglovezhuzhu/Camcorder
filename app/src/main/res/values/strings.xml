@@ -52,38 +52,38 @@
     <!-- Video Camera format string for new video files. Passed to java.text.SimpleDateFormat. -->
     <string name="video_file_name_format" translatable="false">"'VID'_yyyyMMdd_HHmmss"</string>
     <!-- The messsage shown when video record reaches size limit. -->
-    <string name="video_reach_size_limit">Size limit reached.</string>
+    <!--<string name="video_reach_size_limit">Size limit reached.</string>-->
 
     <!-- alert to the user that USB storage must be available before using the camera [CHAR LIMIT=NONE] -->
     <!--<string name="no_storage" product="nosdcard">Please mount USB storage before using the camera.</string>-->
     <!-- alert to the user that an SD card must be installed before using the camera -->
-    <string name="no_storage" product="default">Please insert an SD card before using the camera.</string>
+    <!--<string name="no_storage" product="default">Please insert an SD card before using the camera.</string>-->
 
     <!-- alert to the user that the USB storage is too full to complete the operation [CHAR LIMIT=NONE] -->
     <!--<string name="not_enough_space" product="nosdcard">Your USB storage is full.</string>-->
     <!-- alert to the user that the SD card is too full to complete the operation -->
-    <string name="not_enough_space" product="default">Your SD card is full.</string>
+    <!--<string name="not_enough_space" product="default">Your SD card is full.</string>-->
 
     <!-- alert to the user that the USB storage is being disk-checked [CHAR LIMIT=30] -->
     <!--<string name="preparing_sd" product="nosdcard">Preparing USB storage\u2026</string>-->
     <!-- alert to the user that the SD card is being disk-checked -->
-    <string name="preparing_sd" product="default">Preparing SD card\u2026</string>
+    <!--<string name="preparing_sd" product="default">Preparing SD card\u2026</string>-->
 
     <!-- alert to the user that the camera fails to read or write the USB storage. [CHAR LIMIT=NONE] -->
     <!--<string name="access_sd_fail" product="nosdcard">Failed to access USB storage.</string>-->
     <!-- alert to the user that the camera fails to read or write the SD card. -->
-    <string name="access_sd_fail" product="default">Fail to access SD card.</string>
+    <!--<string name="access_sd_fail" product="default">Fail to access SD card.</string>-->
 
     <!-- Low-memory dialog message [CHAR LIMT=NONE] -->
     <!--<string name="spaceIsLow_content" product="nosdcard">Your USB storage is running out of space. Change the quality setting or delete some images or other files.</string>-->
     <!-- Low-memory dialog message [CHAR LIMIT=NONE] -->
-    <string name="spaceIsLow_content" product="default">Your SD card is running out of space. Change the quality setting or delete some images or other files.</string>
+    <!--<string name="spaceIsLow_content" product="default">Your SD card is running out of space. Change the quality setting or delete some images or other files.</string>-->
 
     <!-- Default flash mode setting.-->
     <!--<string name="pref_camera_flashmode_default" translatable="false">auto</string>-->
 
     <!-- Value for flash off setting-->
-    <string name="camera_flashmode_no_flash" translatable="false">no_flash</string>
+    <!--<string name="camera_flashmode_no_flash" translatable="false">no_flash</string>-->
 
     <!-- Settings screen, Flash mode title -->
     <!--<string name="pref_camera_flashmode_title">Flash mode</string>-->

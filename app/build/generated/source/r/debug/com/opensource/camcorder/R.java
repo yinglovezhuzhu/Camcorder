@@ -17,7 +17,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int backgroundColor=0x7f010002;
+        public static final int backgroundColor=0x7f010000;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -26,7 +26,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cursorDarkColor=0x7f01000d;
+        public static final int cursorDarkColor=0x7f01000b;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -35,7 +35,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cursorHightlightColor=0x7f01000c;
+        public static final int cursorHightlightColor=0x7f01000a;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -45,7 +45,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cursorWidth=0x7f01000e;
+        public static final int cursorWidth=0x7f01000c;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -53,7 +53,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int max=0x7f010007;
+        public static final int max=0x7f010005;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -61,7 +61,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int minMask=0x7f010009;
+        public static final int minMask=0x7f010007;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -70,7 +70,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int minMaskColor=0x7f01000a;
+        public static final int minMaskColor=0x7f010008;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -78,7 +78,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int progress=0x7f010008;
+        public static final int progress=0x7f010006;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -87,7 +87,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int progressBackgroundColor=0x7f010004;
+        public static final int progressBackgroundColor=0x7f010002;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -96,7 +96,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int progressColor=0x7f010003;
+        public static final int progressColor=0x7f010001;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -104,7 +104,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int showCursor=0x7f01000b;
+        public static final int showCursor=0x7f010009;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -113,7 +113,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int splitColor=0x7f010005;
+        public static final int splitColor=0x7f010003;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -123,25 +123,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int splitWidth=0x7f010006;
-        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
-"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int textColorChecked=0x7f010001;
-        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
-"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int textColorNormal=0x7f010000;
+        public static final int splitWidth=0x7f010004;
     }
     public static final class color {
         public static final int black=0x7f040000;
@@ -328,89 +310,31 @@ containing a value of this type.
         public static final int layout_camcorder_title=0x7f030002;
     }
     public static final class string {
-        public static final int access_sd_fail=0x7f060000;
-        public static final int app_name=0x7f060001;
-        public static final int camera_error_title=0x7f060002;
-        public static final int camera_flashmode_no_flash=0x7f060003;
-        public static final int cancel=0x7f060004;
-        public static final int cannot_connect_camera=0x7f060005;
-        public static final int delay=0x7f060006;
-        public static final int delete_back=0x7f060007;
-        public static final int details_ok=0x7f060008;
-        public static final int flash=0x7f060009;
-        public static final int focus=0x7f06000a;
-        public static final int grid=0x7f06000b;
-        public static final int image=0x7f06000c;
-        public static final int next_step=0x7f06000d;
-        public static final int no_storage=0x7f06000e;
-        public static final int not_enough_space=0x7f06000f;
-        public static final int preparing_sd=0x7f060010;
-        public static final int spaceIsLow_content=0x7f060011;
-        public static final int video=0x7f060012;
-        public static final int video_camera_label=0x7f060013;
-        public static final int video_file_name_format=0x7f060014;
-        public static final int video_reach_size_limit=0x7f060015;
-        public static final int wait=0x7f060016;
+        public static final int app_name=0x7f060000;
+        public static final int camera_error_title=0x7f060001;
+        public static final int cancel=0x7f060002;
+        public static final int cannot_connect_camera=0x7f060003;
+        public static final int delay=0x7f060004;
+        public static final int delete_back=0x7f060005;
+        public static final int details_ok=0x7f060006;
+        public static final int flash=0x7f060007;
+        public static final int focus=0x7f060008;
+        public static final int grid=0x7f060009;
+        public static final int image=0x7f06000a;
+        public static final int next_step=0x7f06000b;
+        public static final int video=0x7f06000c;
+        public static final int video_camera_label=0x7f06000d;
+        public static final int video_file_name_format=0x7f06000e;
+        public static final int wait=0x7f06000f;
     }
     public static final class style {
         public static final int AppTheme=0x7f070000;
         public static final int CamcorderSettingButton=0x7f070001;
-        /**  背景是否半透明 
-         */
-        public static final int Dialog_loading=0x7f070002;
-        /**  背景是否模糊 
-         */
-        public static final int Dialog_loading_noDim=0x7f070003;
-        public static final int RecorderTitleButton=0x7f070004;
-        public static final int RecorderToolbarButton=0x7f070005;
-        public static final int SingleLine=0x7f070006;
+        public static final int RecorderTitleButton=0x7f070002;
+        public static final int RecorderToolbarButton=0x7f070003;
+        public static final int SingleLine=0x7f070004;
     }
     public static final class styleable {
-        /** Attributes that can be used with a ButtonEx.
-           <p>Includes the following attributes:</p>
-           <table>
-           <colgroup align="left" />
-           <colgroup align="left" />
-           <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #ButtonEx_textColorChecked com.opensource.camcorder:textColorChecked}</code></td><td></td></tr>
-           <tr><td><code>{@link #ButtonEx_textColorNormal com.opensource.camcorder:textColorNormal}</code></td><td></td></tr>
-           </table>
-           @see #ButtonEx_textColorChecked
-           @see #ButtonEx_textColorNormal
-         */
-        public static final int[] ButtonEx = {
-            0x7f010000, 0x7f010001
-        };
-        /**
-          <p>This symbol is the offset where the {@link com.opensource.camcorder.R.attr#textColorChecked}
-          attribute's value can be found in the {@link #ButtonEx} array.
-
-
-          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
-"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name com.opensource.camcorder:textColorChecked
-        */
-        public static final int ButtonEx_textColorChecked = 1;
-        /**
-          <p>This symbol is the offset where the {@link com.opensource.camcorder.R.attr#textColorNormal}
-          attribute's value can be found in the {@link #ButtonEx} array.
-
-
-          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
-"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name com.opensource.camcorder:textColorNormal
-        */
-        public static final int ButtonEx_textColorNormal = 0;
         /** Attributes that can be used with a ProgressView.
            <p>Includes the following attributes:</p>
            <table>
@@ -446,10 +370,10 @@ containing a value of this type.
            @see #ProgressView_splitWidth
          */
         public static final int[] ProgressView = {
-            0x7f010002, 0x7f010003, 0x7f010004, 0x7f010005,
-            0x7f010006, 0x7f010007, 0x7f010008, 0x7f010009,
-            0x7f01000a, 0x7f01000b, 0x7f01000c, 0x7f01000d,
-            0x7f01000e
+            0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
+            0x7f010004, 0x7f010005, 0x7f010006, 0x7f010007,
+            0x7f010008, 0x7f010009, 0x7f01000a, 0x7f01000b,
+            0x7f01000c
         };
         /**
           <p>This symbol is the offset where the {@link com.opensource.camcorder.R.attr#backgroundColor}

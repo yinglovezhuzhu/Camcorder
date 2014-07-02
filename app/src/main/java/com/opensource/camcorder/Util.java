@@ -43,11 +43,8 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 import com.opensource.camcorder.gallery.IImage;
 
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -639,25 +636,6 @@ public class Util {
         return (int) (paramInt / 0.0441D);
     }
 
-
-    public static void saveReceivedFrame(SavedFrames frame) {
-        File cachePath = new File(frame.getCachePath());
-        BufferedOutputStream bos;
-        try {
-            bos = new BufferedOutputStream(new FileOutputStream(cachePath));
-            if (bos != null) {
-                bos.write(frame.getFrameBytesData());
-                bos.flush();
-                bos.close();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            cachePath = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            cachePath = null;
-        }
-    }
 
     public static Toast showToast(Context context, String textMessage, int timeDuration) {
         if (null == context) {

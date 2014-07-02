@@ -523,18 +523,18 @@ public class CamcorderActivity extends NoSearchActivity implements
     }
 
     private void showStorageHint() {
-        String errorMessage = null;
-        switch (mStorageStatus) {
-            case STORAGE_STATUS_NONE:
-                errorMessage = getString(R.string.no_storage);
-                break;
-            case STORAGE_STATUS_LOW:
-                errorMessage = getString(R.string.spaceIsLow_content);
-                break;
-            case STORAGE_STATUS_FAIL:
-                errorMessage = getString(R.string.access_sd_fail);
-                break;
-        }
+//        String errorMessage = null;
+//        switch (mStorageStatus) {
+//            case STORAGE_STATUS_NONE:
+//                errorMessage = getString(R.string.no_storage);
+//                break;
+//            case STORAGE_STATUS_LOW:
+//                errorMessage = getString(R.string.spaceIsLow_content);
+//                break;
+//            case STORAGE_STATUS_FAIL:
+//                errorMessage = getString(R.string.access_sd_fail);
+//                break;
+//        }
 //        if (errorMessage != null) {
 //            if (mStorageHint == null) {
 //                mStorageHint = OnScreenHint.makeText(this, errorMessage);
