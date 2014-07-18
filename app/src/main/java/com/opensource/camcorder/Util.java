@@ -473,7 +473,7 @@ public class Util {
 
         String dirPath = Environment.getExternalStorageDirectory()
                 + File.separator  + context.getResources().getString(R.string.app_name)
-                + File.separator + "video";
+                + File.separator + "thumb";
         File file = new File(dirPath);
         if (!file.exists() || !file.isDirectory())
             file.mkdirs();

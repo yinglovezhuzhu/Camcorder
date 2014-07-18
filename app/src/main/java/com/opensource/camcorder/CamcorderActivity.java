@@ -19,6 +19,7 @@
 package com.opensource.camcorder;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -27,13 +28,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -46,6 +50,7 @@ import android.provider.MediaStore.Video;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
@@ -61,16 +66,21 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.googlecode.javacv.FFmpegFrameRecorder;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.opensource.camcorder.utils.StringUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
 import com.opensource.camcorder.widget.ProgressView;
 import com.opensource.camcorder.widget.SettingPopupWindow;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.nio.Buffer;
 import java.nio.ShortBuffer;
 import java.text.SimpleDateFormat;
@@ -171,14 +181,14 @@ public class CamcorderActivity extends NoSearchActivity implements
     // multiple cameras support
     private int mNumberOfCameras;
     private int mCameraId = 0;
-    
+
     private int mPreviewWidth = 480;
     private int mPreviewHeight = 480;
     private int mVideoWidth = 480;
     private int mVideoHeight = 480;
     private int mPreviewFrameRate = 30;
 
-    
+
 //    private MainOrientationEventListener mOrientationListener;
     // The device orientation in degrees. Default is unknown.
     private int mOrientation = OrientationEventListener.ORIENTATION_UNKNOWN;
@@ -186,8 +196,8 @@ public class CamcorderActivity extends NoSearchActivity implements
     // counter-clockwise
     private int mOrientationCompensation = 0;
     private int mOrientationHint; // the orientation hint for video playback
-    
-    
+
+
 
 	//录制视频和保存音频的类
 	private volatile NewFFmpegFrameRecorder mFFmpegFrameRecorder;
@@ -195,7 +205,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 	private IplImage mYUVIplImage = null;
 	//视频帧率
 	private int mVideoFrameRange = 30;
-	
+
 	//音频录制
 	//录制音频的线程
 	private Thread mAudioRecordThread;
@@ -404,8 +414,8 @@ public class CamcorderActivity extends NoSearchActivity implements
             // ignore
         }
     }
-    
-    
+
+
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
@@ -458,16 +468,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                 break;
             case R.id.btn_camcorder_title_right: //下一步
                 resetRecorder();
-                if(null != mVideoFilename) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(new File(mVideoFilename)), "video/*");
-                    try {
-                        startActivity(intent);
-                    } catch (android.content.ActivityNotFoundException ex) {
-                        Log.e(TAG, "Couldn't view video " + mCurrentVideoUri, ex);
-                    }
-                }
-                finish();
+                new DealFinishWorkTask().execute(mVideoFilename);
                 break;
             case R.id.btn_camcorder_video: //视频
                 break;
@@ -667,7 +668,7 @@ public class CamcorderActivity extends NoSearchActivity implements
             closeCamera();
             throw new RuntimeException("startPreview failed", ex);
         }
-        
+
         //Add preview clallback
         mCameraDevice.setPreviewCallback(this);
 
@@ -1286,6 +1287,14 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         mProgressView.setMaxProgress(VIDEO_MAX_DURATION); //八秒毫秒值8000
         mProgressView.setMinMask(VIDEO_MIN_DURATION); //最小两秒毫秒值2000
+        mProgressView.setOnProgressUpdateListener(new ProgressView.OnProgressUpdateListener() {
+            @Override
+            public void onProgressUpdate(float max, float progress) {
+                if(progress == max) {
+                    new DealFinishWorkTask().execute(mVideoFilename);
+                }
+            }
+        });
 
         initSettingPopWindow(); //初始化设置弹出框
 
@@ -1327,7 +1336,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     /**********************************************************************************************/
 
-    
+
 	//当前录制的质量，会影响视频清晰度和文件大小
 	private int currentResolution = CONSTANTS.RESOLUTION_MEDIUM_VALUE;
 
@@ -1352,7 +1361,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 		mFFmpegFrameRecorder.setSampleRate(recorderParameters.getAudioSamplingRate());
 		mFFmpegFrameRecorder.setFrameRate(recorderParameters.getVideoFrameRate());
 		mFFmpegFrameRecorder.setVideoCodec(recorderParameters.getVideoCodec());
-		mFFmpegFrameRecorder.setVideoQuality(recorderParameters.getVideoQuality()); 
+		mFFmpegFrameRecorder.setVideoQuality(recorderParameters.getVideoQuality());
 		mFFmpegFrameRecorder.setAudioQuality(recorderParameters.getVideoQuality());
 		mFFmpegFrameRecorder.setAudioCodec(recorderParameters.getAudioCodec());
 		mFFmpegFrameRecorder.setVideoBitrate(recorderParameters.getVideoBitrate());
@@ -1408,139 +1417,84 @@ public class CamcorderActivity extends NoSearchActivity implements
             finish();
         }
     }
-	
-	/**
-	 * 停止录制
-	 * @author QD
-	 *
-	 */
-	/*public class AsyncStopRecording extends AsyncTask<Void,Integer,Void>{
-		
-		private ProgressBar bar;
-		private TextView progress;
-		@Override
-		protected void onPreExecute() {
-			isFinalizing = true;
-			recordFinish = true;
-			runAudioThread = false;
-			
-			//创建处理进度条
-//			creatingProgress= new Dialog(CamcorderActivity.this,R.style.Dialog_loading_noDim);
-//			Window dialogWindow = creatingProgress.getWindow();
-//			WindowManager.LayoutParams lp = dialogWindow.getAttributes();
-//			lp.width = (int) (getResources().getDisplayMetrics().density*240);
-//			lp.height = (int) (getResources().getDisplayMetrics().density*80);
-//			lp.gravity = Gravity.CENTER;
-//			dialogWindow.setAttributes(lp);
-//			creatingProgress.setCanceledOnTouchOutside(false);
-//			creatingProgress.setContentView(R.layout.activity_recorder_progress);
-			
-//			progress = (TextView) creatingProgress.findViewById(R.id.recorder_progress_progresstext);
-//			bar = (ProgressBar) creatingProgress.findViewById(R.id.recorder_progress_progressbar);
-//			creatingProgress.show();
-			
-			//txtTimer.setVisibility(View.INVISIBLE);
-			//handler.removeCallbacks(mUpdateTimeTask);
-			super.onPreExecute();
-		}
-		
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-//			progress.setText(values[0]+"%");
-//			bar.setProgress(values[0]);
-		}*/
-		
-//		/**
-//		 * 依据byte[]里的数据合成一张bitmap，
-//		 * 截成480*480，并且旋转90度后，保存到文件
-//		 * @param data
-//		 */
-		/*private void getFirstCapture(byte[] data){
-			
-			publishProgress(10);
-			
-			String captureBitmapPath = CONSTANTS.CAMERA_FOLDER_PATH;
-			
-			captureBitmapPath = Util.createImagePath(CamcorderActivity.this);
-//			YuvImage localYuvImage = new YuvImage(data, 17, previewWidth,previewHeight, null);
-			YuvImage localYuvImage = new YuvImage(data, 17, mPreviewWidth,mPreviewHeight, null);
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			FileOutputStream outStream = null;
-			
-			publishProgress(50);
-			
-			try {
-				File file = new File(captureBitmapPath);
-				if(!file.exists())
-					file.createNewFile();
-//				localYuvImage.compressToJpeg(new Rect(0, 0, previewWidth, previewHeight),100, bos);
-				localYuvImage.compressToJpeg(new Rect(0, 0, mPreviewWidth, mPreviewHeight),100, bos);
-				Bitmap localBitmap1 = BitmapFactory.decodeByteArray(bos.toByteArray(),
-						0,bos.toByteArray().length);
-				
-				bos.close();
-				
-				Matrix localMatrix = new Matrix();
-				if (cameraSelection == 0)
-					localMatrix.setRotate(90.0F);
-				else
-					localMatrix.setRotate(270.0F);
-				
-				Bitmap	localBitmap2 = Bitmap.createBitmap(localBitmap1, 0, 0,
-									localBitmap1.getHeight(),
-									localBitmap1.getHeight(),
-									localMatrix, true);
-				
-				publishProgress(70);
-				
-				ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
-				localBitmap2.compress(Bitmap.CompressFormat.JPEG, 100, bos2);
-					 
-				outStream = new FileOutputStream(captureBitmapPath);
-				outStream.write(bos2.toByteArray());
-				outStream.close();
-				
-				localBitmap1.recycle();
-				localBitmap2.recycle();
-				
-				publishProgress(90);
-				
-				isFirstFrame = false;
-				imagePath = captureBitmapPath;
-			} catch (FileNotFoundException e) {
-				isFirstFrame = true;
-				e.printStackTrace();
-			} catch (IOException e) {
-				isFirstFrame = true;
-				e.printStackTrace();
-			}        
-		}
-			
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			if(firstData != null)
-				getFirstCapture(firstData);
-			isFinalizing = false;
-			if (mFFmpegFrameRecorder != null && mRecorderRecording) {
-				mRecorderRecording = false;
-				releaseResources();
-			}
-			publishProgress(100);
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-//			creatingProgress.dismiss();
-//			registerVideo();
-//			returnToCaller(true);
-			mFFmpegFrameRecorder = null;
 
-			mRecordFinished = true;
-		}
-		
-	}*/
+
+    public class DealFinishWorkTask extends AsyncTask<String, Integer, String> {
+
+        private Dialog mmDialog;
+        private ProgressBar mmProgressBar;
+        private TextView mmTvProgress;
+
+        @Override
+        protected void onPreExecute() {
+            //创建处理进度条
+            mmDialog= new Dialog(CamcorderActivity.this,R.style.DialogLoadingNoDim);
+			Window dialogWindow = mmDialog.getWindow();
+			WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+			lp.width = (int) (getResources().getDisplayMetrics().density*240);
+			lp.height = (int) (getResources().getDisplayMetrics().density*80);
+			lp.gravity = Gravity.CENTER;
+			dialogWindow.setAttributes(lp);
+            mmDialog.setCanceledOnTouchOutside(false);
+            mmDialog.setContentView(R.layout.activity_recorder_progress);
+
+            mmTvProgress = (TextView) mmDialog.findViewById(R.id.recorder_progress_progresstext);
+            mmProgressBar = (ProgressBar) mmDialog.findViewById(R.id.recorder_progress_progressbar);
+            mmDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            publishProgress(10);
+            if(null == params || params.length < 0) {
+                return null;
+            }
+            String videoPath = params[0];
+            if(StringUtil.isEmpty(videoPath)) {
+                return null;
+            }
+            publishProgress(30);
+            Bitmap bm = ThumbnailUtils.createVideoThumbnail(videoPath, Video.Thumbnails.FULL_SCREEN_KIND);
+            publishProgress(50);
+            File file = new File(Util.createImagePath(CamcorderActivity.this));
+            try {
+                boolean state = bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
+                publishProgress(80);
+                if(state && file.exists()) {
+                    return file.getAbsolutePath();
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            mmProgressBar.setProgress(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String thumbnail) {
+
+            publishProgress(100);
+            mmDialog.cancel();
+
+            //TODO 处理完成,跳转至编辑界面
+            if(null != mVideoFilename) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(new File(mVideoFilename)), "video/*");
+                try {
+                    startActivity(intent);
+                    finish();
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Log.e(TAG, "Couldn't view video " + mCurrentVideoUri, ex);
+                }
+            }
+            super.onPostExecute(thumbnail);
+        }
+    }
 
     public static class SizeComparator implements Comparator<Size> {
         @Override
@@ -1633,7 +1587,7 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
         return yuv;
     }
-	
+
 	private byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {
         byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
         int i = 0;
@@ -1652,7 +1606,7 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
         return yuv;
     }
-	
+
 	private byte[] rotateYUV420Degree270(byte[] data, int imageWidth, int imageHeight) {
 
         /*byte [] yuv = new byte[imageWidth*imageHeight*3/2];

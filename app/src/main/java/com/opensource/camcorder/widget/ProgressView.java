@@ -82,6 +82,8 @@ public class ProgressView extends View {
 
     private OnDeleteListener mDeleteListener;
 
+    private OnProgressUpdateListener mOnProgressUpdateListener;
+
     @SuppressLint("HandlerLeak")
     private class MainHandler extends Handler {
         @Override
@@ -211,6 +213,9 @@ public class ProgressView extends View {
                 clearSplits();
             } else {
                 refreshProgress();
+            }
+            if(null != mOnProgressUpdateListener) {
+                mOnProgressUpdateListener.onProgressUpdate(mMaxProgress, mProgress);
             }
         }
     }
@@ -420,6 +425,14 @@ public class ProgressView extends View {
         this.mDeleteListener = l;
     }
 
+    /**
+     * Set the listener to listen progress updating.
+     * @param l
+     */
+    public void setOnProgressUpdateListener(OnProgressUpdateListener l) {
+        this.mOnProgressUpdateListener = l;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -537,5 +550,10 @@ public class ProgressView extends View {
          * @param progress
          */
         public void onDelete(float lastProgress, float progress);
+    }
+
+    public static interface OnProgressUpdateListener {
+
+        public void onProgressUpdate(float max, float progress);
     }
 }

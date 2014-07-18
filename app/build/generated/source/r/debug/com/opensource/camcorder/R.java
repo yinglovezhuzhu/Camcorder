@@ -291,24 +291,28 @@ containing a value of this type.
     public static final class id {
         public static final int btn_camcorder_delete=0x7f080008;
         public static final int btn_camcorder_image=0x7f080005;
-        public static final int btn_camcorder_title_button1=0x7f08000c;
-        public static final int btn_camcorder_title_button2=0x7f08000d;
-        public static final int btn_camcorder_title_left=0x7f08000b;
-        public static final int btn_camcorder_title_right=0x7f08000e;
+        public static final int btn_camcorder_title_button1=0x7f08000f;
+        public static final int btn_camcorder_title_button2=0x7f080010;
+        public static final int btn_camcorder_title_left=0x7f08000e;
+        public static final int btn_camcorder_title_right=0x7f080011;
         public static final int btn_camcorder_video=0x7f080004;
         public static final int ll_recorder_toolbar=0x7f080003;
         public static final int pv_recorder_progress=0x7f080001;
+        public static final int recorder_progress_progressbar=0x7f08000a;
+        public static final int recorder_progress_progresstext=0x7f08000b;
+        public static final int recorder_progress_text=0x7f080009;
         public static final int sv_recorder_preview=0x7f080002;
         public static final int tb_camcorder=0x7f080000;
         public static final int tbtn_camcorder_delay=0x7f080006;
         public static final int tbtn_camcorder_focus=0x7f080007;
-        public static final int tbtn_camcorder_setting_flash=0x7f08000a;
-        public static final int tbtn_camcorder_setting_grid=0x7f080009;
+        public static final int tbtn_camcorder_setting_flash=0x7f08000d;
+        public static final int tbtn_camcorder_setting_grid=0x7f08000c;
     }
     public static final class layout {
         public static final int activity_camcorder=0x7f030000;
-        public static final int layout_camcorder_setting=0x7f030001;
-        public static final int layout_camcorder_title=0x7f030002;
+        public static final int activity_recorder_progress=0x7f030001;
+        public static final int layout_camcorder_setting=0x7f030002;
+        public static final int layout_camcorder_title=0x7f030003;
     }
     public static final class string {
         public static final int app_name=0x7f060000;
@@ -331,9 +335,12 @@ containing a value of this type.
     public static final class style {
         public static final int AppTheme=0x7f070000;
         public static final int CamcorderSettingButton=0x7f070001;
-        public static final int RecorderTitleButton=0x7f070002;
-        public static final int RecorderToolbarButton=0x7f070003;
-        public static final int SingleLine=0x7f070004;
+        /**  背景是否模糊 
+         */
+        public static final int DialogLoadingNoDim=0x7f070002;
+        public static final int RecorderTitleButton=0x7f070003;
+        public static final int RecorderToolbarButton=0x7f070004;
+        public static final int SingleLine=0x7f070005;
     }
     public static final class styleable {
         /** Attributes that can be used with a ProgressView.
