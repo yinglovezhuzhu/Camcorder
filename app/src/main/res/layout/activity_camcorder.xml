@@ -32,58 +32,62 @@
             android:id="@+id/sv_recorder_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-    </FrameLayout>
-   <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="10dip"
-        android:paddingBottom="10dip" >
-        <Button
-            style="@style/RecorderToolbarButton"
-            android:id="@+id/btn_camcorder_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/selector_ic_video"
-            android:text="@string/video"/>
-        <Button
-            style="@style/RecorderToolbarButton"
-            android:id="@+id/btn_camcorder_image"
+        <LinearLayout
+            android:id="@+id/ll_recorder_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/selector_ic_image"
-            android:text="@string/image"/>
+            android:paddingTop="10dip"
+            android:paddingBottom="10dip"
+            android:background="@color/content_backgroud_recorder"
+            android:layout_gravity="bottom"
+            android:gravity="bottom">
+            <Button
+                style="@style/RecorderToolbarButton"
+                android:id="@+id/btn_camcorder_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/selector_ic_video"
+                android:text="@string/video"/>
+            <Button
+                style="@style/RecorderToolbarButton"
+                android:id="@+id/btn_camcorder_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/selector_ic_image"
+                android:text="@string/image"/>
 
-        <ToggleButton 
-            style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_camcorder_delay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/selector_ic_delay"
-            android:textColor="@color/rbtn_text_color_gray_red"
-            android:textOn="@string/delay"
-            android:textOff="@string/delay"/>
-        <ToggleButton 
-            style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_camcorder_focus"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/selector_ic_focus"
-            android:textColor="@color/rbtn_text_color_gray_red"
-            android:textOn="@string/focus"
-            android:textOff="@string/focus"/>
-        <Button
-            style="@style/RecorderToolbarButton"
-            android:id="@+id/btn_camcorder_delete"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/selector_ic_delete"
-            android:text="@string/delete_back"/>
-    </LinearLayout>
+            <ToggleButton
+                style="@style/RecorderToolbarButton"
+                android:id="@+id/tbtn_camcorder_delay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/selector_ic_delay"
+                android:textColor="@color/rbtn_text_color_gray_red"
+                android:textOn="@string/delay"
+                android:textOff="@string/delay"/>
+            <ToggleButton
+                style="@style/RecorderToolbarButton"
+                android:id="@+id/tbtn_camcorder_focus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/selector_ic_focus"
+                android:textColor="@color/rbtn_text_color_gray_red"
+                android:textOn="@string/focus"
+                android:textOff="@string/focus"/>
+            <Button
+                style="@style/RecorderToolbarButton"
+                android:id="@+id/btn_camcorder_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/selector_ic_delete"
+                android:text="@string/delete_back"/>
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>
 
 <!--

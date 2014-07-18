@@ -471,7 +471,9 @@ public class Util {
         String title = CONSTANTS.FILE_START_NAME + dateTaken;
         String filename = title + CONSTANTS.IMAGE_EXTENSION;
 
-        String dirPath = Environment.getExternalStorageDirectory() + "/Android/data/" + context.getPackageName() + "/video";
+        String dirPath = Environment.getExternalStorageDirectory()
+                + File.separator  + context.getResources().getString(R.string.app_name)
+                + File.separator + "video";
         File file = new File(dirPath);
         if (!file.exists() || !file.isDirectory())
             file.mkdirs();
@@ -514,7 +516,9 @@ public class Util {
 
     private static String genrateFilePath(Context context, String uniqueId, boolean isFinalPath, File tempFolderPath) {
         String fileName = CONSTANTS.FILE_START_NAME + uniqueId + CONSTANTS.VIDEO_EXTENSION;
-        String dirPath = Environment.getExternalStorageDirectory() + "/Android/data/" + context.getPackageName() + "/video";
+        String dirPath = Environment.getExternalStorageDirectory()
+                + File.separator  + context.getResources().getString(R.string.app_name)
+                + File.separator + "video";
         if (isFinalPath) {
             File file = new File(dirPath);
             if (!file.exists() || !file.isDirectory())

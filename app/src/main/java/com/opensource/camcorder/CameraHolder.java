@@ -18,8 +18,6 @@
 
 package com.opensource.camcorder;
 
-import java.io.IOException;
-
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.os.Build;
@@ -28,6 +26,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+
+import java.io.IOException;
 
 import static com.opensource.camcorder.Util.Assert;
 

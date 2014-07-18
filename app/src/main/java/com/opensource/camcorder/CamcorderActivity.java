@@ -42,6 +42,7 @@ import android.os.StatFs;
 import android.os.SystemClock;
 import android.provider.MediaStore.Video;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -49,12 +50,15 @@ import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -173,7 +177,7 @@ public class CamcorderActivity extends NoSearchActivity implements
     private int mPreviewFrameRate = 30;
 
     
-    private MainOrientationEventListener mOrientationListener;
+//    private MainOrientationEventListener mOrientationListener;
     // The device orientation in degrees. Default is unknown.
     private int mOrientation = OrientationEventListener.ORIENTATION_UNKNOWN;
     // The orientation compensation for icons and thumbnails. Degrees are in
@@ -184,7 +188,7 @@ public class CamcorderActivity extends NoSearchActivity implements
     
 
 	//录制视频和保存音频的类
-	private volatile FFmpegFrameRecorder mFFmpegFrameRecorder;
+	private volatile NewFFmpegFrameRecorder mFFmpegFrameRecorder;
 	//IplImage对象,用于存储摄像头返回的byte[]，以及图片的宽高，depth，channel等
 	private IplImage mYUVIplImage = null;
 	//视频帧率
@@ -199,6 +203,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 	private boolean mRecordFinished = false;
 
     private ProgressView mProgressView;
+    private LinearLayout mToolbar;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -384,7 +389,7 @@ public class CamcorderActivity extends NoSearchActivity implements
             holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         }
 
-        mOrientationListener = new MainOrientationEventListener(CamcorderActivity.this);
+//        mOrientationListener = new MainOrientationEventListener(CamcorderActivity.this);
 
         // Make sure preview is started.
         try {
@@ -413,7 +418,6 @@ public class CamcorderActivity extends NoSearchActivity implements
 				tempData = rotateYUV420Degree90(data, mPreviewWidth, mPreviewHeight);
 			} else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 				//FIXME 这里需要判断横竖屏
-//				tempData = rotateYUV420Degree90(data, mPreviewWidth, mPreviewHeight);
 				tempData = rotateYUV420Degree270(data, mPreviewWidth, mPreviewHeight);
 			} else {
 				tempData = data;
@@ -436,34 +440,6 @@ public class CamcorderActivity extends NoSearchActivity implements
 			}
 		}
 	}
-
-    public static int roundOrientation(int orientation) {
-        return ((orientation + 45) / 90 * 90) % 360;
-    }
-
-    private class MainOrientationEventListener
-            extends OrientationEventListener {
-        public MainOrientationEventListener(Context context) {
-            super(context);
-        }
-
-        @Override
-        public void onOrientationChanged(int orientation) {
-            if (mRecorderRecording) return;
-            // We keep the last known orientation. So if the user first orient
-            // the camera then point the camera to floor or sky, we still have
-            // the correct orientation.
-            if (orientation == ORIENTATION_UNKNOWN) return;
-            mOrientation = roundOrientation(orientation);
-            // When the screen is unlocked, display rotation may change. Always
-            // calculate the up-to-date orientationCompensation.
-            int orientationCompensation = mOrientation
-                    + Util.getDisplayRotation(CamcorderActivity.this);
-            if (mOrientationCompensation != orientationCompensation) {
-                mOrientationCompensation = orientationCompensation;
-            }
-        }
-    }
 
 
     public void onClick(View v) {
@@ -568,6 +544,9 @@ public class CamcorderActivity extends NoSearchActivity implements
      * 开始录制
      */
     private void startRecord() {
+        if(null == mFFmpegFrameRecorder) {
+            initRecorder();
+        }
         mRecordStartTime = System.currentTimeMillis();
         mRecorderRecording = true;
         mRecordFinished = false;
@@ -646,6 +625,69 @@ public class CamcorderActivity extends NoSearchActivity implements
                 : STORAGE_STATUS_OK;
     }
 
+    private void setPreviewDisplay(SurfaceHolder holder) {
+        try {
+            mCameraDevice.setPreviewDisplay(holder);
+        } catch (Throwable ex) {
+            closeCamera();
+            throw new RuntimeException("setPreviewDisplay failed", ex);
+        }
+    }
+
+    /**
+     * 开启摄像头预览
+     * @throws CameraHardwareException
+     */
+    private void startPreview() throws CameraHardwareException {
+        Log.v(TAG, "startPreview");
+        if (mCameraDevice == null) {
+            // If the activity is paused and resumed, camera device has been
+            // released and we need to open the camera.
+            mCameraDevice = CameraHolder.instance().open(mCameraId);
+        }
+
+        if (mPreviewing) {
+            mCameraDevice.stopPreview();
+            mPreviewing = false;
+        }
+        setPreviewDisplay(mSurfaceHolder);
+        Util.setCameraDisplayOrientation(this, mCameraId, mCameraDevice);
+
+        setCameraParameters();
+
+//        initRecorder();
+
+        try {
+            mCameraDevice.startPreview();
+            mPreviewing = true;
+        } catch (Throwable ex) {
+            closeCamera();
+            throw new RuntimeException("startPreview failed", ex);
+        }
+        
+        //Add preview clallback
+        mCameraDevice.setPreviewCallback(this);
+
+    }
+
+    /**
+     * 关闭相机
+     */
+    private void closeCamera() {
+        Log.v(TAG, "closeCamera");
+        if (mCameraDevice == null) {
+            Log.d(TAG, "already stopped.");
+            return;
+        }
+        mCameraDevice.setPreviewCallback(null);
+        // If we don't lock the camera, release() will fail.
+        mCameraDevice.lock();
+        CameraHolder.instance().release();
+        mCameraDevice = null;
+        mPreviewing = false;
+    }
+
+
 
     @Override
     protected void onResume() {
@@ -654,7 +696,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         // Start orientation listener as soon as possible because it takes
         // some time to get first orientation.
-        mOrientationListener.enable();
+//        mOrientationListener.enable();
         mVideoPreview.setVisibility(View.VISIBLE);
         if (!mPreviewing && !mStartPreviewFail) {
             if (!restartPreview()) return;
@@ -681,68 +723,6 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     }
 
-    private void setPreviewDisplay(SurfaceHolder holder) {
-        try {
-            mCameraDevice.setPreviewDisplay(holder);
-        } catch (Throwable ex) {
-            closeCamera();
-            throw new RuntimeException("setPreviewDisplay failed", ex);
-        }
-    }
-
-    /**
-     * 开启摄像头预览
-     * @throws CameraHardwareException
-     */
-    private void startPreview() throws CameraHardwareException {
-        Log.v(TAG, "startPreview");
-        if (mCameraDevice == null) {
-            // If the activity is paused and resumed, camera device has been
-            // released and we need to open the camera.
-            mCameraDevice = CameraHolder.instance().open(mCameraId);
-        }
-        
-
-        if (mPreviewing) {
-            mCameraDevice.stopPreview();
-            mPreviewing = false;
-        }
-        setPreviewDisplay(mSurfaceHolder);
-        Util.setCameraDisplayOrientation(this, mCameraId, mCameraDevice);
-
-        setCameraParameters();
-
-        initRecorder();
-
-        try {
-            mCameraDevice.startPreview();
-            mPreviewing = true;
-        } catch (Throwable ex) {
-            closeCamera();
-            throw new RuntimeException("startPreview failed", ex);
-        }
-        
-        //Add preview clallback
-        mCameraDevice.setPreviewCallback(this);
-    }
-
-    /**
-     * 关闭相机
-     */
-    private void closeCamera() {
-        Log.v(TAG, "closeCamera");
-        if (mCameraDevice == null) {
-            Log.d(TAG, "already stopped.");
-            return;
-        }
-        mCameraDevice.setPreviewCallback(null);
-        // If we don't lock the camera, release() will fail.
-        mCameraDevice.lock();
-        CameraHolder.instance().release();
-        mCameraDevice = null;
-        mPreviewing = false;
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -767,7 +747,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
         resetScreenOn();
 
-        mOrientationListener.disable();
     }
 
     @Override
@@ -849,6 +828,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+
     }
 
     @Override
@@ -1156,57 +1136,79 @@ public class CamcorderActivity extends NoSearchActivity implements
     private void setCameraParameters() {
         mParameters = mCameraDevice.getParameters();
 
+        Camera.Size previewSize = getDefaultPreviewSize(mParameters);
+
+        //获取计算过的摄像头分辨率
+        if(previewSize != null ){
+            mPreviewWidth = previewSize.width;
+            mPreviewHeight = previewSize.height;
+        } else {
+            mPreviewWidth = 480;
+            mPreviewHeight = 480;
+        }
+        mParameters.setPreviewSize(mPreviewWidth, mPreviewHeight);
+        //将获得的Preview Size中的最小边作为视频的大小
+        mVideoWidth = mPreviewWidth > mPreviewHeight ? mPreviewHeight : mPreviewWidth;
+        mVideoHeight = mPreviewWidth > mPreviewHeight ? mPreviewHeight : mPreviewWidth;
+        if(mFFmpegFrameRecorder != null) {
+            mFFmpegFrameRecorder.setImageWidth(mVideoWidth);
+            mFFmpegFrameRecorder.setImageHeight(mVideoHeight);
+        }
+
+        mParameters.setPreviewFrameRate(mPreviewFrameRate);
+
+        List<String> supportedFocusMode = mParameters.getSupportedFocusModes();
+        if(isSupported(Camera.Parameters.FOCUS_MODE_AUTO, supportedFocusMode)) {
+            mParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        }
+
+
+        mCameraDevice.setParameters(mParameters);
+
+        // 设置闪光灯，默认关闭
+        setVideoFlash(false);
+
+        layoutPreView();
+    }
+
+    /**
+     * 获取默认的Preview Size，640x480或者是所支持的Preview Size中最接近640x480的一个
+     * @param parameters
+     * @return
+     */
+    private Camera.Size getDefaultPreviewSize(Camera.Parameters parameters) {
+        if(null == parameters) {
+            return null;
+        }
+        Camera.Size previewSize = null;
         //获取摄像头的所有支持的分辨率
-        List<Camera.Size> supportedPreviewSizes = mParameters.getSupportedPreviewSizes();
-  		if(null != supportedPreviewSizes && !supportedPreviewSizes.isEmpty()){
-  			Collections.sort(supportedPreviewSizes, new SizeComparator());
-  			Camera.Size previewSize =  null;
+        List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
+        if(null != supportedPreviewSizes && !supportedPreviewSizes.isEmpty()) {
+            for (Camera.Size size : supportedPreviewSizes) {
+                Log.w(TAG, "PreviewSize: width=" + size.width + "<>height=" + size.height);
+            }
+            Collections.sort(supportedPreviewSizes, new SizeComparator());
             //如果摄像头支持640*480，那么强制设为640*480
-            for(Camera.Size size : supportedPreviewSizes) {
-                if(size.width == 640 && size.height == 480) {
+            for (Camera.Size size : supportedPreviewSizes) {
+                if (size.width == 640 && size.height == 480) {
                     previewSize = size;
                     break;
                 }
             }
-            //如果摄像头支持640*480，那么设置为最接近640**480的那个
-            if(null == previewSize) {
+            //如果摄像头不支持640x480，那么设置为最接近640x480的那个
+            if (null == previewSize) {
                 previewSize = supportedPreviewSizes.get(0);
                 int widthDiffer = Math.abs(previewSize.width - 640);
-                for(int i = 1; i < supportedPreviewSizes.size(); i++) {
+                for (int i = 1; i < supportedPreviewSizes.size(); i++) {
                     Camera.Size size = supportedPreviewSizes.get(i);
                     int widthDiffer2 = Math.abs(size.width - 640);
-                    if(widthDiffer > widthDiffer2) {
+                    if (widthDiffer > widthDiffer2) {
                         previewSize = size;
                     }
                 }
             }
-  			//获取计算过的摄像头分辨率
-  			if(previewSize != null ){
-  				mPreviewWidth = previewSize.width;
-  				mPreviewHeight = previewSize.height;
-  				mParameters.setPreviewSize(mPreviewWidth, mPreviewHeight);
-  				mVideoWidth = mPreviewWidth > mPreviewHeight ? mPreviewHeight : mPreviewWidth;
-  				mVideoHeight = mPreviewWidth > mPreviewHeight ? mPreviewHeight : mPreviewWidth;
-  				if(mFFmpegFrameRecorder != null) {
-  					mFFmpegFrameRecorder.setImageWidth(mVideoWidth);
-  					mFFmpegFrameRecorder.setImageHeight(mVideoHeight);
-  				}
-
-  			}
-  		}
-        System.out.println("AAAAAAAAAAA " + mPreviewWidth + "<>" + mPreviewHeight);
-        mParameters.setPreviewFrameRate(mPreviewFrameRate);
-//        DisplayMetrics dm = getResources().getDisplayMetrics();
-//        int size = dm.widthPixels > dm.heightPixels ? dm.heightPixels : dm.widthPixels;
-//        ViewGroup.LayoutParams lp = mVideoPreview.getLayoutParams();
-//        lp.width = size;
-//        lp.height = size;
-        SurfaceHolder holder = mVideoPreview.getHolder();
-        holder.setFixedSize(mPreviewHeight, mPreviewWidth);
-//        holder.setSizeFromLayout();
-
-        // 设置闪光灯，默认关闭
-        setVideoFlash(false);
+        }
+        return previewSize;
     }
 
     /******* 闪光灯相关 ****************************************************************************/
@@ -1215,6 +1217,9 @@ public class CamcorderActivity extends NoSearchActivity implements
      * 设置录像模式闪光灯
      */
     private boolean setVideoFlash(boolean isOn) {
+        if(null == mCameraDevice) {
+            return false;
+        }
         List<String> supportedFlash = mParameters.getSupportedFlashModes();
         String flashMode = isOn ? Parameters.FLASH_MODE_TORCH : Parameters.FLASH_MODE_OFF;
         if (isSupported(flashMode, supportedFlash)) {
@@ -1250,6 +1255,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         mVideoPreview = (SurfaceView) findViewById(R.id.sv_recorder_preview);
 
+        mToolbar = (LinearLayout) findViewById(R.id.ll_recorder_toolbar);
         mBtnVideo = (Button) findViewById(R.id.btn_camcorder_video);
         mBtnImage = (Button) findViewById(R.id.btn_camcorder_image);
         mTBtnDelay = (ToggleButton) findViewById(R.id.tbtn_camcorder_delay);
@@ -1296,6 +1302,20 @@ public class CamcorderActivity extends NoSearchActivity implements
         mSettingWindow.setGridCheckChangedListener(this);
         mSettingWindow.setFlashCheckChangedListener(this);
     }
+
+    /**
+     * 计算布局预览View
+     */
+    private void layoutPreView() {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        ViewGroup.LayoutParams videoPreviewLayoutParams = mVideoPreview.getLayoutParams();
+        videoPreviewLayoutParams.width = dm.widthPixels;
+        videoPreviewLayoutParams.height = mPreviewWidth * dm.widthPixels / mPreviewHeight;
+
+        FrameLayout.LayoutParams toolbarLayoutParams = (FrameLayout.LayoutParams) mToolbar.getLayoutParams();
+        toolbarLayoutParams.topMargin = mVideoHeight * dm.widthPixels / mPreviewHeight;
+    }
+
     /**********************************************************************************************/
 
     
@@ -1318,8 +1338,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 		mAudioSampleRate = recorderParameters.getAudioSamplingRate();
 		mVideoFrameRange = recorderParameters.getVideoFrameRate();
 
-
-		mFFmpegFrameRecorder = new FFmpegFrameRecorder(mVideoFilename, mPreviewWidth, mPreviewHeight, 1);
+		mFFmpegFrameRecorder = new NewFFmpegFrameRecorder(mVideoFilename, mVideoWidth, mVideoHeight, 1);
 		mFFmpegFrameRecorder.setFormat(recorderParameters.getVideoOutputFormat());
 		mFFmpegFrameRecorder.setSampleRate(recorderParameters.getAudioSamplingRate());
 		mFFmpegFrameRecorder.setFrameRate(recorderParameters.getVideoFrameRate());
@@ -1336,7 +1355,6 @@ public class CamcorderActivity extends NoSearchActivity implements
             mYUVIplImage = null;
         }
         mYUVIplImage = IplImage.create(mPreviewHeight, mPreviewWidth,IPL_DEPTH_8U, 2);
-//        mYUVIplImage = IplImage.create(mPreviewWidth, mPreviewHeight,IPL_DEPTH_8U, 2);
 
         //如果音频录制线程正在运行，则中断它
         if(null != mAudioRecordThread && mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
@@ -1390,11 +1408,11 @@ public class CamcorderActivity extends NoSearchActivity implements
 //			bar.setProgress(values[0]);
 		}*/
 		
-		/**
-		 * 依据byte[]里的数据合成一张bitmap，
-		 * 截成480*480，并且旋转90度后，保存到文件
-		 * @param data
-		 */
+//		/**
+//		 * 依据byte[]里的数据合成一张bitmap，
+//		 * 截成480*480，并且旋转90度后，保存到文件
+//		 * @param data
+//		 */
 		/*private void getFirstCapture(byte[] data){
 			
 			publishProgress(10);
