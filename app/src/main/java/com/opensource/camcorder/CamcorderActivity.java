@@ -18,10 +18,12 @@
 
 package com.opensource.camcorder;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
@@ -452,6 +454,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                 break;
             case R.id.btn_camcorder_title_left: //取消
                 //TODO 取消拍摄
+                exit();
                 break;
             case R.id.btn_camcorder_title_right: //下一步
                 resetRecorder();
@@ -740,6 +743,12 @@ public class CamcorderActivity extends NoSearchActivity implements
             stopVideoRecording();
         }
         closeCamera();*/
+
+        if(mRecorderRecording) {
+            stopRecord();
+        }
+        closeCamera();
+
 
         if (mReceiver != null) {
             unregisterReceiver(mReceiver);
@@ -1366,6 +1375,39 @@ public class CamcorderActivity extends NoSearchActivity implements
         prepare();
 	}
 
+    private void exit() {
+        if(mRecordedDuration > 0L) {
+            new AlertDialog.Builder(this)
+                    .setTitle("提示")
+                    .setMessage("确定放弃本视频？")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(null != mVideoFilename) {
+                                        File file = new File(mVideoFilename);
+                                        if(file.exists()) {
+                                            file.delete();
+                                        }
+                                    }
+                                }
+                            });
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+        } else {
+            finish();
+        }
+    }
 	
 	/**
 	 * 停止录制
