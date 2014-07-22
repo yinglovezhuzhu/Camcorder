@@ -46,6 +46,38 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int cursorWidth=0x7f01000c;
+        /**  Allow DPAD key to navigate out at the end of the view, default is false 
+         <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int focusOutEnd=0x7f01000e;
+        /** 
+             Allow DPAD key to navigate out at the front of the View (where position = 0),
+             default is false
+        
+         <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int focusOutFront=0x7f01000d;
+        /**  Defining margin between two items horizontally 
+         <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int horizontalMargin=0x7f01000f;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -71,6 +103,15 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int minMaskColor=0x7f010008;
+        /**  Defining number of rows 
+         <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int numberOfRows=0x7f010012;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -97,6 +138,25 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int progressColor=0x7f010001;
+        /**  Defining height of each row of HorizontalGridView 
+         <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+<p>May be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>wrap_content</code></td><td>-2</td><td></td></tr>
+</table>
+         */
+        public static final int rowHeight=0x7f010011;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -124,6 +184,17 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int splitWidth=0x7f010004;
+        /**  Defining margin between two items vertically 
+         <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int verticalMargin=0x7f010010;
     }
     public static final class color {
         public static final int black=0x7f040000;
@@ -153,194 +224,233 @@ containing a value of this type.
         public static final int white=0x7f040014;
     }
     public static final class dimen {
-        public static final int activity_horizontal_margin=0x7f05005a;
-        public static final int camcorder_setting_item_drawable_padding=0x7f050000;
-        public static final int camcorder_setting_item_minWidth=0x7f050001;
-        public static final int camcorder_setting_item_padding_horizontal=0x7f050002;
-        public static final int camcorder_setting_item_padding_vertical=0x7f050003;
-        public static final int camcorder_setting_item_text_size=0x7f050004;
-        public static final int camcorder_title_button_marging=0x7f050005;
-        public static final int camcorder_title_button_minSize=0x7f050006;
-        public static final int camcorder_title_button_padding=0x7f050007;
-        public static final int camcorder_title_text_size=0x7f050008;
-        public static final int camcorder_toolbar_item_drawable_padding=0x7f050009;
-        public static final int camcorder_toolbar_item_padding=0x7f05000a;
-        public static final int camcorder_toolbar_item_text_size=0x7f05000b;
-        public static final int content_padding=0x7f05000c;
-        public static final int details_item_dialog_btn_marginLeft=0x7f05000d;
-        public static final int details_item_dialog_btn_marginTop=0x7f05000e;
-        public static final int details_item_dialog_btn_textSize=0x7f05000f;
-        public static final int details_item_dialog_ll_marginTop=0x7f050010;
-        public static final int details_item_dialog_padding=0x7f050011;
-        public static final int discovery_auto_item_drawable_padding=0x7f050012;
-        public static final int discovery_auto_item_padding_horizontal=0x7f050013;
-        public static final int discovery_auto_item_padding_vertical=0x7f050014;
-        public static final int discovery_auto_item_text_size=0x7f050015;
-        public static final int discovery_chanel_item_grid_spacing=0x7f050016;
-        public static final int discovery_chanel_item_grid_spacing_bak=0x7f050017;
-        public static final int discovery_chanel_item_text_padding=0x7f050018;
-        public static final int discovery_chanel_item_text_size=0x7f050019;
-        public static final int discovery_gragest_content_padding=0x7f05001a;
-        public static final int discovery_gragest_drawable_padding=0x7f05001b;
-        public static final int discovery_gragest_textSize=0x7f05001c;
-        public static final int discovery_hot_topic_item_divider_height=0x7f05001d;
-        public static final int discovery_hot_topic_item_padding=0x7f05001e;
-        public static final int discovery_hot_topic_item_text_size=0x7f05001f;
-        public static final int discovery_label_text_size=0x7f050020;
-        public static final int discovery_search_input_corners_radius=0x7f050021;
-        public static final int discovery_search_input_drawable_padding=0x7f050022;
-        public static final int discovery_search_input_padding_horizontal=0x7f050023;
-        public static final int discovery_search_input_padding_vertical=0x7f050024;
-        public static final int discovery_search_label_padding_top=0x7f050025;
-        public static final int discovery_search_text_size=0x7f050026;
-        public static final int event_item_drawable_padding=0x7f050027;
-        public static final int event_item_label_text_size=0x7f050028;
-        public static final int event_item_title_text_size=0x7f050029;
-        public static final int home_header_avatar_padding_top=0x7f05002a;
-        public static final int home_header_coin_icon_text_padding=0x7f05002b;
-        public static final int home_header_coin_text_size=0x7f05002c;
-        public static final int home_header_content_padding=0x7f05002d;
-        public static final int home_header_user_name_text_size=0x7f05002e;
-        public static final int home_item_avatar_size=0x7f05002f;
-        public static final int home_item_button_divider_height=0x7f050030;
-        public static final int home_item_button_text_size=0x7f050031;
-        public static final int home_item_coin_text_size=0x7f050032;
-        public static final int home_item_content_padding=0x7f050033;
-        public static final int home_item_desc_text_size=0x7f050034;
-        public static final int home_item_label_drawable_padding=0x7f050035;
-        public static final int home_item_label_text_size=0x7f050036;
-        public static final int home_item_title_text_size=0x7f050037;
-        public static final int indicator_dot_corners_radius=0x7f050038;
-        public static final int indicator_dot_size=0x7f050039;
-        public static final int item_details_avatar=0x7f05003a;
-        public static final int login_button_text_size=0x7f05003b;
-        public static final int login_input_min_height=0x7f05003c;
-        public static final int login_input_padding=0x7f05003d;
-        public static final int login_input_text_size=0x7f05003e;
-        public static final int login_padding_to_button=0x7f05003f;
-        public static final int login_padding_to_input=0x7f050040;
-        public static final int login_padding_to_label=0x7f050041;
-        public static final int login_padding_to_logo=0x7f050042;
-        public static final int login_padding_to_top=0x7f050043;
-        public static final int login_text_padding=0x7f050044;
-        public static final int login_text_size=0x7f050045;
-        public static final int login_type_icon_marging=0x7f050046;
-        public static final int login_type_icon_padding=0x7f050047;
-        public static final int navigation_margin=0x7f050048;
-        public static final int navigation_margin_back=0x7f050049;
-        public static final int splash_text_size=0x7f05004a;
-        public static final int user_header_count_divider_height=0x7f05004b;
-        public static final int user_header_count_label_paddint_to_number=0x7f05004c;
-        public static final int user_header_count_label_text_size=0x7f05004d;
-        public static final int user_header_count_number_text_size=0x7f05004e;
-        public static final int user_header_padding_to_avatar=0x7f05004f;
-        public static final int user_header_padding_to_user_name=0x7f050050;
-        public static final int user_header_padding_vertical=0x7f050051;
-        public static final int user_item_drawable_padding=0x7f050052;
-        public static final int user_item_marging=0x7f050053;
-        public static final int user_item_padding_horizontal=0x7f050054;
-        public static final int user_item_padding_vertical=0x7f050055;
-        public static final int user_item_textSize=0x7f050056;
-        public static final int user_logout_button_marging=0x7f050057;
-        public static final int user_logout_button_marging_bottom=0x7f050058;
-        public static final int user_logout_button_text_size=0x7f050059;
+        public static final int activity_horizontal_margin=0x7f06005a;
+        public static final int camcorder_setting_item_drawable_padding=0x7f060000;
+        public static final int camcorder_setting_item_minWidth=0x7f060001;
+        public static final int camcorder_setting_item_padding_horizontal=0x7f060002;
+        public static final int camcorder_setting_item_padding_vertical=0x7f060003;
+        public static final int camcorder_setting_item_text_size=0x7f060004;
+        public static final int camcorder_title_button_marging=0x7f060005;
+        public static final int camcorder_title_button_minSize=0x7f060006;
+        public static final int camcorder_title_button_padding=0x7f060007;
+        public static final int camcorder_title_text_size=0x7f060008;
+        public static final int camcorder_toolbar_item_drawable_padding=0x7f060009;
+        public static final int camcorder_toolbar_item_padding=0x7f06000a;
+        public static final int camcorder_toolbar_item_text_size=0x7f06000b;
+        public static final int content_padding=0x7f06000c;
+        public static final int details_item_dialog_btn_marginLeft=0x7f06000d;
+        public static final int details_item_dialog_btn_marginTop=0x7f06000e;
+        public static final int details_item_dialog_btn_textSize=0x7f06000f;
+        public static final int details_item_dialog_ll_marginTop=0x7f060010;
+        public static final int details_item_dialog_padding=0x7f060011;
+        public static final int discovery_auto_item_drawable_padding=0x7f060012;
+        public static final int discovery_auto_item_padding_horizontal=0x7f060013;
+        public static final int discovery_auto_item_padding_vertical=0x7f060014;
+        public static final int discovery_auto_item_text_size=0x7f060015;
+        public static final int discovery_chanel_item_grid_spacing=0x7f060016;
+        public static final int discovery_chanel_item_grid_spacing_bak=0x7f060017;
+        public static final int discovery_chanel_item_text_padding=0x7f060018;
+        public static final int discovery_chanel_item_text_size=0x7f060019;
+        public static final int discovery_gragest_content_padding=0x7f06001a;
+        public static final int discovery_gragest_drawable_padding=0x7f06001b;
+        public static final int discovery_gragest_textSize=0x7f06001c;
+        public static final int discovery_hot_topic_item_divider_height=0x7f06001d;
+        public static final int discovery_hot_topic_item_padding=0x7f06001e;
+        public static final int discovery_hot_topic_item_text_size=0x7f06001f;
+        public static final int discovery_label_text_size=0x7f060020;
+        public static final int discovery_search_input_corners_radius=0x7f060021;
+        public static final int discovery_search_input_drawable_padding=0x7f060022;
+        public static final int discovery_search_input_padding_horizontal=0x7f060023;
+        public static final int discovery_search_input_padding_vertical=0x7f060024;
+        public static final int discovery_search_label_padding_top=0x7f060025;
+        public static final int discovery_search_text_size=0x7f060026;
+        public static final int event_item_drawable_padding=0x7f060027;
+        public static final int event_item_label_text_size=0x7f060028;
+        public static final int event_item_title_text_size=0x7f060029;
+        public static final int home_header_avatar_padding_top=0x7f06002a;
+        public static final int home_header_coin_icon_text_padding=0x7f06002b;
+        public static final int home_header_coin_text_size=0x7f06002c;
+        public static final int home_header_content_padding=0x7f06002d;
+        public static final int home_header_user_name_text_size=0x7f06002e;
+        public static final int home_item_avatar_size=0x7f06002f;
+        public static final int home_item_button_divider_height=0x7f060030;
+        public static final int home_item_button_text_size=0x7f060031;
+        public static final int home_item_coin_text_size=0x7f060032;
+        public static final int home_item_content_padding=0x7f060033;
+        public static final int home_item_desc_text_size=0x7f060034;
+        public static final int home_item_label_drawable_padding=0x7f060035;
+        public static final int home_item_label_text_size=0x7f060036;
+        public static final int home_item_title_text_size=0x7f060037;
+        public static final int indicator_dot_corners_radius=0x7f060038;
+        public static final int indicator_dot_size=0x7f060039;
+        public static final int item_details_avatar=0x7f06003a;
+        public static final int login_button_text_size=0x7f06003b;
+        public static final int login_input_min_height=0x7f06003c;
+        public static final int login_input_padding=0x7f06003d;
+        public static final int login_input_text_size=0x7f06003e;
+        public static final int login_padding_to_button=0x7f06003f;
+        public static final int login_padding_to_input=0x7f060040;
+        public static final int login_padding_to_label=0x7f060041;
+        public static final int login_padding_to_logo=0x7f060042;
+        public static final int login_padding_to_top=0x7f060043;
+        public static final int login_text_padding=0x7f060044;
+        public static final int login_text_size=0x7f060045;
+        public static final int login_type_icon_marging=0x7f060046;
+        public static final int login_type_icon_padding=0x7f060047;
+        public static final int navigation_margin=0x7f060048;
+        public static final int navigation_margin_back=0x7f060049;
+        public static final int splash_text_size=0x7f06004a;
+        public static final int user_header_count_divider_height=0x7f06004b;
+        public static final int user_header_count_label_paddint_to_number=0x7f06004c;
+        public static final int user_header_count_label_text_size=0x7f06004d;
+        public static final int user_header_count_number_text_size=0x7f06004e;
+        public static final int user_header_padding_to_avatar=0x7f06004f;
+        public static final int user_header_padding_to_user_name=0x7f060050;
+        public static final int user_header_padding_vertical=0x7f060051;
+        public static final int user_item_drawable_padding=0x7f060052;
+        public static final int user_item_marging=0x7f060053;
+        public static final int user_item_padding_horizontal=0x7f060054;
+        public static final int user_item_padding_vertical=0x7f060055;
+        public static final int user_item_textSize=0x7f060056;
+        public static final int user_logout_button_marging=0x7f060057;
+        public static final int user_logout_button_marging_bottom=0x7f060058;
+        public static final int user_logout_button_text_size=0x7f060059;
     }
     public static final class drawable {
         public static final int bg_camcorder_setting=0x7f020000;
         public static final int bg_camera_setting=0x7f020001;
-        public static final int ic_arrow_down_right=0x7f020002;
-        public static final int ic_camera_setting=0x7f020003;
-        public static final int ic_camera_setting2=0x7f020004;
-        public static final int ic_change_camera=0x7f020005;
-        public static final int ic_change_camera2=0x7f020006;
-        public static final int ic_delay=0x7f020007;
-        public static final int ic_delay2=0x7f020008;
-        public static final int ic_delay3=0x7f020009;
-        public static final int ic_delete=0x7f02000a;
-        public static final int ic_delete2=0x7f02000b;
-        public static final int ic_delete3=0x7f02000c;
-        public static final int ic_discovery=0x7f02000d;
-        public static final int ic_discovery2=0x7f02000e;
-        public static final int ic_flash=0x7f02000f;
-        public static final int ic_flash2=0x7f020010;
-        public static final int ic_flash3=0x7f020011;
-        public static final int ic_focus=0x7f020012;
-        public static final int ic_focus2=0x7f020013;
-        public static final int ic_focus3=0x7f020014;
-        public static final int ic_grid=0x7f020015;
-        public static final int ic_grid2=0x7f020016;
-        public static final int ic_iamge3=0x7f020017;
-        public static final int ic_image=0x7f020018;
-        public static final int ic_image2=0x7f020019;
-        public static final int ic_launcher=0x7f02001a;
-        public static final int ic_user_item_coin=0x7f02001b;
-        public static final int ic_user_item_contact_friend=0x7f02001c;
-        public static final int ic_video=0x7f02001d;
-        public static final int ic_video2=0x7f02001e;
-        public static final int ic_video3=0x7f02001f;
-        public static final int selector_ic_camera_setting=0x7f020020;
-        public static final int selector_ic_change_camera=0x7f020021;
-        public static final int selector_ic_delay=0x7f020022;
-        public static final int selector_ic_delete=0x7f020023;
-        public static final int selector_ic_flash=0x7f020024;
-        public static final int selector_ic_focus=0x7f020025;
-        public static final int selector_ic_grid=0x7f020026;
-        public static final int selector_ic_image=0x7f020027;
-        public static final int selector_ic_video=0x7f020028;
+        public static final int bg_deal_progress=0x7f020002;
+        public static final int ic_arrow_down_right=0x7f020003;
+        public static final int ic_camera_setting=0x7f020004;
+        public static final int ic_camera_setting2=0x7f020005;
+        public static final int ic_change_camera=0x7f020006;
+        public static final int ic_change_camera2=0x7f020007;
+        public static final int ic_delay=0x7f020008;
+        public static final int ic_delay2=0x7f020009;
+        public static final int ic_delay3=0x7f02000a;
+        public static final int ic_delete=0x7f02000b;
+        public static final int ic_delete2=0x7f02000c;
+        public static final int ic_delete3=0x7f02000d;
+        public static final int ic_discovery=0x7f02000e;
+        public static final int ic_discovery2=0x7f02000f;
+        public static final int ic_drawer=0x7f020010;
+        public static final int ic_filter=0x7f020011;
+        public static final int ic_filter2=0x7f020012;
+        public static final int ic_flash=0x7f020013;
+        public static final int ic_flash2=0x7f020014;
+        public static final int ic_flash3=0x7f020015;
+        public static final int ic_focus=0x7f020016;
+        public static final int ic_focus2=0x7f020017;
+        public static final int ic_focus3=0x7f020018;
+        public static final int ic_grid=0x7f020019;
+        public static final int ic_grid2=0x7f02001a;
+        public static final int ic_iamge3=0x7f02001b;
+        public static final int ic_image=0x7f02001c;
+        public static final int ic_image2=0x7f02001d;
+        public static final int ic_launcher=0x7f02001e;
+        public static final int ic_music=0x7f02001f;
+        public static final int ic_music2=0x7f020020;
+        public static final int ic_none=0x7f020021;
+        public static final int ic_save=0x7f020022;
+        public static final int ic_save2=0x7f020023;
+        public static final int ic_theme=0x7f020024;
+        public static final int ic_theme2=0x7f020025;
+        public static final int ic_user_item_coin=0x7f020026;
+        public static final int ic_user_item_contact_friend=0x7f020027;
+        public static final int ic_video=0x7f020028;
+        public static final int ic_video2=0x7f020029;
+        public static final int ic_video3=0x7f02002a;
+        public static final int ic_video_play=0x7f02002b;
+        public static final int ic_watermark=0x7f02002c;
+        public static final int ic_watermark2=0x7f02002d;
+        public static final int selector_ic_camera_setting=0x7f02002e;
+        public static final int selector_ic_change_camera=0x7f02002f;
+        public static final int selector_ic_delay=0x7f020030;
+        public static final int selector_ic_delete=0x7f020031;
+        public static final int selector_ic_filter=0x7f020032;
+        public static final int selector_ic_flash=0x7f020033;
+        public static final int selector_ic_focus=0x7f020034;
+        public static final int selector_ic_grid=0x7f020035;
+        public static final int selector_ic_image=0x7f020036;
+        public static final int selector_ic_music=0x7f020037;
+        public static final int selector_ic_save=0x7f020038;
+        public static final int selector_ic_theme=0x7f020039;
+        public static final int selector_ic_video=0x7f02003a;
+        public static final int selector_ic_watermark=0x7f02003b;
     }
     public static final class id {
-        public static final int btn_camcorder_delete=0x7f080008;
-        public static final int btn_camcorder_image=0x7f080005;
-        public static final int btn_camcorder_title_button1=0x7f08000f;
-        public static final int btn_camcorder_title_button2=0x7f080010;
-        public static final int btn_camcorder_title_left=0x7f08000e;
-        public static final int btn_camcorder_title_right=0x7f080011;
-        public static final int btn_camcorder_video=0x7f080004;
-        public static final int ll_recorder_toolbar=0x7f080003;
-        public static final int pv_recorder_progress=0x7f080001;
-        public static final int recorder_progress_progressbar=0x7f08000a;
-        public static final int recorder_progress_progresstext=0x7f08000b;
-        public static final int recorder_progress_text=0x7f080009;
-        public static final int sv_recorder_preview=0x7f080002;
-        public static final int tb_camcorder=0x7f080000;
-        public static final int tbtn_camcorder_delay=0x7f080006;
-        public static final int tbtn_camcorder_focus=0x7f080007;
-        public static final int tbtn_camcorder_setting_flash=0x7f08000d;
-        public static final int tbtn_camcorder_setting_grid=0x7f08000c;
+        public static final int btn_camcorder_delete=0x7f050009;
+        public static final int btn_camcorder_image=0x7f050006;
+        public static final int btn_camcorder_title_button1=0x7f05001a;
+        public static final int btn_camcorder_title_button2=0x7f05001b;
+        public static final int btn_camcorder_title_left=0x7f050019;
+        public static final int btn_camcorder_title_right=0x7f05001c;
+        public static final int btn_camcorder_video=0x7f050005;
+        public static final int hgv_video_edit_boxes=0x7f05000f;
+        public static final int iv_item_box_thumb=0x7f050014;
+        public static final int iv_item_box_tip=0x7f050015;
+        public static final int iv_video_edit_flow=0x7f05000d;
+        public static final int iv_video_edit_icon=0x7f05000e;
+        public static final int iv_video_edit_thumb=0x7f05000c;
+        public static final int ll_recorder_toolbar=0x7f050004;
+        public static final int pv_recorder_progress=0x7f050002;
+        public static final int recorder_progress_progressbar=0x7f05001e;
+        public static final int recorder_progress_progresstext=0x7f05001f;
+        public static final int recorder_progress_text=0x7f05001d;
+        public static final int sv_recorder_preview=0x7f050003;
+        public static final int sv_video_preview=0x7f05000b;
+        public static final int tb_camcorder=0x7f050001;
+        public static final int tb_video_edit=0x7f05000a;
+        public static final int tbtn_camcorder_delay=0x7f050007;
+        public static final int tbtn_camcorder_focus=0x7f050008;
+        public static final int tbtn_camcorder_setting_flash=0x7f050018;
+        public static final int tbtn_camcorder_setting_grid=0x7f050017;
+        public static final int tbtn_video_edit_filter=0x7f050012;
+        public static final int tbtn_video_edit_music=0x7f050011;
+        public static final int tbtn_video_edit_theme=0x7f050013;
+        public static final int tbtn_video_edit_watermark=0x7f050010;
+        public static final int tv_item_box_label=0x7f050016;
+        public static final int wrap_content=0x7f050000;
     }
     public static final class layout {
         public static final int activity_camcorder=0x7f030000;
-        public static final int activity_recorder_progress=0x7f030001;
-        public static final int layout_camcorder_setting=0x7f030002;
-        public static final int layout_camcorder_title=0x7f030003;
+        public static final int activity_video_edit=0x7f030001;
+        public static final int item_box=0x7f030002;
+        public static final int layout_camcorder_setting=0x7f030003;
+        public static final int layout_camcorder_title=0x7f030004;
+        public static final int layout_deal_progress=0x7f030005;
     }
     public static final class string {
-        public static final int app_name=0x7f060000;
-        public static final int camera_error_title=0x7f060001;
-        public static final int cancel=0x7f060002;
-        public static final int cannot_connect_camera=0x7f060003;
-        public static final int delay=0x7f060004;
-        public static final int delete_back=0x7f060005;
-        public static final int details_ok=0x7f060006;
-        public static final int flash=0x7f060007;
-        public static final int focus=0x7f060008;
-        public static final int grid=0x7f060009;
-        public static final int image=0x7f06000a;
-        public static final int next_step=0x7f06000b;
-        public static final int video=0x7f06000c;
-        public static final int video_camera_label=0x7f06000d;
-        public static final int video_file_name_format=0x7f06000e;
-        public static final int wait=0x7f06000f;
+        public static final int app_name=0x7f070000;
+        public static final int camera_error_title=0x7f070001;
+        public static final int cancel=0x7f070002;
+        public static final int cannot_connect_camera=0x7f070003;
+        public static final int delay=0x7f070004;
+        public static final int delete_back=0x7f070005;
+        public static final int details_ok=0x7f070006;
+        public static final int filter=0x7f070007;
+        public static final int flash=0x7f070008;
+        public static final int focus=0x7f070009;
+        public static final int grid=0x7f07000a;
+        public static final int image=0x7f07000b;
+        public static final int music=0x7f07000c;
+        public static final int next_step=0x7f07000d;
+        public static final int theme=0x7f07000e;
+        public static final int video=0x7f07000f;
+        public static final int video_camera_label=0x7f070010;
+        public static final int video_file_name_format=0x7f070011;
+        public static final int wait=0x7f070012;
+        public static final int watermark=0x7f070013;
     }
     public static final class style {
-        public static final int AppTheme=0x7f070000;
-        public static final int CamcorderSettingButton=0x7f070001;
+        public static final int AppTheme=0x7f080000;
+        public static final int CamcorderSettingButton=0x7f080001;
         /**  背景是否模糊 
          */
-        public static final int DialogLoadingNoDim=0x7f070002;
-        public static final int RecorderTitleButton=0x7f070003;
-        public static final int RecorderToolbarButton=0x7f070004;
-        public static final int SingleLine=0x7f070005;
+        public static final int DialogLoadingNoDim=0x7f080002;
+        public static final int RecorderTitleButton=0x7f080003;
+        public static final int RecorderToolbarButton=0x7f080004;
+        public static final int SingleLine=0x7f080005;
     }
     public static final class styleable {
         /** Attributes that can be used with a ProgressView.
@@ -576,5 +686,167 @@ containing a value of this type.
           @attr name com.opensource.camcorder:splitWidth
         */
         public static final int ProgressView_splitWidth = 4;
+        /** Attributes that can be used with a lbBaseGridView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #lbBaseGridView_android_gravity android:gravity}</code></td><td> Defining gravity of child view </td></tr>
+           <tr><td><code>{@link #lbBaseGridView_focusOutEnd com.opensource.camcorder:focusOutEnd}</code></td><td> Allow DPAD key to navigate out at the end of the view, default is false </td></tr>
+           <tr><td><code>{@link #lbBaseGridView_focusOutFront com.opensource.camcorder:focusOutFront}</code></td><td>
+             Allow DPAD key to navigate out at the front of the View (where position = 0),
+             default is false
+        </td></tr>
+           <tr><td><code>{@link #lbBaseGridView_horizontalMargin com.opensource.camcorder:horizontalMargin}</code></td><td> Defining margin between two items horizontally </td></tr>
+           <tr><td><code>{@link #lbBaseGridView_verticalMargin com.opensource.camcorder:verticalMargin}</code></td><td> Defining margin between two items vertically </td></tr>
+           </table>
+           @see #lbBaseGridView_android_gravity
+           @see #lbBaseGridView_focusOutEnd
+           @see #lbBaseGridView_focusOutFront
+           @see #lbBaseGridView_horizontalMargin
+           @see #lbBaseGridView_verticalMargin
+         */
+        public static final int[] lbBaseGridView = {
+            0x010100af, 0x7f01000d, 0x7f01000e, 0x7f01000f,
+            0x7f010010
+        };
+        /**
+          <p>
+          @attr description
+           Defining gravity of child view 
+          <p>This corresponds to the global attribute
+          resource symbol {@link android.R.attr#gravity}.
+          @attr name android:gravity
+        */
+        public static final int lbBaseGridView_android_gravity = 0;
+        /**
+          <p>
+          @attr description
+           Allow DPAD key to navigate out at the end of the view, default is false 
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          <p>This is a private symbol.
+          @attr name com.opensource.camcorder:focusOutEnd
+        */
+        public static final int lbBaseGridView_focusOutEnd = 2;
+        /**
+          <p>
+          @attr description
+          
+             Allow DPAD key to navigate out at the front of the View (where position = 0),
+             default is false
+        
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          <p>This is a private symbol.
+          @attr name com.opensource.camcorder:focusOutFront
+        */
+        public static final int lbBaseGridView_focusOutFront = 1;
+        /**
+          <p>
+          @attr description
+           Defining margin between two items horizontally 
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          <p>This is a private symbol.
+          @attr name com.opensource.camcorder:horizontalMargin
+        */
+        public static final int lbBaseGridView_horizontalMargin = 3;
+        /**
+          <p>
+          @attr description
+           Defining margin between two items vertically 
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          <p>This is a private symbol.
+          @attr name com.opensource.camcorder:verticalMargin
+        */
+        public static final int lbBaseGridView_verticalMargin = 4;
+        /** Attributes that can be used with a lbHorizontalGridView.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #lbHorizontalGridView_numberOfRows com.opensource.camcorder:numberOfRows}</code></td><td> Defining number of rows </td></tr>
+           <tr><td><code>{@link #lbHorizontalGridView_rowHeight com.opensource.camcorder:rowHeight}</code></td><td> Defining height of each row of HorizontalGridView </td></tr>
+           </table>
+           @see #lbHorizontalGridView_numberOfRows
+           @see #lbHorizontalGridView_rowHeight
+         */
+        public static final int[] lbHorizontalGridView = {
+            0x7f010011, 0x7f010012
+        };
+        /**
+          <p>
+          @attr description
+           Defining number of rows 
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          <p>This is a private symbol.
+          @attr name com.opensource.camcorder:numberOfRows
+        */
+        public static final int lbHorizontalGridView_numberOfRows = 1;
+        /**
+          <p>
+          @attr description
+           Defining height of each row of HorizontalGridView 
+
+
+          <p>May be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+<p>May be one of the following constant values.</p>
+<table>
+<colgroup align="left" />
+<colgroup align="left" />
+<colgroup align="left" />
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td><code>wrap_content</code></td><td>-2</td><td></td></tr>
+</table>
+          <p>This is a private symbol.
+          @attr name com.opensource.camcorder:rowHeight
+        */
+        public static final int lbHorizontalGridView_rowHeight = 0;
     };
 }

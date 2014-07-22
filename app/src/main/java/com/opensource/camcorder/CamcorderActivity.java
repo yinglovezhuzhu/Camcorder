@@ -88,6 +88,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
 
@@ -216,6 +217,8 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     private ProgressView mProgressView;
     private LinearLayout mToolbar;
+
+    private Stack<String> mFilePaths = new Stack<String>();
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -1338,7 +1341,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
 
 	//当前录制的质量，会影响视频清晰度和文件大小
-	private int currentResolution = CONSTANTS.RESOLUTION_MEDIUM_VALUE;
+	private int currentResolution = CamcorderConfig.RESOLUTION_MEDIUM_VALUE;
 
 
 	/**
@@ -1436,7 +1439,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 			lp.gravity = Gravity.CENTER;
 			dialogWindow.setAttributes(lp);
             mmDialog.setCanceledOnTouchOutside(false);
-            mmDialog.setContentView(R.layout.activity_recorder_progress);
+            mmDialog.setContentView(R.layout.layout_deal_progress);
 
             mmTvProgress = (TextView) mmDialog.findViewById(R.id.recorder_progress_progresstext);
             mmProgressBar = (ProgressBar) mmDialog.findViewById(R.id.recorder_progress_progressbar);
@@ -1456,16 +1459,20 @@ public class CamcorderActivity extends NoSearchActivity implements
             }
             publishProgress(30);
             Bitmap bm = ThumbnailUtils.createVideoThumbnail(videoPath, Video.Thumbnails.FULL_SCREEN_KIND);
-            publishProgress(50);
-            File file = new File(Util.createImagePath(CamcorderActivity.this));
-            try {
-                boolean state = bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
+            if(null == bm) {
                 publishProgress(80);
-                if(state && file.exists()) {
-                    return file.getAbsolutePath();
+            } else {
+                publishProgress(50);
+                File file = new File(Util.createImagePath(CamcorderActivity.this));
+                try {
+                    boolean state = bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
+                    publishProgress(80);
+                    if(state && file.exists()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             }
             return null;
         }

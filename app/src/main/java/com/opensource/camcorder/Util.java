@@ -468,8 +468,8 @@ public class Util {
 
     public static String createImagePath(Context context) {
         long dateTaken = System.currentTimeMillis();
-        String title = CONSTANTS.FILE_START_NAME + dateTaken;
-        String filename = title + CONSTANTS.IMAGE_EXTENSION;
+        String title = CamcorderConfig.FILE_START_NAME + dateTaken;
+        String filename = title + CamcorderConfig.IMAGE_EXTENSION;
 
         String dirPath = Environment.getExternalStorageDirectory()
                 + File.separator  + context.getResources().getString(R.string.app_name)
@@ -483,8 +483,8 @@ public class Util {
 
     public static String createFinalPath(Context context) {
         long dateTaken = System.currentTimeMillis();
-        String title = CONSTANTS.FILE_START_NAME + dateTaken;
-        String filename = title + CONSTANTS.VIDEO_EXTENSION;
+        String title = CamcorderConfig.FILE_START_NAME + dateTaken;
+        String filename = title + CamcorderConfig.VIDEO_EXTENSION;
         String filePath = genrateFilePath(context, String.valueOf(dateTaken), true, null);
 
         ContentValues values = new ContentValues(7);
@@ -515,7 +515,7 @@ public class Util {
     }
 
     private static String genrateFilePath(Context context, String uniqueId, boolean isFinalPath, File tempFolderPath) {
-        String fileName = CONSTANTS.FILE_START_NAME + uniqueId + CONSTANTS.VIDEO_EXTENSION;
+        String fileName = CamcorderConfig.FILE_START_NAME + uniqueId + CamcorderConfig.VIDEO_EXTENSION;
         String dirPath = Environment.getExternalStorageDirectory()
                 + File.separator  + context.getResources().getString(R.string.app_name)
                 + File.separator + "video";
@@ -537,7 +537,7 @@ public class Util {
 
 
     public static File getTempFolderPath() {
-        File tempFolder = new File(CONSTANTS.TEMP_FOLDER_PATH + "_" + System.currentTimeMillis());
+        File tempFolder = new File(CamcorderConfig.TEMP_FOLDER_PATH + "_" + System.currentTimeMillis());
         return tempFolder;
     }
 
@@ -552,13 +552,13 @@ public class Util {
 
     public static RecorderParameters getRecorderParameter(int currentResolution) {
         RecorderParameters parameters = new RecorderParameters();
-        if (currentResolution == CONSTANTS.RESOLUTION_HIGH_VALUE) {
+        if (currentResolution == CamcorderConfig.RESOLUTION_HIGH_VALUE) {
             parameters.setAudioBitrate(128000);
             parameters.setVideoQuality(0);
-        } else if (currentResolution == CONSTANTS.RESOLUTION_MEDIUM_VALUE) {
+        } else if (currentResolution == CamcorderConfig.RESOLUTION_MEDIUM_VALUE) {
             parameters.setAudioBitrate(128000);
             parameters.setVideoQuality(5);
-        } else if (currentResolution == CONSTANTS.RESOLUTION_LOW_VALUE) {
+        } else if (currentResolution == CamcorderConfig.RESOLUTION_LOW_VALUE) {
             parameters.setAudioBitrate(96000);
             parameters.setVideoQuality(20);
         }
@@ -567,11 +567,11 @@ public class Util {
 
     public static int calculateMargin(int previewWidth, int screenWidth) {
         int margin = 0;
-        if (previewWidth <= CONSTANTS.RESOLUTION_LOW) {
+        if (previewWidth <= CamcorderConfig.RESOLUTION_LOW) {
             margin = (int) (screenWidth * 0.12);
-        } else if (previewWidth > CONSTANTS.RESOLUTION_LOW && previewWidth <= CONSTANTS.RESOLUTION_MEDIUM) {
+        } else if (previewWidth > CamcorderConfig.RESOLUTION_LOW && previewWidth <= CamcorderConfig.RESOLUTION_MEDIUM) {
             margin = (int) (screenWidth * 0.08);
-        } else if (previewWidth > CONSTANTS.RESOLUTION_MEDIUM && previewWidth <= CONSTANTS.RESOLUTION_HIGH) {
+        } else if (previewWidth > CamcorderConfig.RESOLUTION_MEDIUM && previewWidth <= CamcorderConfig.RESOLUTION_HIGH) {
             margin = (int) (screenWidth * 0.08);
         }
         return margin;
@@ -581,11 +581,11 @@ public class Util {
 
     public static int setSelectedResolution(int previewHeight) {
         int selectedResolution = 0;
-        if (previewHeight <= CONSTANTS.RESOLUTION_LOW) {
+        if (previewHeight <= CamcorderConfig.RESOLUTION_LOW) {
             selectedResolution = 0;
-        } else if (previewHeight > CONSTANTS.RESOLUTION_LOW && previewHeight <= CONSTANTS.RESOLUTION_MEDIUM) {
+        } else if (previewHeight > CamcorderConfig.RESOLUTION_LOW && previewHeight <= CamcorderConfig.RESOLUTION_MEDIUM) {
             selectedResolution = 1;
-        } else if (previewHeight > CONSTANTS.RESOLUTION_MEDIUM && previewHeight <= CONSTANTS.RESOLUTION_HIGH) {
+        } else if (previewHeight > CamcorderConfig.RESOLUTION_MEDIUM && previewHeight <= CamcorderConfig.RESOLUTION_HIGH) {
             selectedResolution = 2;
         }
         return selectedResolution;

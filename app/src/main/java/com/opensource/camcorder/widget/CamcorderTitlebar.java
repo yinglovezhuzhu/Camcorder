@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project.
+ *
+ *        yinglovezhuzhu@gmail.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.opensource.camcorder.widget;
 
 import android.content.Context;
@@ -107,7 +125,7 @@ public class CamcorderTitlebar extends LinearLayout {
      */
     public void setButton1(int drawableLeft, int drawableRight, OnClickListener listener) {
         if(drawableLeft <= 0) {
-            mButton1.setVisibility(View.INVISIBLE);
+            mButton1.setVisibility(View.GONE);
             return;
         }
         mButton1.setVisibility(View.VISIBLE);
@@ -123,7 +141,7 @@ public class CamcorderTitlebar extends LinearLayout {
      */
     public void setButton2(int drawableLeft, int drawableRight, OnClickListener listener) {
         if(drawableLeft <= 0 && drawableRight <= 0) {
-            mButton2.setVisibility(View.INVISIBLE);
+            mButton2.setVisibility(View.GONE);
             return;
         }
         mButton2.setVisibility(View.VISIBLE);

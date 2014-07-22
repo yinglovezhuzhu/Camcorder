@@ -1,0 +1,130 @@
+<!--
+  ~ Copyright (C) 2014 The Android Open Source Project.
+  ~
+  ~        yinglovezhuzhu@gmail.com
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:gridview="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/content_backgroud_recorder">
+    <com.opensource.camcorder.widget.CamcorderTitlebar
+        android:id="@+id/tb_video_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="400dip">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <SurfaceView
+                    android:id="@+id/sv_video_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"/>
+                <ImageView
+                    android:id="@+id/iv_video_edit_thumb"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:adjustViewBounds="true"/>
+                <ImageView
+                    android:id="@+id/iv_video_edit_flow"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:scaleType="centerInside"
+                    android:adjustViewBounds="true"/>
+                <ImageView
+                    android:id="@+id/iv_video_edit_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/ic_video_play"/>
+            </FrameLayout>
+        </ScrollView>
+    </LinearLayout>
+    <com.opensource.camcorder.widget.HorizontalGridView
+        android:id="@+id/hgv_video_edit_boxes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dip"
+        android:paddingBottom="5dip"
+        android:minHeight="60dip"
+        gridview:numberOfRows="1"
+        gridview:rowHeight="wrap_content"/>
+    <LinearLayout
+        android:id="@+id/ll_recorder_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:background="@color/content_backgroud_recorder"
+        android:layout_gravity="bottom"
+        android:gravity="bottom">
+        <ToggleButton
+            style="@style/RecorderToolbarButton"
+            android:id="@+id/tbtn_video_edit_watermark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/selector_ic_watermark"
+            android:textColor="@color/rbtn_text_color_gray_red"
+            android:textOn="@string/watermark"
+            android:textOff="@string/watermark"
+            android:checked="false" />
+        <ToggleButton
+            style="@style/RecorderToolbarButton"
+            android:id="@+id/tbtn_video_edit_music"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/selector_ic_music"
+            android:textColor="@color/rbtn_text_color_gray_red"
+            android:textOn="@string/music"
+            android:textOff="@string/music"/>
+
+        <ToggleButton
+            style="@style/RecorderToolbarButton"
+            android:id="@+id/tbtn_video_edit_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/selector_ic_filter"
+            android:textColor="@color/rbtn_text_color_gray_red"
+            android:textOn="@string/filter"
+            android:textOff="@string/filter"/>
+        <ToggleButton
+            style="@style/RecorderToolbarButton"
+            android:id="@+id/tbtn_video_edit_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/selector_ic_theme"
+            android:textColor="@color/rbtn_text_color_gray_red"
+            android:textOn="@string/theme"
+            android:textOff="@string/theme"/>
+    </LinearLayout>
+</LinearLayout>
