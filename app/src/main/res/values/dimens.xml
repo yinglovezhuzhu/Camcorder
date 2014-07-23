@@ -124,6 +124,12 @@
     <dimen name="camcorder_setting_item_text_size">18sp</dimen>
     <dimen name="camcorder_setting_item_minWidth">150dip</dimen>
 
+    <!-- 录像-编辑页面 -->
+    <dimen name="video_edit_box_item_icon_size">70dip</dimen>
+    <dimen name="video_edit_box_item_icon_padding">5dip</dimen>
+    <dimen name="video_edit_box_item_label_text_size">13sp</dimen>
+    <dimen name="video_edit_box_item_tip_text_size">12sp</dimen>
+
     <!-- 详细页面 -->
     <dimen name="item_details_avatar">5dp</dimen>
     <dimen name="details_item_dialog_btn_marginLeft">30dp</dimen>

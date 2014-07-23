@@ -20,32 +20,45 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:clickable="true"
+    android:focusable="false"
+    android:focusableInTouchMode="false">
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1">
-        <ImageView
-            android:id="@+id/iv_item_box_thumb"
+        android:layout_width="@dimen/video_edit_box_item_icon_size"
+        android:layout_height="@dimen/video_edit_box_item_icon_size">
+        <LinearLayout
+            android:id="@+id/ll_item_box_thumb_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_launcher"
-            android:layout_margin="10dip"
-            android:background="@color/gray"/>
-        <ImageView
-            android:id="@+id/iv_item_box_tip"
+            android:layout_margin="5dip"
+            android:background="@drawable/bg_item_box_normal">
+            <ImageView
+                android:id="@+id/iv_item_box_thumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@color/black"
+                android:scaleType="centerCrop" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_item_box_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|right"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_change_camera2"/>
+            android:gravity="center"
+            android:textSize="@dimen/video_edit_box_item_tip_text_size"
+            android:background="@drawable/bg_new_tip"
+            android:textColor="@color/white"
+            android:text="@string/tip_new"
+            android:visibility="invisible"/>
     </FrameLayout>
     <TextView
         android:id="@+id/tv_item_box_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="@dimen/video_edit_box_item_label_text_size"
+        android:textColor="@color/text_color_gray"
         android:text="水印库"/>
 </LinearLayout>

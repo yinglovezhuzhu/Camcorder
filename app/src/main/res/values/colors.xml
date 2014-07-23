@@ -24,6 +24,7 @@
     <color name="red">#FFFF0000</color>
     <color name="gray">#FF808080</color>
     <color name="light_gray">#FFD8D8D8</color>
+    <color name="dark_gray">#FF4C4C4C</color>
 
     <color name="content_backgroud">#FFEFEFEF</color>
     <color name="content_backgroud_midle">#FFDDDDDD</color>
@@ -41,5 +42,8 @@
 
     <color name="progress_view_backgroud">#FFA7A7A7</color>
     <color name="progress_view_progress_color">#FF4E4E4E</color>
+
+    <color name="tips_bg_color_orange">#FFFF653B</color>
+    <color name="tips_bg_color_yellow">#FFFEAB1A</color>
 
 </resources>

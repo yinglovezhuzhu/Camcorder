@@ -75,56 +75,60 @@
         android:minHeight="60dip"
         gridview:numberOfRows="1"
         gridview:rowHeight="wrap_content"/>
-    <LinearLayout
-        android:id="@+id/ll_recorder_toolbar"
+    <RadioGroup
+        android:id="@+id/rg_recorder_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="10dip"
-        android:paddingBottom="10dip"
+        android:paddingTop="8dip"
+        android:paddingBottom="8dip"
         android:background="@color/content_backgroud_recorder"
         android:layout_gravity="bottom"
-        android:gravity="bottom">
-        <ToggleButton
+        android:gravity="bottom"
+        android:orientation="horizontal">
+        <RadioButton
             style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_video_edit_watermark"
+            android:id="@+id/rbtn_video_edit_watermark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/selector_ic_watermark"
             android:textColor="@color/rbtn_text_color_gray_red"
-            android:textOn="@string/watermark"
-            android:textOff="@string/watermark"
-            android:checked="false" />
-        <ToggleButton
+            android:text="@string/watermark"
+            android:button="@null"
+            android:checked="false"/>
+        <RadioButton
             style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_video_edit_music"
+            android:id="@+id/rbtn_video_edit_music"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/selector_ic_music"
             android:textColor="@color/rbtn_text_color_gray_red"
-            android:textOn="@string/music"
-            android:textOff="@string/music"/>
+            android:text="@string/music"
+            android:button="@null"
+            android:checked="false"/>
 
-        <ToggleButton
+        <RadioButton
             style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_video_edit_filter"
+            android:id="@+id/rbtn_video_edit_filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/selector_ic_filter"
             android:textColor="@color/rbtn_text_color_gray_red"
-            android:textOn="@string/filter"
-            android:textOff="@string/filter"/>
-        <ToggleButton
+            android:text="@string/filter"
+            android:button="@null"
+            android:checked="false"/>
+        <RadioButton
             style="@style/RecorderToolbarButton"
-            android:id="@+id/tbtn_video_edit_theme"
+            android:id="@+id/rbtn_video_edit_theme"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/selector_ic_theme"
             android:textColor="@color/rbtn_text_color_gray_red"
-            android:textOn="@string/theme"
-            android:textOff="@string/theme"/>
-    </LinearLayout>
+            android:text="@string/theme"
+            android:button="@null"
+            android:checked="false"/>
+    </RadioGroup>
 </LinearLayout>

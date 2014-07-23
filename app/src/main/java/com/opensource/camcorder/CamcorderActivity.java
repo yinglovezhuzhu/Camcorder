@@ -566,7 +566,8 @@ public class CamcorderActivity extends NoSearchActivity implements
         if(mRecorderRecording) {
             mRecorderRecording = false;
             mRecordedDuration += System.currentTimeMillis() - mRecordStartTime;
-            mHandler.sendEmptyMessage(UPDATE_PROGRESS);
+            mHandler.sendMessage(mHandler.obtainMessage(UPDATE_PROGRESS, mRecordedDuration));
+//            mHandler.sendEmptyMessage(UPDATE_PROGRESS);
         }
     }
 
@@ -1490,14 +1491,18 @@ public class CamcorderActivity extends NoSearchActivity implements
 
             //TODO 处理完成,跳转至编辑界面
             if(null != mVideoFilename) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.fromFile(new File(mVideoFilename)), "video/*");
-                try {
-                    startActivity(intent);
-                    finish();
-                } catch (android.content.ActivityNotFoundException ex) {
-                    Log.e(TAG, "Couldn't view video " + mCurrentVideoUri, ex);
-                }
+                Intent intent = new Intent(CamcorderActivity.this, VideoEditActivity.class);
+                intent.putExtra(VideoEditActivity.EXTRA_VIDEO, mVideoFilename);
+                intent.putExtra(VideoEditActivity.EXTRA_THUMB, thumbnail);
+                startActivity(intent);
+//                Intent intent = new Intent(Intent.ACTION_VIEW);
+//                intent.setDataAndType(Uri.fromFile(new File(mVideoFilename)), "video/*");
+//                try {
+//                    startActivity(intent);
+//                    finish();
+//                } catch (android.content.ActivityNotFoundException ex) {
+//                    Log.e(TAG, "Couldn't view video " + mCurrentVideoUri, ex);
+//                }
             }
             super.onPostExecute(thumbnail);
         }
