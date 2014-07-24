@@ -27,6 +27,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.Formatter;
 
+import com.opensource.camcorder.CamcorderConfig;
+import com.opensource.camcorder.R;
+
 import java.io.File;
 
 /**

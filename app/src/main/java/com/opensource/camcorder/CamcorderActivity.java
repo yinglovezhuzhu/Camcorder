@@ -73,8 +73,10 @@ import android.widget.ToggleButton;
 
 import com.googlecode.javacv.FFmpegFrameRecorder;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.opensource.camcorder.utils.CamcorderUtil;
 import com.opensource.camcorder.utils.StringUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
+import com.opensource.camcorder.widget.GridView;
 import com.opensource.camcorder.widget.ProgressView;
 import com.opensource.camcorder.widget.SettingPopupWindow;
 
@@ -87,7 +89,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
@@ -139,6 +143,8 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     private SettingPopupWindow mSettingWindow;
 
+    private GridView mGridView;
+
 
     private boolean mStartPreviewFail = false;
 
@@ -151,9 +157,12 @@ public class CamcorderActivity extends NoSearchActivity implements
     /** 录制的时间 **/
     private long mRecordedDuration = 0L;
 
-    // The video file that the hardware camera is about to startRecord into
-    // (or is recording into.)
+    private long mCurrentRecordedDuration = 0L;
+
     private String mVideoFilename;
+
+    private String mCurrentVideoTempFilename;
+    private Stack<String> mVideoTmepFilenames = new Stack<String>();
 
 
     private ParcelFileDescriptor mVideoFileDescriptor;
@@ -218,7 +227,6 @@ public class CamcorderActivity extends NoSearchActivity implements
     private ProgressView mProgressView;
     private LinearLayout mToolbar;
 
-    private Stack<String> mFilePaths = new Stack<String>();
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -259,22 +267,23 @@ public class CamcorderActivity extends NoSearchActivity implements
                 }
                 case UPDATE_PROGRESS:
                     if(mRecorderRecording) {
-                        long time = (Long) msg.obj;
-                        if(time < VIDEO_MAX_DURATION) {
-                            mProgressView.setProgress((Long) msg.obj);
-                        } else {
+                        if(mRecordFinished) {
                             mProgressView.setProgress(VIDEO_MAX_DURATION);
                             stopRecord();
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    new DealFinishWorkTask().execute();
+                                }
+                            }, 250);
+                        } else {
+                            mProgressView.setProgress(mProgressView.peekSplit() + (Long) msg.obj);
                         }
                     } else {
-                        if(mProgressView.getProgress() < mProgressView.getMaxProgress()) {
+                        if(!mRecordFinished) {
                             mProgressView.pushSplit(mProgressView.getProgress());
                         }
-                    }
-                    if(mProgressView.getProgress() >= VIDEO_MIN_DURATION) {
-                        mTitlebar.setRightButtonEnabled(true);
-                    } else {
-                        mTitlebar.setRightButtonEnabled(false);
                     }
                     break;
                 default:
@@ -314,15 +323,14 @@ public class CamcorderActivity extends NoSearchActivity implements
      */
     private String createName(long dateTaken) {
         Date date = new Date(dateTaken);
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                getString(R.string.video_file_name_format));
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.video_file_name_format));
 
         return dateFormat.format(date);
     }
 
     private void showCameraErrorAndFinish() {
         Resources ress = getResources();
-        Util.showFatalErrorAndFinish(CamcorderActivity.this,
+        CamcorderUtil.showFatalErrorAndFinish(CamcorderActivity.this,
                 ress.getString(R.string.camera_error_title),
                 ress.getString(R.string.cannot_connect_camera));
     }
@@ -425,7 +433,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 		// TODO 一帧帧保存
 		/* get video data */
 		if (mRecorderRecording && null != mYUVIplImage && null != data) {
-			long frameTime = mRecordedDuration + (System.currentTimeMillis() - mRecordStartTime);
+			final long frameTime = System.currentTimeMillis() - mRecordStartTime;
             Log.v(TAG, "Record FrameTime:" + frameTime);
 			byte[] tempData;
 			if(mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
@@ -448,7 +456,8 @@ public class CamcorderActivity extends NoSearchActivity implements
 				}
 				mFFmpegFrameRecorder.setTimestamp(1000 * frameTime);
 				mFFmpegFrameRecorder.record(mYUVIplImage);
-                mHandler.sendMessage(mHandler.obtainMessage(UPDATE_PROGRESS, frameTime));
+                mCurrentRecordedDuration = frameTime;
+                mHandler.sendMessage(mHandler.obtainMessage(UPDATE_PROGRESS, mCurrentRecordedDuration));
 			} catch (FFmpegFrameRecorder.Exception e) {
 				Log.v(TAG, e.getMessage());
 				e.printStackTrace();
@@ -457,6 +466,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 	}
 
 
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_camcorder_title_button1: //摄像头切换
@@ -471,13 +481,14 @@ public class CamcorderActivity extends NoSearchActivity implements
                 break;
             case R.id.btn_camcorder_title_right: //下一步
                 resetRecorder();
-                new DealFinishWorkTask().execute(mVideoFilename);
+                new DealFinishWorkTask().execute();
                 break;
             case R.id.btn_camcorder_video: //视频
                 break;
             case R.id.btn_camcorder_image: //图片
                 break;
             case R.id.btn_camcorder_delete: //删除
+                mProgressView.deleteBack(true);
                 break;
         }
     }
@@ -486,6 +497,7 @@ public class CamcorderActivity extends NoSearchActivity implements
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
             case R.id.tbtn_camcorder_setting_grid: //网格
+                showGridView(isChecked);
                 break;
             case R.id.tbtn_camcorder_setting_flash: //闪光
                 setVideoFlash(isChecked);
@@ -535,7 +547,6 @@ public class CamcorderActivity extends NoSearchActivity implements
      * 初始化完成，启动画面录制线程和音频录制线程
      */
     public void prepare() {
-        mRecordFinished = true;
         mRecorderRecording = false;
         try {
             mFFmpegFrameRecorder.start();
@@ -555,8 +566,8 @@ public class CamcorderActivity extends NoSearchActivity implements
             initRecorder();
         }
         mRecordStartTime = System.currentTimeMillis();
+        mCurrentRecordedDuration = 0L;
         mRecorderRecording = true;
-        mRecordFinished = false;
     }
 
     /**
@@ -565,9 +576,17 @@ public class CamcorderActivity extends NoSearchActivity implements
     private void stopRecord() {
         if(mRecorderRecording) {
             mRecorderRecording = false;
-            mRecordedDuration += System.currentTimeMillis() - mRecordStartTime;
-            mHandler.sendMessage(mHandler.obtainMessage(UPDATE_PROGRESS, mRecordedDuration));
-//            mHandler.sendEmptyMessage(UPDATE_PROGRESS);
+//            mCurrentRecordedDuration += System.currentTimeMillis() - mRecordStartTime;
+
+            mVideoTmepFilenames.push(mCurrentVideoTempFilename);
+
+            mRecordedDuration += mCurrentRecordedDuration;
+            mProgressView.setProgress(mRecordedDuration);
+            if(null != mFFmpegFrameRecorder) {
+                resetRecorder();
+            }
+
+            mCurrentRecordedDuration = 0L;
         }
     }
 
@@ -578,7 +597,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         if(mRecorderRecording) {
             stopRecord();
         }
-        mRecordFinished = true;
         releaseResources();
     }
 
@@ -659,11 +677,9 @@ public class CamcorderActivity extends NoSearchActivity implements
             mPreviewing = false;
         }
         setPreviewDisplay(mSurfaceHolder);
-        Util.setCameraDisplayOrientation(this, mCameraId, mCameraDevice);
+        CamcorderUtil.setCameraDisplayOrientation(this, mCameraId, mCameraDevice);
 
         setCameraParameters();
-
-//        initRecorder();
 
         try {
             mCameraDevice.startPreview();
@@ -780,15 +796,15 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     @Override
     public void onBackPressed() {
-    	this.finish();
-//        if (mPausing) {
-//            return;
-//        }
-//        if (mRecorderRecording) {
-//            onStopVideoRecording(false);
-//        } else {
-//            super.onBackPressed();
-//        }
+        if (mPausing) {
+            return;
+        }
+        if (mRecorderRecording) {
+            stopRecord();
+            resetRecorder();
+        }
+        exit();
+//        super.onBackPressed();
     }
 
     @Override
@@ -1064,13 +1080,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    /*private void acquireVideoThumb() {
-        Bitmap videoFrame = ThumbnailUtils.createVideoThumbnail(
-                mCurrentVideoFilename, Video.Thumbnails.MINI_KIND);
-//        mThumbController.setData(mCurrentVideoUri, videoFrame);
-//        mThumbController.updateDisplayIfNeeded();
-    }*/
-
     /**
      * Update the time show in when recording.
      */
@@ -1269,6 +1278,9 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         mVideoPreview = (SurfaceView) findViewById(R.id.sv_recorder_preview);
 
+        mGridView = (GridView) findViewById(R.id.gv_recorder_grid);
+
+
         mToolbar = (LinearLayout) findViewById(R.id.ll_recorder_toolbar);
         mBtnVideo = (Button) findViewById(R.id.btn_camcorder_video);
         mBtnImage = (Button) findViewById(R.id.btn_camcorder_image);
@@ -1291,17 +1303,40 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         mProgressView.setMaxProgress(VIDEO_MAX_DURATION); //八秒毫秒值8000
         mProgressView.setMinMask(VIDEO_MIN_DURATION); //最小两秒毫秒值2000
+        mProgressView.setOnDeleteListener(new ProgressView.OnDeleteListener() {
+
+            @Override
+            public void onConfirm(float lastProgress, float progress) {
+
+            }
+
+            @Override
+            public void onDelete(float lastProgress, float progress) {
+                if(mVideoTmepFilenames.isEmpty()) {
+                    return;
+                }
+                String tempFilename = mVideoTmepFilenames.pop();
+                File tempFile = new File(tempFilename);
+                if(null != tempFile && tempFile.exists()) {
+                    tempFile.delete();
+                }
+                mCurrentRecordedDuration = 0;
+                mRecordedDuration = (long)lastProgress;
+            }
+        });
         mProgressView.setOnProgressUpdateListener(new ProgressView.OnProgressUpdateListener() {
+
             @Override
             public void onProgressUpdate(float max, float progress) {
-                if(progress == max) {
-                    new DealFinishWorkTask().execute(mVideoFilename);
-                }
+                mTitlebar.setRightButtonEnabled(progress >= VIDEO_MIN_DURATION);
+                mBtnDelete.setEnabled(progress > 0);
+                mRecordFinished = progress >= max;
             }
         });
 
         initSettingPopWindow(); //初始化设置弹出框
 
+        showGridView(mSettingWindow.isGridChecked());
     }
 
     /**
@@ -1338,6 +1373,27 @@ public class CamcorderActivity extends NoSearchActivity implements
         toolbarLayoutParams.topMargin = mVideoHeight * dm.widthPixels / mPreviewHeight;
     }
 
+    /**
+     * 显示网格
+     */
+    private void showGridView(boolean isShow) {
+        if(isShow) {
+            mGridView.setVisibility(View.VISIBLE);
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            ViewGroup.LayoutParams gridViewLayoutParams = mGridView.getLayoutParams();
+            if(gridViewLayoutParams == null) {
+                gridViewLayoutParams = new ViewGroup.LayoutParams(dm.widthPixels, mVideoHeight * dm.widthPixels / mPreviewHeight);
+            } else {
+                gridViewLayoutParams.width = dm.widthPixels;
+                gridViewLayoutParams.height = mVideoHeight * dm.widthPixels / mPreviewHeight;
+            }
+            mGridView.setLayoutParams(gridViewLayoutParams);
+            mGridView.invalidate();
+        } else {
+            mGridView.setVisibility(View.INVISIBLE);
+        }
+    }
+
     /**********************************************************************************************/
 
 
@@ -1352,15 +1408,14 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         // 初始化状态
         mRecorderRecording = false; // 非录制中状态
-        mRecordFinished = true; //录制完成状态
 
-        mVideoFilename = Util.createFinalPath(this);
+        mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
 
-		RecorderParameters recorderParameters = Util.getRecorderParameter(currentResolution);
+		RecorderParameters recorderParameters = CamcorderUtil.getRecorderParameter(currentResolution);
 		mAudioSampleRate = recorderParameters.getAudioSamplingRate();
 		mVideoFrameRange = recorderParameters.getVideoFrameRate();
 
-		mFFmpegFrameRecorder = new NewFFmpegFrameRecorder(mVideoFilename, mVideoWidth, mVideoHeight, 1);
+		mFFmpegFrameRecorder = new NewFFmpegFrameRecorder(mCurrentVideoTempFilename, mVideoWidth, mVideoHeight, 1);
 		mFFmpegFrameRecorder.setFormat(recorderParameters.getVideoOutputFormat());
 		mFFmpegFrameRecorder.setSampleRate(recorderParameters.getAudioSamplingRate());
 		mFFmpegFrameRecorder.setFrameRate(recorderParameters.getVideoFrameRate());
@@ -1388,6 +1443,22 @@ public class CamcorderActivity extends NoSearchActivity implements
         prepare();
 	}
 
+    private void deleteVideoFiles() {
+        if(null != mVideoFilename) {
+            File file = new File(mVideoFilename);
+            if(null != file && file.exists()) {
+                file.delete();
+            }
+        }
+        while(!mVideoTmepFilenames.isEmpty()) {
+            String videoFile = mVideoTmepFilenames.pop();
+            File file = new File(videoFile);
+            if(null != file && file.exists()) {
+                file.delete();
+            }
+        }
+    }
+
     private void exit() {
         if(mRecordedDuration > 0L) {
             new AlertDialog.Builder(this)
@@ -1399,12 +1470,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if(null != mVideoFilename) {
-                                        File file = new File(mVideoFilename);
-                                        if(file.exists()) {
-                                            file.delete();
-                                        }
-                                    }
+                                   deleteVideoFiles();
                                 }
                             });
                             finish();
@@ -1423,8 +1489,9 @@ public class CamcorderActivity extends NoSearchActivity implements
     }
 
 
-    public class DealFinishWorkTask extends AsyncTask<String, Integer, String> {
-
+    public class DealFinishWorkTask extends AsyncTask<String, Integer, Map<String, String>> {
+        private static final String KEY_VIDEO = "video";
+        private static final String KEY_THUMB = "thumb";
         private Dialog mmDialog;
         private ProgressBar mmProgressBar;
         private TextView mmTvProgress;
@@ -1449,33 +1516,40 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected Map<String, String>  doInBackground(String... params) {
+            Map<String, String> result = new HashMap<String, String>(2);
             publishProgress(10);
-            if(null == params || params.length < 0) {
-                return null;
+
+            if(mVideoTmepFilenames.isEmpty()) {
+                result.put(KEY_VIDEO, null);
+                result.put(KEY_THUMB, null);
             }
-            String videoPath = params[0];
+
+            String videoPath = mVideoTmepFilenames.pop();
             if(StringUtil.isEmpty(videoPath)) {
-                return null;
+                result.put(KEY_VIDEO, null);
+                result.put(KEY_THUMB, null);
             }
+            result.put(KEY_VIDEO, videoPath);
             publishProgress(30);
             Bitmap bm = ThumbnailUtils.createVideoThumbnail(videoPath, Video.Thumbnails.FULL_SCREEN_KIND);
             if(null == bm) {
                 publishProgress(80);
+                result.put(KEY_THUMB, null);
             } else {
                 publishProgress(50);
-                File file = new File(Util.createImagePath(CamcorderActivity.this));
+                File file = new File(CamcorderUtil.createImageFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.THUMB_FOLDER).getAbsolutePath()));
                 try {
-                    boolean state = bm.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
+                    boolean state = bm.compress(Bitmap.CompressFormat.JPEG, CamcorderConfig.THUMB_QUALITY, new FileOutputStream(file));
                     publishProgress(80);
                     if(state && file.exists()) {
-                        return file.getAbsolutePath();
+                    result.put(KEY_THUMB, file.getAbsolutePath());
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             }
-            return null;
+            return result;
         }
 
         @Override
@@ -1484,16 +1558,16 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
 
         @Override
-        protected void onPostExecute(String thumbnail) {
+        protected void onPostExecute(Map<String, String> results) {
 
             publishProgress(100);
             mmDialog.cancel();
 
             //TODO 处理完成,跳转至编辑界面
-            if(null != mVideoFilename) {
+            if(null != results) {
                 Intent intent = new Intent(CamcorderActivity.this, VideoEditActivity.class);
-                intent.putExtra(VideoEditActivity.EXTRA_VIDEO, mVideoFilename);
-                intent.putExtra(VideoEditActivity.EXTRA_THUMB, thumbnail);
+                intent.putExtra(VideoEditActivity.EXTRA_VIDEO, results.get(KEY_VIDEO));
+                intent.putExtra(VideoEditActivity.EXTRA_THUMB, results.get(KEY_THUMB));
                 startActivity(intent);
 //                Intent intent = new Intent(Intent.ACTION_VIEW);
 //                intent.setDataAndType(Uri.fromFile(new File(mVideoFilename)), "video/*");
@@ -1504,7 +1578,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 //                    Log.e(TAG, "Couldn't view video " + mCurrentVideoUri, ex);
 //                }
             }
-            super.onPostExecute(thumbnail);
+            super.onPostExecute(results);
         }
     }
 

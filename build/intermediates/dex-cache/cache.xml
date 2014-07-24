@@ -8,18 +8,6 @@
         revision="20.0.0"
         sha1="14d500eeb7128db6c0f9b55f166c42eacf00f3b6"/>
     <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/javacpp-efefa300d7938ab768adc1871e51cb37c68e8f47.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/javacpp.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="ff8f2a518e524ae8de093d6556fc21a6ab8f05b2"/>
-    <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/android-support-v4-2935c96979c01084c61f1fc81106eb09fb880141.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/android-support-v4.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="efec67655f6db90757faa37201efcee2a9ec3507"/>
-    <item
         dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/javacv-c37ae8e8afd6d448bb22c03d9e78234a81021ccb.jar"
         jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/javacv.jar"
         jumboMode="false"
@@ -31,5 +19,17 @@
         jumboMode="false"
         revision="20.0.0"
         sha1="971083e5963c29a33a6b458b18df563216bb6549"/>
+    <item
+        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/javacpp-efefa300d7938ab768adc1871e51cb37c68e8f47.jar"
+        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/javacpp.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="ff8f2a518e524ae8de093d6556fc21a6ab8f05b2"/>
+    <item
+        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/android-support-v4-2935c96979c01084c61f1fc81106eb09fb880141.jar"
+        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/android-support-v4.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="efec67655f6db90757faa37201efcee2a9ec3507"/>
 
 </pre-dex-items>

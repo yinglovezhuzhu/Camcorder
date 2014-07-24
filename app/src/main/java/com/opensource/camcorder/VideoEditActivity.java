@@ -18,11 +18,12 @@
 
 package com.opensource.camcorder;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
@@ -31,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.opensource.bitmaploader.ImageCache;
 import com.opensource.bitmaploader.ImageFetcher;
@@ -55,7 +57,8 @@ public class VideoEditActivity extends NoSearchActivity {
     public static final String EXTRA_THUMB = "extra_thumb";
 
     private CamcorderTitlebar mTitlebar;
-    private SurfaceView mSurfaceView;
+//    private SurfaceView mSurfaceView;
+    private VideoView mVideoView;
     private ImageView mIvThumb;
     private ImageView mIvFlow;
     private ImageView mIvIcon;
@@ -67,8 +70,12 @@ public class VideoEditActivity extends NoSearchActivity {
     private ImageFetcher mImageFetcher;
     private ImageResizer mImageResizer;
 
+    private VideoPlayer mVideoPlayer;
+
     private String mVideoPath;
     private String mThumbPath;
+
+    private boolean mEdited = false; //是否进行过编辑
 
 
     @Override
@@ -110,12 +117,17 @@ public class VideoEditActivity extends NoSearchActivity {
 
         initTitlebar();
 
-        mSurfaceView = (SurfaceView) findViewById(R.id.sv_video_preview);
+        mVideoPlayer = new VideoPlayer(findViewById(R.id.fl_video_edit_content), this, mVideoPath);
+
+
+//        mSurfaceView = (SurfaceView) findViewById(R.id.sv_video_preview);
+        mVideoView = (VideoView) findViewById(R.id.vv_video_edit_preview);
         mIvThumb = (ImageView) findViewById(R.id.iv_video_edit_thumb);
         mIvFlow = (ImageView) findViewById(R.id.iv_video_edit_flow);
         mIvIcon = (ImageView) findViewById(R.id.iv_video_edit_icon);
 
-        ViewGroup.LayoutParams lp = mSurfaceView.getLayoutParams();
+//        ViewGroup.LayoutParams lp = mSurfaceView.getLayoutParams();
+        ViewGroup.LayoutParams lp = mVideoView.getLayoutParams();
         lp.width = getResources().getDisplayMetrics().widthPixels;
         lp.height = lp.width;
 
@@ -136,6 +148,8 @@ public class VideoEditActivity extends NoSearchActivity {
             mImageResizer.loadImage(mThumbPath, mIvThumb);
         }
 
+        mVideoPlayer.start();
+
     }
 
     private void initTitlebar() {
@@ -143,18 +157,36 @@ public class VideoEditActivity extends NoSearchActivity {
         mTitlebar.setLeftButton(R.string.cancel, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(mEdited) {
+                    new AlertDialog.Builder(VideoEditActivity.this)
+                            .setMessage("确定返回码？编辑效果将丢失")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
+                                }
+                            }).show();
+                } else {
+                    finish();
+                }
             }
         });
         mTitlebar.setRightButton(R.string.next_step, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                //TODO 合成最终效果，跳转至上传页面
             }
         });
         mTitlebar.setButton1(R.drawable.selector_ic_save, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO 保存草稿
 
             }
         });

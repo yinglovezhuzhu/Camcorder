@@ -22,14 +22,9 @@ import android.os.Environment;
 
 public class CamcorderConfig {
 
-    public final static String FILE_START_NAME = "VID_";
-    public final static String VIDEO_EXTENSION = ".mp4";
-    public final static String IMAGE_EXTENSION = ".jpg";
     public final static String DCIM_FOLDER = "/DCIM";
-    public final static String CAMERA_FOLDER = "/video";
-    public final static String TEMP_FOLDER = "/Temp";
-    public final static String CAMERA_FOLDER_PATH = Environment.getExternalStorageDirectory().toString() + CamcorderConfig.DCIM_FOLDER + CamcorderConfig.CAMERA_FOLDER;
-    public final static String TEMP_FOLDER_PATH = Environment.getExternalStorageDirectory().toString() + CamcorderConfig.DCIM_FOLDER + CamcorderConfig.CAMERA_FOLDER + CamcorderConfig.TEMP_FOLDER;
+    public final static String CAMERA_FOLDER_PATH = Environment.getExternalStorageDirectory().toString() + CamcorderConfig.DCIM_FOLDER + CamcorderConfig.VIDEO_FOLDER;
+    public final static String TEMP_FOLDER_PATH = Environment.getExternalStorageDirectory().toString() + CamcorderConfig.DCIM_FOLDER + CamcorderConfig.VIDEO_FOLDER + CamcorderConfig.TEMP_FOLDER;
     public final static String VIDEO_CONTENT_URI = "content://media/external/video/media";
 
     public final static String KEY_DELETE_FOLDER_FROM_SDCARD = "deleteFolderFromSDCard";
@@ -45,4 +40,15 @@ public class CamcorderConfig {
     public final static int RESOLUTION_HIGH_VALUE = 2;
     public final static int RESOLUTION_MEDIUM_VALUE = 1;
     public final static int RESOLUTION_LOW_VALUE = 0;
+
+    public static final int THUMB_QUALITY = 60;
+
+    public final static String VIDEO_FOLDER = "video";
+    public final static String TEMP_FOLDER = "temp";
+    public final static String THUMB_FOLDER = "thumb";
+
+    public final static String VIDEO_PREFIX = "VID_";
+    public final static String IMAGE_PREFIX = "IMG_";
+    public final static String VIDEO_SUFFIX = ".mp4";
+    public final static String IMAGE_SUFFIX = ".jpg";
 }

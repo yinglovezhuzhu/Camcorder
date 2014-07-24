@@ -30,7 +30,8 @@
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/selector_ic_grid"
         android:textOn="@string/grid"
-        android:textOff="@string/grid"/>
+        android:textOff="@string/grid"
+        android:checked="false"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
@@ -42,5 +43,6 @@
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/selector_ic_flash"
         android:textOn="@string/flash"
-        android:textOff="@string/flash"/>
+        android:textOff="@string/flash"
+        android:checked="false"/>
 </LinearLayout>

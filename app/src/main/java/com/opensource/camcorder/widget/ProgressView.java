@@ -337,6 +337,9 @@ public class ProgressView extends View {
      * @param isConfirm
      */
     public void deleteBack(boolean isConfirm) {
+        if(mProgress <= 0) {
+            return;
+        }
         if(isConfirm) {
             if(mConfirming) {
                 if(mProgress < mMaxProgress) {

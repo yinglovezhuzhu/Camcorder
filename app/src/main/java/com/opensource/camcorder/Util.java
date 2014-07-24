@@ -19,10 +19,8 @@
 package com.opensource.camcorder;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -224,22 +222,6 @@ public class Util {
         }
     }
 
-    public static void showFatalErrorAndFinish(
-            final Activity activity, String title, String message) {
-        DialogInterface.OnClickListener buttonListener =
-                new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                activity.finish();
-            }
-        };
-        new AlertDialog.Builder(activity)
-                .setCancelable(false)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(title)
-                .setMessage(message)
-                .setNeutralButton(R.string.details_ok, buttonListener)
-                .show();
-    }
 
     public static Animation slideOut(View view, int to) {
         view.setVisibility(View.INVISIBLE);
@@ -324,34 +306,7 @@ public class Util {
         return x;
     }
 
-    public static int getDisplayRotation(Activity activity) {
-        int rotation = activity.getWindowManager().getDefaultDisplay()
-                .getRotation();
-        switch (rotation) {
-            case Surface.ROTATION_0: return 0;
-            case Surface.ROTATION_90: return 90;
-            case Surface.ROTATION_180: return 180;
-            case Surface.ROTATION_270: return 270;
-        }
-        return 0;
-    }
 
-    public static void setCameraDisplayOrientation(Activity activity,
-            int cameraId, Camera camera) {
-        // See android.hardware.Camera.setCameraDisplayOrientation for
-        // documentation.
-        Camera.CameraInfo info = new Camera.CameraInfo();
-        Camera.getCameraInfo(cameraId, info);
-        int degrees = getDisplayRotation(activity);
-        int result;
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360;
-            result = (360 - result) % 360;  // compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360;
-        }
-        camera.setDisplayOrientation(result);
-    }
     
     
     
@@ -468,8 +423,8 @@ public class Util {
 
     public static String createImagePath(Context context) {
         long dateTaken = System.currentTimeMillis();
-        String title = CamcorderConfig.FILE_START_NAME + dateTaken;
-        String filename = title + CamcorderConfig.IMAGE_EXTENSION;
+        String title = CamcorderConfig.VIDEO_PREFIX + dateTaken;
+        String filename = title + CamcorderConfig.IMAGE_SUFFIX;
 
         String dirPath = Environment.getExternalStorageDirectory()
                 + File.separator  + context.getResources().getString(R.string.app_name)
@@ -483,8 +438,8 @@ public class Util {
 
     public static String createFinalPath(Context context) {
         long dateTaken = System.currentTimeMillis();
-        String title = CamcorderConfig.FILE_START_NAME + dateTaken;
-        String filename = title + CamcorderConfig.VIDEO_EXTENSION;
+        String title = CamcorderConfig.VIDEO_PREFIX + dateTaken;
+        String filename = title + CamcorderConfig.VIDEO_SUFFIX;
         String filePath = genrateFilePath(context, String.valueOf(dateTaken), true, null);
 
         ContentValues values = new ContentValues(7);
@@ -515,7 +470,7 @@ public class Util {
     }
 
     private static String genrateFilePath(Context context, String uniqueId, boolean isFinalPath, File tempFolderPath) {
-        String fileName = CamcorderConfig.FILE_START_NAME + uniqueId + CamcorderConfig.VIDEO_EXTENSION;
+        String fileName = CamcorderConfig.VIDEO_PREFIX + uniqueId + CamcorderConfig.VIDEO_SUFFIX;
         String dirPath = Environment.getExternalStorageDirectory()
                 + File.separator  + context.getResources().getString(R.string.app_name)
                 + File.separator + "video";
@@ -548,21 +503,6 @@ public class Util {
 
 
         return previewSizes;
-    }
-
-    public static RecorderParameters getRecorderParameter(int currentResolution) {
-        RecorderParameters parameters = new RecorderParameters();
-        if (currentResolution == CamcorderConfig.RESOLUTION_HIGH_VALUE) {
-            parameters.setAudioBitrate(128000);
-            parameters.setVideoQuality(0);
-        } else if (currentResolution == CamcorderConfig.RESOLUTION_MEDIUM_VALUE) {
-            parameters.setAudioBitrate(128000);
-            parameters.setVideoQuality(5);
-        } else if (currentResolution == CamcorderConfig.RESOLUTION_LOW_VALUE) {
-            parameters.setAudioBitrate(96000);
-            parameters.setVideoQuality(20);
-        }
-        return parameters;
     }
 
     public static int calculateMargin(int previewWidth, int screenWidth) {

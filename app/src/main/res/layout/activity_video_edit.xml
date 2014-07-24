@@ -34,10 +34,16 @@
             android:layout_width="match_parent"
             android:layout_height="400dip">
             <FrameLayout
+                android:id="@+id/fl_video_edit_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <SurfaceView
-                    android:id="@+id/sv_video_preview"
+                <!--<SurfaceView-->
+                    <!--android:id="@+id/sv_video_preview"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="center"/>-->
+                <VideoView
+                    android:id="@+id/vv_video_edit_preview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"/>
@@ -63,6 +69,12 @@
                     android:scaleType="centerCrop"
                     android:adjustViewBounds="true"
                     android:src="@drawable/ic_video_play"/>
+                <ProgressBar
+                    android:id="@+id/pb_video_edit_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
             </FrameLayout>
         </ScrollView>
     </LinearLayout>
