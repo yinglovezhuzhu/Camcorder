@@ -267,19 +267,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                 }
                 case UPDATE_PROGRESS:
                     if(mRecorderRecording) {
-                        if(mRecordFinished) {
-                            mProgressView.setProgress(VIDEO_MAX_DURATION);
-                            stopRecord();
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    new DealFinishWorkTask().execute();
-                                }
-                            }, 250);
-                        } else {
-                            mProgressView.setProgress(mProgressView.peekSplit() + (Long) msg.obj);
-                        }
+                        mProgressView.setProgress(mProgressView.peekSplit() + (Long) msg.obj);
                     } else {
                         if(!mRecordFinished) {
                             mProgressView.pushSplit(mProgressView.getProgress());
@@ -547,7 +535,7 @@ public class CamcorderActivity extends NoSearchActivity implements
      * 初始化完成，启动画面录制线程和音频录制线程
      */
     public void prepare() {
-        mRecorderRecording = false;
+//        mRecorderRecording = false;
         try {
             mFFmpegFrameRecorder.start();
             mAudioRecordThread.start();
@@ -576,17 +564,14 @@ public class CamcorderActivity extends NoSearchActivity implements
     private void stopRecord() {
         if(mRecorderRecording) {
             mRecorderRecording = false;
-//            mCurrentRecordedDuration += System.currentTimeMillis() - mRecordStartTime;
-
-            mVideoTmepFilenames.push(mCurrentVideoTempFilename);
-
-            mRecordedDuration += mCurrentRecordedDuration;
-            mProgressView.setProgress(mRecordedDuration);
+            if(mCurrentRecordedDuration > 0) {
+                mVideoTmepFilenames.push(mCurrentVideoTempFilename);
+                mRecordedDuration += mCurrentRecordedDuration;
+                mCurrentRecordedDuration = 0L;
+            }
             if(null != mFFmpegFrameRecorder) {
                 resetRecorder();
             }
-
-            mCurrentRecordedDuration = 0L;
         }
     }
 
@@ -1312,6 +1297,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
             @Override
             public void onDelete(float lastProgress, float progress) {
+                mRecordedDuration = (long)lastProgress;
                 if(mVideoTmepFilenames.isEmpty()) {
                     return;
                 }
@@ -1320,8 +1306,6 @@ public class CamcorderActivity extends NoSearchActivity implements
                 if(null != tempFile && tempFile.exists()) {
                     tempFile.delete();
                 }
-                mCurrentRecordedDuration = 0;
-                mRecordedDuration = (long)lastProgress;
             }
         });
         mProgressView.setOnProgressUpdateListener(new ProgressView.OnProgressUpdateListener() {
@@ -1331,6 +1315,16 @@ public class CamcorderActivity extends NoSearchActivity implements
                 mTitlebar.setRightButtonEnabled(progress >= VIDEO_MIN_DURATION);
                 mBtnDelete.setEnabled(progress > 0);
                 mRecordFinished = progress >= max;
+                if(mRecordFinished) {
+                    stopRecord();
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            new DealFinishWorkTask().execute();
+                        }
+                    }, 250);
+                }
             }
         });
 
@@ -1407,7 +1401,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 	private void initRecorder() {
 
         // 初始化状态
-        mRecorderRecording = false; // 非录制中状态
+//        mRecorderRecording = false; // 非录制中状态
 
         mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
 
@@ -1443,6 +1437,9 @@ public class CamcorderActivity extends NoSearchActivity implements
         prepare();
 	}
 
+    /**
+     * 删除本次拍摄中的所有视频文件
+     */
     private void deleteVideoFiles() {
         if(null != mVideoFilename) {
             File file = new File(mVideoFilename);
@@ -1525,7 +1522,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                 result.put(KEY_THUMB, null);
             }
 
-            String videoPath = mVideoTmepFilenames.pop();
+            String videoPath = mVideoTmepFilenames.peek();
             if(StringUtil.isEmpty(videoPath)) {
                 result.put(KEY_VIDEO, null);
                 result.put(KEY_THUMB, null);

@@ -307,8 +307,8 @@ public class ProgressView extends View {
      * @return the last split position
      */
     public float peekSplit() {
-        if(mSplits.empty()) {
-            return 0;
+        if(mSplits.isEmpty()) {
+            return 0f;
         }
         Float split = mSplits.peek();
         return split == null ? 0 : split;
