@@ -50,7 +50,7 @@ public class CamcorderProfile {
 
     public static CamcorderProfile getRecorderParameter(int currentResolution) {
         CamcorderProfile profile = new CamcorderProfile();
-        RecorderParameters parameters = new RecorderParameters();
+        CamcorderParameters parameters = new CamcorderParameters();
         if (currentResolution == CamcorderConfig.RESOLUTION_HIGH_VALUE) {
             parameters.setAudioBitrate(128000);
             parameters.setVideoQuality(0);

@@ -27,7 +27,7 @@ import android.view.Surface;
 
 import com.opensource.camcorder.CamcorderConfig;
 import com.opensource.camcorder.R;
-import com.opensource.camcorder.RecorderParameters;
+import com.opensource.camcorder.CamcorderParameters;
 
 import java.io.File;
 
@@ -40,8 +40,8 @@ public class CamcorderUtil {
     private CamcorderUtil() {}
 
 
-    public static RecorderParameters getRecorderParameter(int currentResolution) {
-        RecorderParameters parameters = new RecorderParameters();
+    public static CamcorderParameters getRecorderParameter(int currentResolution) {
+        CamcorderParameters parameters = new CamcorderParameters();
         if (currentResolution == CamcorderConfig.RESOLUTION_HIGH_VALUE) {
             parameters.setAudioBitrate(128000);
             parameters.setVideoQuality(0);

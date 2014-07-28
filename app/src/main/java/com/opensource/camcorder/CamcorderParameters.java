@@ -22,7 +22,7 @@ import android.os.Build;
 
 import com.googlecode.javacv.cpp.avcodec;
 
-public class RecorderParameters {
+public class CamcorderParameters {
 
     private static boolean AAC_SUPPORTED = Build.VERSION.SDK_INT >= 10;
     //private int videoCodec = avcodec.AV_CODEC_ID_H264;

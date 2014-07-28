@@ -1414,7 +1414,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
 
-		RecorderParameters recorderParameters = CamcorderUtil.getRecorderParameter(currentResolution);
+		CamcorderParameters recorderParameters = CamcorderUtil.getRecorderParameter(currentResolution);
 		mAudioSampleRate = recorderParameters.getAudioSamplingRate();
 		mVideoFrameRange = recorderParameters.getVideoFrameRate();
 
