@@ -58,6 +58,9 @@
         <activity android:name=".VideoEditActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
+
+        <service android:name=".service.FFmpegService"
+            android:process=":remote" />
     </application>
 
 </manifest>
