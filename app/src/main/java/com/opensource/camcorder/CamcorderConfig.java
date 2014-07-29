@@ -43,6 +43,8 @@ public class CamcorderConfig {
 
     public static final int THUMB_QUALITY = 60;
 
+    public static final String DATE_FORMAT_MILLISECOND = "yyyyMMdd_HHmmssmmm";
+
     public final static String VIDEO_FOLDER = "video";
     public final static String TEMP_FOLDER = "temp";
     public final static String THUMB_FOLDER = "thumb";

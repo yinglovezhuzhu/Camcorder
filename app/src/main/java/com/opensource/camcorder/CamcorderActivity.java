@@ -88,8 +88,10 @@ import com.opensource.camcorder.widget.ProgressView;
 import com.opensource.camcorder.widget.SettingPopupWindow;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ShortBuffer;
 import java.text.SimpleDateFormat;
@@ -559,6 +561,9 @@ public class CamcorderActivity extends NoSearchActivity implements
      * 开始录制
      */
     private void startRecord() {
+        if(mRecordFinished) {
+            return;
+        }
         if(null == mFFmpegFrameRecorder) {
             initRecorder();
         }
@@ -1027,36 +1032,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         animation.setDuration(500);
         view.startAnimation(animation);
     }
-
-//    private void stopVideoRecording() {
-//        Log.v(TAG, "stopVideoRecording");
-//        if (mMediaRecorderRecording) {
-//            boolean needToRegisterRecording = false;
-//            mMediaRecorder.setOnErrorListener(null);
-//            mMediaRecorder.setOnInfoListener(null);
-//            try {
-//                mMediaRecorder.stop();
-//                mCurrentVideoFilename = mVideoFilename;
-//                Log.v(TAG, "Setting current video filename: "
-//                        + mCurrentVideoFilename);
-//                needToRegisterRecording = true;
-//            } catch (RuntimeException e) {
-//                Log.e(TAG, "stop fail: " + e.getMessage());
-//                deleteVideoFile(mVideoFilename);
-//            }
-//            mMediaRecorderRecording = false;
-////            mHeadUpDisplay.setEnabled(true);
-////            updateRecordingIndicator(true);
-////            mRecordingTimeView.setVisibility(View.GONE);
-//            keepScreenOnAwhile();
-//            if (needToRegisterRecording && mStorageStatus == STORAGE_STATUS_OK) {
-//                registerVideo();
-//            }
-//            mVideoFilename = null;
-//            mVideoFileDescriptor = null;
-//        }
-//        releaseMediaRecorder();  // always release media recorder
-//    }
 
     private void resetScreenOn() {
         mHandler.removeMessages(CLEAR_SCREEN_DELAY);
@@ -1581,52 +1556,77 @@ public class CamcorderActivity extends NoSearchActivity implements
             }
 
             publishProgress(20);
-            try {
-                mVideoFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.TEMP_FOLDER).getAbsolutePath());
-                File videoFile = new File(mVideoFilename);
-                String [] files = new String[mVideoTmepFilenames.size()];
-                mVideoTmepFilenames.toArray(files);
-                publishProgress(25);
-                int ret = Integer.MIN_VALUE;
-                ret = mmService.mergeVideo(videoFile.getParent(),
-                        mVideoFilename,
-                        files);
-                LogUtil.i(TAG, "Merge video result:++>>> " + ret);
-                result.put(KEY_RET, String.valueOf(ret));
-                if(ret != 0) { //合并视频失败
-                    publishProgress(100);
-                    return result;
-                }
 
-                publishProgress(60);
-
-                if(StringUtil.isEmpty(mVideoFilename)) {
-                    result.put(KEY_VIDEO, null);
-                    result.put(KEY_THUMB, null);
-                }
-                result.put(KEY_VIDEO, mVideoFilename);
-                publishProgress(65);
-                Bitmap bm = ThumbnailUtils.createVideoThumbnail(mVideoFilename, Video.Thumbnails.FULL_SCREEN_KIND);
-                if(null == bm) {
-                    publishProgress(85);
-                    result.put(KEY_THUMB, null);
-                } else {
-                    publishProgress(75);
-                    mVideoThumbFilename = CamcorderUtil.createImageFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.THUMB_FOLDER).getAbsolutePath());
-                    File thumbFile = new File(mVideoThumbFilename);
-                    try {
-                        boolean state = bm.compress(Bitmap.CompressFormat.JPEG, CamcorderConfig.THUMB_QUALITY, new FileOutputStream(thumbFile));
-                        publishProgress(90);
-                        if(state && thumbFile.exists()) {
-                        result.put(KEY_THUMB, thumbFile.getAbsolutePath());
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+            mVideoFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.TEMP_FOLDER).getAbsolutePath());
+            if(mVideoTmepFilenames.size() == 1) { //如果只有一个视频文件，直接拷贝一个副本
+                try {
+                    File sourceFile = new File(mVideoTmepFilenames.peek());
+                    FileInputStream fis = new FileInputStream(sourceFile);
+                    FileOutputStream fos = new FileOutputStream(new File(mVideoFilename));
+                    publishProgress(30);
+                    byte [] buffer = new byte[2048];
+                    int length = 0;
+                    while ((length = fis.read(buffer)) != -1) {
+                        fos.write(buffer, 0, length);
                     }
+                    publishProgress(50);
+                    fos.flush();
+                    fos.close();
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } else {
+                try {
+                    File videoFile = new File(mVideoFilename);
+                    String [] files = new String[mVideoTmepFilenames.size()];
+                    mVideoTmepFilenames.toArray(files);
+                    publishProgress(25);
+                    int ret = Integer.MIN_VALUE;
+                    ret = mmService.mergeVideo(videoFile.getParent(),
+                            mVideoFilename,
+                            files);
+                    LogUtil.i(TAG, "Merge video result:++>>> " + ret);
+                    result.put(KEY_RET, String.valueOf(ret));
+                    if(ret != 0) { //合并视频失败
+                        publishProgress(100);
+                        return result;
+                    }
+
+                    if(mmServiceConnected) {
+                        unbindService(conn);
+                    }
+                } catch (RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+
+            publishProgress(60);
+
+            if(StringUtil.isEmpty(mVideoFilename)) {
+                result.put(KEY_VIDEO, null);
+                result.put(KEY_THUMB, null);
+            }
+            result.put(KEY_VIDEO, mVideoFilename);
+            publishProgress(65);
+            Bitmap bm = ThumbnailUtils.createVideoThumbnail(mVideoFilename, Video.Thumbnails.FULL_SCREEN_KIND);
+            if(null == bm) {
+                publishProgress(85);
+                result.put(KEY_THUMB, null);
+            } else {
+                publishProgress(75);
+                mVideoThumbFilename = CamcorderUtil.createImageFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.THUMB_FOLDER).getAbsolutePath());
+                File thumbFile = new File(mVideoThumbFilename);
+                try {
+                    boolean state = bm.compress(Bitmap.CompressFormat.JPEG, CamcorderConfig.THUMB_QUALITY, new FileOutputStream(thumbFile));
+                    publishProgress(90);
+                    if(state && thumbFile.exists()) {
+                    result.put(KEY_THUMB, thumbFile.getAbsolutePath());
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
             return result;
         }

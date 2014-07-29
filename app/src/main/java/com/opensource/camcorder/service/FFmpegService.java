@@ -63,8 +63,13 @@ public class FFmpegService extends Service {
 		}
 		return mBinder;
 	}
-	
-	@Override
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+    }
+
+    @Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		return super.onStartCommand(intent, flags, startId);
 	}

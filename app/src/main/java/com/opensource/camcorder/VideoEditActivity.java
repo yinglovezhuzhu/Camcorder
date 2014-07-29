@@ -22,6 +22,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -37,11 +39,17 @@ import android.widget.VideoView;
 import com.opensource.bitmaploader.ImageCache;
 import com.opensource.bitmaploader.ImageFetcher;
 import com.opensource.bitmaploader.ImageResizer;
+import com.opensource.bitmaploader.ImageWorker;
 import com.opensource.bitmaploader.Utils;
+import com.opensource.camcorder.entity.Watermark;
+import com.opensource.camcorder.utils.CamcorderUtil;
+import com.opensource.camcorder.utils.FileUtil;
+import com.opensource.camcorder.utils.LogUtil;
 import com.opensource.camcorder.utils.StringUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
 import com.opensource.camcorder.widget.HorizontalGridView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,6 +63,8 @@ public class VideoEditActivity extends NoSearchActivity {
     public static final String EXTRA_VIDEO = "extra_video";
 
     public static final String EXTRA_THUMB = "extra_thumb";
+
+    private static final String TAG = "VideoEditActivity";
 
     private CamcorderTitlebar mTitlebar;
 //    private SurfaceView mSurfaceView;
@@ -85,16 +95,22 @@ public class VideoEditActivity extends NoSearchActivity {
         if(!iniData()) {
             Toast.makeText(this, "视频数据不能为空", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
         setContentView(R.layout.activity_video_edit);
 
-        initImageFetcher();
+        initIconFetcher();
 
         initImageWorker();
 
         initView();
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        exit();
     }
 
     private boolean iniData() {
@@ -157,24 +173,7 @@ public class VideoEditActivity extends NoSearchActivity {
         mTitlebar.setLeftButton(R.string.cancel, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mEdited) {
-                    new AlertDialog.Builder(VideoEditActivity.this)
-                            .setMessage("确定返回码？编辑效果将丢失")
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            }).show();
-                } else {
-                    finish();
-                }
+                exit();
             }
         });
         mTitlebar.setRightButton(R.string.next_step, new View.OnClickListener() {
@@ -200,14 +199,8 @@ public class VideoEditActivity extends NoSearchActivity {
             switch (checkedId) {
                 case R.id.rbtn_video_edit_watermark:
                     mAdapter.clear();
-                    List<String> datas = new ArrayList<String>();
-                    datas.add("水印库");
-                    datas.add("无水印");
-                    for (int i = 0; i < 10; i++) {
-                        datas.add("Item " + i);
-                    }
-                    mAdapter.addAll(datas);
-                    mAdapter.setCheckedPosition(1);
+                    new InitWatermarkDataTask(VideoEditActivity.this).execute();
+                    mAdapter.setCheckedPosition(mAdapter.getCheckedPosition());
                     break;
                 case R.id.rbtn_video_edit_music:
                     mAdapter.clear();
@@ -227,21 +220,74 @@ public class VideoEditActivity extends NoSearchActivity {
         }
     };
 
-    private void initImageFetcher() {
+    private void initIconFetcher() {
         ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams("icon_thumb");
         cacheParams.memCacheSize = 1024 * 1024 * Utils.getMemoryClass(this) / 3;
+        cacheParams.compressFormat = Bitmap.CompressFormat.PNG;
 
         mImageFetcher = new ImageFetcher(this, getResources().getDimensionPixelSize(R.dimen.video_edit_box_item_icon_size));
         mImageFetcher.setImageCache(new ImageCache(this, cacheParams));
+
     }
 
     private void initImageWorker() {
         ImageCache.ImageCacheParams cacheParams= new ImageCache.ImageCacheParams("video_thumb");
         cacheParams.memCacheSize = 1024 * 1024 * Utils.getMemoryClass(this) / 3;
+        cacheParams.compressFormat = Bitmap.CompressFormat.PNG;
 
         mImageResizer = new ImageResizer(this, getResources().getDimensionPixelSize(R.dimen.video_edit_box_item_icon_size));
         mImageResizer.setImageCache(new ImageCache(this, cacheParams));
 
+    }
+
+    /**
+     * 删除产生的临时文件
+     * 包括合成的视频和视频的缩略图
+     * 下一次进入的时候会重新合并视频和生成缩略图。
+     */
+    private void deleteFiles() {
+        if(!StringUtil.isEmpty(mVideoPath)) {
+            File videoFile = new File(mVideoPath);
+            if(videoFile.exists()) {
+                if(!videoFile.delete()) {
+                    LogUtil.w(TAG, "Delete file failed: path -> " + mVideoPath);
+                }
+            }
+        }
+        if(!StringUtil.isEmpty(mThumbPath)) {
+            File thumbFile = new File(mThumbPath);
+            if(thumbFile.exists()) {
+                if(!thumbFile.delete()) {
+                    LogUtil.w(TAG, "Delete file failed: path -> " + mThumbPath);
+                }
+            }
+        }
+    }
+
+    /**
+     * 退出编辑页面
+     */
+    private void exit() {
+        if(mEdited) {
+            new AlertDialog.Builder(VideoEditActivity.this)
+                    .setMessage("确定返回码？编辑效果将丢失")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteFiles();
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+        } else {
+            deleteFiles();
+            finish();
+        }
     }
 
 
@@ -253,7 +299,7 @@ public class VideoEditActivity extends NoSearchActivity {
         public static final int INVALID_POSITION = -1;
 
         private Context mmContext;
-        private List<String> mmWatermarkDatas = new ArrayList<String>();
+        private List<Watermark> mmWatermarkDatas = new ArrayList<Watermark>();
 
         private int mmCheckedPosition = INVALID_POSITION;
 
@@ -261,12 +307,12 @@ public class VideoEditActivity extends NoSearchActivity {
             this.mmContext = context;
         }
 
-        public void add(String data) {
+        public void add(Watermark data) {
             this.mmWatermarkDatas.add(data);
             notifyDataSetChanged();
         }
 
-        public void addAll(Collection<String> datas) {
+        public void addAll(Collection<Watermark> datas) {
             this.mmWatermarkDatas.addAll(datas);
             notifyDataSetChanged();
         }
@@ -294,6 +340,14 @@ public class VideoEditActivity extends NoSearchActivity {
                             mmCheckedPosition = position;
                             notifyItemChanged(lastPosition);
                             notifyItemChanged(mmCheckedPosition);
+                            Watermark mark = mmWatermarkDatas.get(mmCheckedPosition);
+                            if(StringUtil.isEmpty(mark.getPath())) {
+                                mIvFlow.setImageBitmap(null);
+                                mIvFlow.setVisibility(View.GONE);
+                            } else {
+                                mImageResizer.loadImage(mark.getPath(), mIvFlow);
+                                mIvFlow.setVisibility(View.VISIBLE);
+                            }
                             break;
                     }
                 }
@@ -305,7 +359,8 @@ public class VideoEditActivity extends NoSearchActivity {
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
             final ViewHolder holder = ((ViewHolder)viewHolder);
             holder.setChecked(mmCheckedPosition == position);
-            holder.setLabel(mmWatermarkDatas.get(position));
+            Watermark mark = mmWatermarkDatas.get(position);
+            holder.setLabel(mark.getName());
             switch (position) {
                 case 0:
                     holder.setThumb(R.drawable.ic_drawer, ImageView.ScaleType.CENTER);
@@ -316,7 +371,7 @@ public class VideoEditActivity extends NoSearchActivity {
                     holder.showTip(null, ViewHolder.TIP_TYPE_NONE);
                     break;
                 default:
-                    holder.setThumb("http://atp2.yokacdn.com/20131206/f4/f4b0a31c3d2444f6712a323bd192665a.jpg", mImageFetcher, ImageView.ScaleType.CENTER_CROP);
+                    holder.setThumb(mark.getPath(), mImageResizer, ImageView.ScaleType.CENTER_CROP);
                     if(position % 3 == 0) {
                         holder.showTip("HOT", ViewHolder.TIP_TYPE_HOT);
                     } else {
@@ -363,6 +418,7 @@ public class VideoEditActivity extends NoSearchActivity {
 
         private LinearLayout mmLlThumbContent;
         private ImageView mmIvThumb;
+        private ImageView mmIvDownloadIcon;
         private TextView mmTvTip;
         private TextView mmTvLabel;
 
@@ -435,26 +491,26 @@ public class VideoEditActivity extends NoSearchActivity {
         }
 
         /**
-         * 设置缩略图（网络图片）
+         * 设置缩略图
          * @param url
-         * @param imageFetcher
+         * @param imageWorker
          * @param scaleType
          */
-        public void setThumb(String url, ImageFetcher imageFetcher, ImageView.ScaleType scaleType) {
+        public void setThumb(String url, ImageWorker imageWorker, ImageView.ScaleType scaleType) {
             mmIvThumb.setScaleType(scaleType);
-            imageFetcher.loadImage(url, mmIvThumb);
+            imageWorker.loadImage(url, mmIvThumb);
         }
 
-        /**
-         * 设置缩略图(本地图片)
-         * @param path
-         * @param imageResizer
-         * @param scaleType
-         */
-        public void setThumb(String path, ImageResizer imageResizer, ImageView.ScaleType scaleType) {
-            mmIvThumb.setScaleType(scaleType);
-            imageResizer.loadImage(path, mmIvThumb);
-        }
+//        /**
+//         * 设置缩略图(本地图片)
+//         * @param path
+//         * @param imageResizer
+//         * @param scaleType
+//         */
+//        public void setThumb(String path, ImageResizer imageResizer, ImageView.ScaleType scaleType) {
+//            mmIvThumb.setScaleType(scaleType);
+//            imageResizer.loadImage(path, mmIvThumb);
+//        }
 
         /**
          * 设置标签文字
@@ -464,9 +520,18 @@ public class VideoEditActivity extends NoSearchActivity {
             mmTvLabel.setText(text);
         }
 
+        /**
+         * 设置是否已经下载，如果没下载显示未下载的图标
+         * @param isDownloaded
+         */
+        public void setDownloaded(boolean isDownloaded) {
+            mmIvDownloadIcon.setVisibility(isDownloaded ? View.VISIBLE : View.GONE);
+        }
+
         private void initView() {
             mmLlThumbContent = (LinearLayout) itemView.findViewById(R.id.ll_item_box_thumb_content);
             mmIvThumb = (ImageView) itemView.findViewById(R.id.iv_item_box_thumb);
+            mmIvDownloadIcon = (ImageView) itemView.findViewById(R.id.iv_item_box_download_icon);
             mmTvTip = (TextView) itemView.findViewById(R.id.tv_item_box_tip);
             mmTvLabel = (TextView) itemView.findViewById(R.id.tv_item_box_label);
         }
@@ -494,6 +559,66 @@ public class VideoEditActivity extends NoSearchActivity {
                 mmTvTip.setVisibility(View.GONE);
             }
             return false;
+        }
+    }
+
+    private class InitWatermarkDataTask extends AsyncTask<Void, Integer, List<Watermark>> {
+
+        private Context mmContext;
+
+        public InitWatermarkDataTask(Context context) {
+            this.mmContext = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected List<Watermark> doInBackground(Void... params) {
+            List<Watermark> results = new ArrayList<Watermark>();
+            results.add(new Watermark("水印库"));
+            results.add(new Watermark("无水印"));
+            File cacheFolder = CamcorderUtil.getExternalLocalCacheDir(mmContext);
+            if(null != cacheFolder) {
+                if(!cacheFolder.exists()) {
+                    cacheFolder.mkdirs();
+                }
+                File file1 = new File(cacheFolder, "watermark_black.png");
+                File file2 = new File(cacheFolder, "watermark_kiss.png");
+                Watermark mark1 = new Watermark("加黑");
+                Watermark mark2 = new Watermark("KISS");
+                if(file1.exists()) {
+                    mark1.setPath(file1.getAbsolutePath());
+                    results.add(mark1);
+                } else {
+                    if(FileUtil.copyRaw2Dir(mmContext, R.raw.watermark_black, file1)) {
+                        mark1.setPath(file1.getAbsolutePath());
+                        results.add(mark1);
+                    }
+                }
+                if(file2.exists()) {
+                    mark2.setPath(file2.getAbsolutePath());
+                    results.add(mark2);
+                } else {
+                    if(FileUtil.copyRaw2Dir(mmContext, R.raw.watermark_kiss, file2)) {
+                        mark2.setPath(file2.getAbsolutePath());
+                        results.add(mark2);
+                    }
+                }
+            }
+            return results;
+        }
+
+        @Override
+        protected void onPostExecute(List<Watermark> results) {
+            if(isCancelled()) {
+                return;
+            }
+            mAdapter.clear();
+            mAdapter.addAll(results);
+            super.onPostExecute(results);
         }
     }
 }

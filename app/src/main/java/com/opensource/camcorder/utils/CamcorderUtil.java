@@ -20,16 +20,20 @@ package com.opensource.camcorder.utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Environment;
 import android.view.Surface;
 
 import com.opensource.camcorder.CamcorderConfig;
-import com.opensource.camcorder.R;
 import com.opensource.camcorder.CamcorderParameters;
+import com.opensource.camcorder.R;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Use:
@@ -160,7 +164,100 @@ public class CamcorderUtil {
         if (!file.exists() || !file.isDirectory()) {
             file.mkdirs();
         }
-        String filename = prefix + System.currentTimeMillis() + suffix;
+//        String filename = prefix + System.currentTimeMillis() + suffix;
+        SimpleDateFormat dateFormat = new SimpleDateFormat(CamcorderConfig.DATE_FORMAT_MILLISECOND);
+        String filename = prefix + dateFormat.format(new Date(System.currentTimeMillis())) + suffix;
         return new File(folder, filename).getAbsolutePath();
+    }
+
+    /**
+     * Check if external storage is built-in or removable.
+     *
+     * @return True if external storage is removable (like an SD card), false
+     * otherwise.
+     */
+    public static boolean isExternalStorageRemovable() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            return Environment.isExternalStorageRemovable();
+        }
+        return true;
+    }
+
+    /**
+     * Get the external app cache directory.
+     *
+     * @param context The context to use
+     * @return The external cache dir
+     */
+    public static File getExternalCacheDir(Context context) {
+        if (hasExternalCacheDir()) {
+            File cacheDir = context.getExternalCacheDir();
+            if(null != cacheDir) {
+                return cacheDir;
+            }
+        }
+
+        // Before Froyo we need to construct the external cache dir ourselves
+        final String cacheDir = "Android/data/" + context.getPackageName() + "/cache/";
+        return new File(Environment.getExternalStorageDirectory(), cacheDir);
+    }
+
+    /**
+     * Get the external app data directory
+     * @param context
+     * @return
+     */
+    public static File getExternalDataDir(Context context) {
+        if(hasExternalCacheDir()) {
+            File cacheDir = context.getExternalCacheDir();
+            if(null != cacheDir) {
+                return cacheDir.getParentFile();
+            }
+        }
+        final String dateDir = "Android/data" + context.getPackageName();
+        return new File(Environment.getExternalStorageDirectory(), dateDir);
+    }
+
+    /**
+     * Get the external app files directory
+     * @param context
+     * @return
+     */
+    public static File getExternalFilesDir(Context context) {
+        if (hasExternalCacheDir()) {
+            File filesDir = context.getExternalFilesDir(null);
+            if(filesDir != null) {
+                return filesDir;
+            }
+        }
+
+        // Before Froyo we need to construct the external cache dir ourselves
+        final String cacheDir = "Android/data/" + context.getPackageName() + "/files/";
+        return new File(Environment.getExternalStorageDirectory(), cacheDir);
+    }
+
+    /**
+     * Get the external app local cache directory
+     * @param context
+     * @return
+     */
+    public static File getExternalLocalCacheDir(Context context) {
+        File dataDir = getExternalDataDir(context);
+        if(null != dataDir) {
+            return new File(dataDir, "local_cache");
+        }
+
+        // Before Froyo we need to construct the external cache dir ourselves
+        final String cacheDir = "Android/data/" + context.getPackageName() + "/local_cache/";
+        return new File(Environment.getExternalStorageDirectory(), cacheDir);
+    }
+
+    /**
+     * Check if OS version has built-in external cache dir method.
+     *
+     * @return
+     */
+    public static boolean hasExternalCacheDir() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
     }
 }

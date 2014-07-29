@@ -27,10 +27,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.Formatter;
 
-import com.opensource.camcorder.CamcorderConfig;
-import com.opensource.camcorder.R;
-
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Use:
@@ -170,7 +170,6 @@ public class FileUtil {
 
     /**
      * Change byte to KB/MB/GB...(Keep Integer)
-     * @param context
      * @param size
      * @return
      */
@@ -232,5 +231,33 @@ public class FileUtil {
             }
         }
         return file;
+    }
+
+
+    /**
+     * 把raw中文件复制到指定目录下的文件
+     * @param context
+     * @param id
+     * @param dist
+     * @return
+     */
+    public static boolean copyRaw2Dir(Context context, int id, File dist) {
+
+        try {
+            InputStream is = context.getResources().openRawResource(id);
+            FileOutputStream fos = new FileOutputStream(dist);
+            byte [] buffer = new byte[2048];
+            int size;
+            while((size = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, size);
+            }
+            fos.flush();
+            fos.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

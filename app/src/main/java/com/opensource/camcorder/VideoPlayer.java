@@ -55,7 +55,6 @@ public class VideoPlayer implements View.OnClickListener,
 
     public void start() {
         mVideoView.start();
-        System.out.println("start===============================>>>>>>>>>>.");
         mProgressView.setVisibility(View.GONE);
         mThumbView.setVisibility(View.GONE);
         mIconView.setVisibility(View.GONE);

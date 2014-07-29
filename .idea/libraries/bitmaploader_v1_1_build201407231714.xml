@@ -4,6 +4,12 @@
       <root url="jar://$PROJECT_DIR$/app/libs/bitmaploader_v1.1_build201407231714.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../BitmapLoader/bitmaploader_library/src/main/java" />
+      <root url="file://$PROJECT_DIR$/../BitmapLoader/bitmaploader_library/build/generated/source/r/debug" />
+      <root url="file://$PROJECT_DIR$/../BitmapLoader/bitmaploader_library/build/generated/source/r/release" />
+      <root url="file://$PROJECT_DIR$/../BitmapLoader/bitmaploader_library/build/generated/source/buildConfig/debug" />
+      <root url="file://$PROJECT_DIR$/../BitmapLoader/bitmaploader_library/build/generated/source/buildConfig/release" />
+    </SOURCES>
   </library>
 </component>
