@@ -1350,73 +1350,6 @@ public class CamcorderActivity extends NoSearchActivity implements
     /**
      * 录制音频的线程
      */
-//    private class AudioRecordThread extends Thread {
-//
-//        @Override
-//        public void run() {
-//            super.run();
-//            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-//
-//            int bufferSize = AudioRecord.getMinBufferSize(mAudioSampleRate, AudioFormat.CHANNEL_IN_MONO,
-//                    AudioFormat.ENCODING_PCM_16BIT);
-//
-//             /* audio data getting thread */
-//            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mAudioSampleRate,
-//                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-//            short [] audioData = new short[bufferSize];
-//            int bufferReadResult;
-//
-//            if(AudioRecord.STATE_UNINITIALIZED == audioRecord.getState()) {
-//                audioRecord.release();
-//                return;
-//            }
-//
-//            Log.d(TAG, "audioRecord.prepare()");
-//            audioRecord.startRecording();
-//
-//			/* ffmpeg_audio encoding loop */
-//            while (!mRecordFinished && !interrupted()) {
-//                // Log.v(LOG_TAG,"recording? " + recording);
-//                bufferReadResult = audioRecord.read(audioData, 0, audioData.length);
-//                if (bufferReadResult > 0) {
-//                    // Log.v(LOG_TAG, "mmBufferReadResult: " + mmBufferReadResult);
-//                    // If "recording" isn't true when start this thread, it
-//                    // never get's set according to this if statement...!!!
-//                    // Why? Good question...
-//                    if (mRecorderRecording) {
-//                        try {
-//                            Buffer[] barray = new Buffer[1];
-//                            barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
-//                            mFFmpegFrameRecorder.record(barray);
-//                            // Log.v(LOG_TAG,"recording " + 1024*i + " to " +
-//                            // 1024*i+1024);
-//                        } catch (FFmpegFrameRecorder.Exception e) {
-//                            Log.v(TAG, e.getMessage());
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//            }
-//            Log.v(TAG, "AudioThread Finished, release audioRecord");
-//
-//			/* encoding finish, release audio recorder */
-//            if (audioRecord != null) {
-//                audioRecord.stop();
-//                audioRecord.release();
-//                Log.v(TAG, "audioRecord released");
-//            }
-//        }
-//
-//    }
-
-    private AudioRecord mAudioRecord;
-
-    private void initAudioRecorder() {
-        if(null == mAudioRecord) {
-
-        }
-    }
-
     private class AudioRecordThread extends Thread {
 
         @Override
@@ -1475,4 +1408,5 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
 
     }
+
 }
