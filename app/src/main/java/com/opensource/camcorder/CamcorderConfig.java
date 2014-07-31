@@ -22,16 +22,13 @@ import android.os.Environment;
 
 public class CamcorderConfig {
 
+    public static final String EXTRA_VIDEO = "extra_video";
+    public static final String EXTRA_THUMB = "extra_thumb";
+    public static final String EXTRA_SOURCE_VIDEO = "extra_source_video";
+    public static final String EXTRA_SOURCE_THUMB = "extra_source_thumb";
+
     public final static String DCIM_FOLDER = "/DCIM";
-    public final static String CAMERA_FOLDER_PATH = Environment.getExternalStorageDirectory().toString() + CamcorderConfig.DCIM_FOLDER + CamcorderConfig.VIDEO_FOLDER;
     public final static String TEMP_FOLDER_PATH = Environment.getExternalStorageDirectory().toString() + CamcorderConfig.DCIM_FOLDER + CamcorderConfig.VIDEO_FOLDER + CamcorderConfig.TEMP_FOLDER;
-    public final static String VIDEO_CONTENT_URI = "content://media/external/video/media";
-
-    public final static String KEY_DELETE_FOLDER_FROM_SDCARD = "deleteFolderFromSDCard";
-
-    public final static String RECEIVER_ACTION_SAVE_FRAME = "com.javacv.recorder.intent.action.SAVE_FRAME";
-    public final static String RECEIVER_CATEGORY_SAVE_FRAME = "com.javacv.recorder";
-    public final static String TAG_SAVE_FRAME = "saveFrame";
 
     public final static int RESOLUTION_HIGH = 1300;
     public final static int RESOLUTION_MEDIUM = 500;

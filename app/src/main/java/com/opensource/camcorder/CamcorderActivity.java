@@ -22,8 +22,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Service;
 import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -36,7 +34,6 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.media.ThumbnailUtils;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,10 +41,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.StatFs;
-import android.os.SystemClock;
 import android.provider.MediaStore.Video;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -55,7 +50,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -90,10 +84,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ShortBuffer;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,8 +120,6 @@ public class CamcorderActivity extends NoSearchActivity implements
     private static final int CLEAR_SCREEN_DELAY = 4;
     private static final int UPDATE_RECORD_TIME = 5;
     private static final int ENABLE_SHUTTER_BUTTON = 6;
-
-
     private static final int UPDATE_PROGRESS = 7;
 
     private static final long VIDEO_MIN_DURATION = 2 * 1000;
@@ -153,8 +143,6 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     private boolean mStartPreviewFail = false;
 
-    private int mStorageStatus = STORAGE_STATUS_OK;
-
     /** 是否正在录制 **/
     private boolean mRecorderRecording = false;
     /** 录制的开始时间 **/
@@ -173,24 +161,8 @@ public class CamcorderActivity extends NoSearchActivity implements
     /** 合成的视频缩略图 **/
     private String mVideoThumbFilename;
 
-
-    private ParcelFileDescriptor mVideoFileDescriptor;
-    // The video file that has already been recorded, and that is being
-    // examined by the user.
-    private String mCurrentVideoFilename;
-    private Uri mCurrentVideoUri;
-    private ContentValues mCurrentVideoValues;
-
-
-    // The video duration limit. 0 menas no limit.
-    private int mMaxVideoDurationInMs;
-
     boolean mPausing = false;
     boolean mPreviewing = false; // True if preview is started.
-
-    private ContentResolver mContentResolver;
-
-    private boolean mRecordingTimeCountsDown = false;
 
     private final Handler mHandler = new MainHandler();
 
@@ -206,17 +178,6 @@ public class CamcorderActivity extends NoSearchActivity implements
     private int mVideoWidth = 480;
     private int mVideoHeight = 480;
     private int mPreviewFrameRate = 30;
-
-
-//    private MainOrientationEventListener mOrientationListener;
-    // The device orientation in degrees. Default is unknown.
-    private int mOrientation = OrientationEventListener.ORIENTATION_UNKNOWN;
-    // The orientation compensation for icons and thumbnails. Degrees are in
-    // counter-clockwise
-    private int mOrientationCompensation = 0;
-    private int mOrientationHint; // the orientation hint for video playback
-
-
 
 	//录制视频和保存音频的类
 	private volatile NewFFmpegFrameRecorder mFFmpegFrameRecorder;
@@ -269,11 +230,6 @@ public class CamcorderActivity extends NoSearchActivity implements
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     break;
                 }
-
-                case UPDATE_RECORD_TIME: {
-                    updateRecordingTime();
-                    break;
-                }
                 case UPDATE_PROGRESS:
                     if(mRecorderRecording) {
                         mProgressView.setProgress(mProgressView.peekSplit() + (Long) msg.obj);
@@ -288,18 +244,6 @@ public class CamcorderActivity extends NoSearchActivity implements
                     break;
             }
         }
-    }
-
-    /**
-     * 生成一个文件名称
-     * @param dateTaken
-     * @return
-     */
-    private String createName(long dateTaken) {
-        Date date = new Date(dateTaken);
-        SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.video_file_name_format));
-
-        return dateFormat.format(date);
     }
 
     private void showCameraErrorAndFinish() {
@@ -363,8 +307,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         });
         startPreviewThread.start();
 
-        mContentResolver = getContentResolver();
-
         requestWindowFeature(Window.FEATURE_PROGRESS);
         setContentView(R.layout.activity_camcorder);
 
@@ -397,11 +339,51 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPausing = false;
 
+        // Start orientation listener as soon as possible because it takes
+        // some time to get first orientation.
+        mVideoPreview.setVisibility(View.VISIBLE);
+        if (!mPreviewing && !mStartPreviewFail) {
+            if (!restartPreview()) return;
+        }
+        keepScreenOnAwhile();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mPausing = true;
+        if(mRecorderRecording) {
+            stopRecord();
+        }
+        closeCamera();
+
+        resetScreenOn();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        resetRecorder();
+        closeCamera();
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        if (!mRecorderRecording) {
+            keepScreenOnAwhile();
+        }
+    }
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		// TODO 一帧帧保存
+		// 一帧帧保存
 		/* get video data */
 		if (mRecorderRecording && null != mYUVIplImage && null != data) {
 			final long frameTime = System.currentTimeMillis() - mRecordStartTime;
@@ -437,6 +419,75 @@ public class CamcorderActivity extends NoSearchActivity implements
 		}
 	}
 
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        // Make sure we have a surface in the holder before proceeding.
+        if (holder.getSurface() == null) {
+            Log.d(TAG, "holder.getSurface() == null");
+            return;
+        }
+
+        mSurfaceHolder = holder;
+
+        if (mPausing) {
+            // We're pausing, the screen is off and we already stopped
+            // video recording. We don't want to start the camera again
+            // in this case in order to conserve power.
+            // The fact that surfaceChanged is called _after_ an onPause appears
+            // to be legitimate since in that case the lockscreen always returns
+            // to portrait orientation possibly triggering the notification.
+            return;
+        }
+
+        // The mCameraDevice will be null if it is fail to connect to the
+        // camera hardware. In this case we will show a dialog and then
+        // finish the activity, so it's OK to ignore it.
+        if (mCameraDevice == null) {
+            return;
+        }
+
+        // Set preview display if the surface is being created. Preview was
+        // already started.
+        if (holder.isCreating()) {
+            setPreviewDisplay(holder);
+        } else {
+            restartPreview();
+        }
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        mSurfaceHolder = null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mPausing) {
+            return;
+        }
+        if (mRecorderRecording) {
+            stopRecord();
+            resetRecorder();
+        }
+        exit();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Do not handle any key if the activity is paused.
+        if (mPausing) {
+            return true;
+        }
+        switch (keyCode) {
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
     @Override
     public void onClick(View v) {
@@ -483,43 +534,10 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
     }
 
-
-    private void updateAndShowStorageHint(boolean mayHaveSd) {
-        mStorageStatus = getStorageStatus(mayHaveSd);
-        showStorageHint();
-    }
-
-    private void showStorageHint() {
-//        String errorMessage = null;
-//        switch (mStorageStatus) {
-//            case STORAGE_STATUS_NONE:
-//                errorMessage = getString(R.string.no_storage);
-//                break;
-//            case STORAGE_STATUS_LOW:
-//                errorMessage = getString(R.string.spaceIsLow_content);
-//                break;
-//            case STORAGE_STATUS_FAIL:
-//                errorMessage = getString(R.string.access_sd_fail);
-//                break;
-//        }
-//        if (errorMessage != null) {
-//            if (mStorageHint == null) {
-//                mStorageHint = OnScreenHint.makeText(this, errorMessage);
-//            } else {
-//                mStorageHint.setText(errorMessage);
-//            }
-//            mStorageHint.show();
-//        } else if (mStorageHint != null) {
-//            mStorageHint.cancel();
-//            mStorageHint = null;
-//        }
-    }
-
     /**
      * 初始化完成，启动画面录制线程和音频录制线程
      */
     public void prepare() {
-//        mRecorderRecording = false;
         try {
             mFFmpegFrameRecorder.start();
             mAudioRecordThread.start();
@@ -552,6 +570,8 @@ public class CamcorderActivity extends NoSearchActivity implements
     private void stopRecord() {
         if(mRecorderRecording) {
             mRecorderRecording = false;
+            mHandler.removeMessages(UPDATE_PROGRESS);
+            mHandler.sendMessage(mHandler.obtainMessage(UPDATE_PROGRESS, mCurrentRecordedDuration));
             if(mCurrentRecordedDuration > 0) {
                 mVideoTmepFilenames.push(mCurrentVideoTempFilename);
                 mRecordedDuration += mCurrentRecordedDuration;
@@ -684,143 +704,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         mPreviewing = false;
     }
 
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mPausing = false;
-
-        // Start orientation listener as soon as possible because it takes
-        // some time to get first orientation.
-//        mOrientationListener.enable();
-        mVideoPreview.setVisibility(View.VISIBLE);
-        if (!mPreviewing && !mStartPreviewFail) {
-            if (!restartPreview()) return;
-        }
-        keepScreenOnAwhile();
-
-        mStorageStatus = getStorageStatus(true);
-
-        mHandler.postDelayed(new Runnable() {
-            public void run() {
-                showStorageHint();
-            }
-        }, 200);
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mPausing = true;
-        if(mRecorderRecording) {
-            stopRecord();
-        }
-        closeCamera();
-
-        resetScreenOn();
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        resetRecorder();
-        closeCamera();
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        if (!mRecorderRecording) {
-            keepScreenOnAwhile();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mPausing) {
-            return;
-        }
-        if (mRecorderRecording) {
-            stopRecord();
-            resetRecorder();
-        }
-        exit();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Do not handle any key if the activity is paused.
-        if (mPausing) {
-            return true;
-        }
-        switch (keyCode) {
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        // Make sure we have a surface in the holder before proceeding.
-        if (holder.getSurface() == null) {
-            Log.d(TAG, "holder.getSurface() == null");
-            return;
-        }
-
-        mSurfaceHolder = holder;
-
-        if (mPausing) {
-            // We're pausing, the screen is off and we already stopped
-            // video recording. We don't want to start the camera again
-            // in this case in order to conserve power.
-            // The fact that surfaceChanged is called _after_ an onPause appears
-            // to be legitimate since in that case the lockscreen always returns
-            // to portrait orientation possibly triggering the notification.
-            return;
-        }
-
-        // The mCameraDevice will be null if it is fail to connect to the
-        // camera hardware. In this case we will show a dialog and then
-        // finish the activity, so it's OK to ignore it.
-        if (mCameraDevice == null) {
-            return;
-        }
-
-        // Set preview display if the surface is being created. Preview was
-        // already started.
-        if (holder.isCreating()) {
-            setPreviewDisplay(holder);
-        } else {
-            restartPreview();
-        }
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        mSurfaceHolder = null;
-    }
-
-    private void doReturnToCaller(boolean valid) {
-        Intent resultIntent = new Intent();
-        int resultCode;
-        if (valid) {
-            resultCode = RESULT_OK;
-            resultIntent.setData(mCurrentVideoUri);
-        } else {
-            resultCode = RESULT_CANCELED;
-        }
-        setResult(resultCode, resultIntent);
-        finish();
-    }
-
     /**
      * Returns
      *
@@ -868,6 +751,9 @@ public class CamcorderActivity extends NoSearchActivity implements
      * 如果当前是后置，则切换为前置；当前是前置，则切换为后置
      */
     private void switchCamera() {
+        if(mNumberOfCameras < 2) {
+            return; //如果只有一个摄像头，什么也不做
+        }
         if(mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
             switchCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
         } else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -903,69 +789,6 @@ public class CamcorderActivity extends NoSearchActivity implements
     private void keepScreenOn() {
         mHandler.removeMessages(CLEAR_SCREEN_DELAY);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    /**
-     * Update the time show in when recording.
-     */
-    private void updateRecordingTime() {
-        if (!mRecorderRecording) {
-            return;
-        }
-        long now = SystemClock.uptimeMillis();
-        long delta = now - mRecordStartTime;
-
-        // Starting a minute before reaching the max duration
-        // limit, we'll countdown the remaining time instead.
-        boolean countdownRemainingTime = (mMaxVideoDurationInMs != 0
-                && delta >= mMaxVideoDurationInMs - 60000);
-
-        long next_update_delay = 1000 - (delta % 1000);
-        long seconds;
-        if (countdownRemainingTime) {
-            delta = Math.max(0, mMaxVideoDurationInMs - delta);
-            seconds = (delta + 999) / 1000;
-        } else {
-            seconds = delta / 1000; // round to nearest
-        }
-
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long remainderMinutes = minutes - (hours * 60);
-        long remainderSeconds = seconds - (minutes * 60);
-
-        String secondsString = Long.toString(remainderSeconds);
-        if (secondsString.length() < 2) {
-            secondsString = "0" + secondsString;
-        }
-        String minutesString = Long.toString(remainderMinutes);
-        if (minutesString.length() < 2) {
-            minutesString = "0" + minutesString;
-        }
-        String text = minutesString + ":" + secondsString;
-        if (hours > 0) {
-            String hoursString = Long.toString(hours);
-            if (hoursString.length() < 2) {
-                hoursString = "0" + hoursString;
-            }
-            text = hoursString + ":" + text;
-        }
-//        mRecordingTimeView.setText(text);
-
-        if (mRecordingTimeCountsDown != countdownRemainingTime) {
-            // Avoid setting the color on every update, do it only
-            // when it needs changing.
-            mRecordingTimeCountsDown = countdownRemainingTime;
-
-//            int color = getResources().getColor(countdownRemainingTime
-//                    ? R.color.recording_time_remaining_text
-//                    : R.color.recording_time_elapsed_text);
-//
-//            mRecordingTimeView.setTextColor(color);
-        }
-
-        mHandler.sendEmptyMessageDelayed(
-                UPDATE_RECORD_TIME, next_update_delay);
     }
 
     /**
@@ -1015,6 +838,9 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         // 设置闪光灯，默认关闭
         setVideoFlash(false);
+
+        //是否支持打开/关闭闪光灯
+        mSettingWindow.setFlashEnabled(isSupportedVideoFlash());
 
         layoutPreView();
     }
@@ -1183,6 +1009,7 @@ public class CamcorderActivity extends NoSearchActivity implements
         mTitlebar.setButton1(R.drawable.selector_ic_change_camera, 0, this);
         mTitlebar.setButton2(R.drawable.selector_ic_camera_setting, R.drawable.ic_arrow_down_right, this);
         mTitlebar.setRightButtonEnabled(false);
+        mTitlebar.setButton1Enabled(mNumberOfCameras > 1);
     }
 
     /**
@@ -1239,10 +1066,6 @@ public class CamcorderActivity extends NoSearchActivity implements
 	 * 初始化Recorder
 	 */
 	private void initRecorder() {
-
-        // 初始化状态
-//        mRecorderRecording = false; // 非录制中状态
-
         mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
 
 		CamcorderParameters recorderParameters = CamcorderUtil.getRecorderParameter(currentResolution);
@@ -1309,6 +1132,9 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
     }
 
+    /**
+     * 退出拍摄
+     */
     private void exit() {
         if(mRecordedDuration > 0L) {
             new AlertDialog.Builder(this)
@@ -1502,8 +1328,8 @@ public class CamcorderActivity extends NoSearchActivity implements
             //TODO 处理完成,跳转至编辑界面
             if(null != results) {
                 Intent intent = new Intent(CamcorderActivity.this, VideoEditActivity.class);
-                intent.putExtra(VideoEditActivity.EXTRA_VIDEO, results.get(KEY_VIDEO));
-                intent.putExtra(VideoEditActivity.EXTRA_THUMB, results.get(KEY_THUMB));
+                intent.putExtra(CamcorderConfig.EXTRA_VIDEO, results.get(KEY_VIDEO));
+                intent.putExtra(CamcorderConfig.EXTRA_THUMB, results.get(KEY_THUMB));
                 startActivity(intent);
             }
             super.onPostExecute(results);
@@ -1524,7 +1350,74 @@ public class CamcorderActivity extends NoSearchActivity implements
     /**
      * 录制音频的线程
      */
-    class AudioRecordThread extends Thread {
+//    private class AudioRecordThread extends Thread {
+//
+//        @Override
+//        public void run() {
+//            super.run();
+//            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+//
+//            int bufferSize = AudioRecord.getMinBufferSize(mAudioSampleRate, AudioFormat.CHANNEL_IN_MONO,
+//                    AudioFormat.ENCODING_PCM_16BIT);
+//
+//             /* audio data getting thread */
+//            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mAudioSampleRate,
+//                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+//            short [] audioData = new short[bufferSize];
+//            int bufferReadResult;
+//
+//            if(AudioRecord.STATE_UNINITIALIZED == audioRecord.getState()) {
+//                audioRecord.release();
+//                return;
+//            }
+//
+//            Log.d(TAG, "audioRecord.prepare()");
+//            audioRecord.startRecording();
+//
+//			/* ffmpeg_audio encoding loop */
+//            while (!mRecordFinished && !interrupted()) {
+//                // Log.v(LOG_TAG,"recording? " + recording);
+//                bufferReadResult = audioRecord.read(audioData, 0, audioData.length);
+//                if (bufferReadResult > 0) {
+//                    // Log.v(LOG_TAG, "mmBufferReadResult: " + mmBufferReadResult);
+//                    // If "recording" isn't true when start this thread, it
+//                    // never get's set according to this if statement...!!!
+//                    // Why? Good question...
+//                    if (mRecorderRecording) {
+//                        try {
+//                            Buffer[] barray = new Buffer[1];
+//                            barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
+//                            mFFmpegFrameRecorder.record(barray);
+//                            // Log.v(LOG_TAG,"recording " + 1024*i + " to " +
+//                            // 1024*i+1024);
+//                        } catch (FFmpegFrameRecorder.Exception e) {
+//                            Log.v(TAG, e.getMessage());
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
+//            Log.v(TAG, "AudioThread Finished, release audioRecord");
+//
+//			/* encoding finish, release audio recorder */
+//            if (audioRecord != null) {
+//                audioRecord.stop();
+//                audioRecord.release();
+//                Log.v(TAG, "audioRecord released");
+//            }
+//        }
+//
+//    }
+
+    private AudioRecord mAudioRecord;
+
+    private void initAudioRecorder() {
+        if(null == mAudioRecord) {
+
+        }
+    }
+
+    private class AudioRecordThread extends Thread {
 
         @Override
         public void run() {

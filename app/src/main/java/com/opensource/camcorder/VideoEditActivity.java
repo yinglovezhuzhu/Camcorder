@@ -75,10 +75,6 @@ import java.util.Map;
  */
 public class VideoEditActivity extends NoSearchActivity {
 
-    public static final String EXTRA_VIDEO = "extra_video";
-
-    public static final String EXTRA_THUMB = "extra_thumb";
-
     private static final String TAG = "VideoEditActivity";
 
     private CamcorderTitlebar mTitlebar;
@@ -140,34 +136,30 @@ public class VideoEditActivity extends NoSearchActivity {
 
     private boolean iniData() {
         Intent intent = getIntent();
-        if(intent.hasExtra(EXTRA_VIDEO)) {
-            mVideoPath = intent.getStringExtra(EXTRA_VIDEO);
+        if(intent.hasExtra(CamcorderConfig.EXTRA_VIDEO)) {
+            mVideoPath = intent.getStringExtra(CamcorderConfig.EXTRA_VIDEO);
             if(StringUtil.isEmpty(mVideoPath)) {
                 return false;
             }
         } else {
             return false;
         }
-        if(intent.hasExtra(EXTRA_THUMB)) {
-            mThumbPath = intent.getStringExtra(EXTRA_THUMB);
+        if(intent.hasExtra(CamcorderConfig.EXTRA_THUMB)) {
+            mThumbPath = intent.getStringExtra(CamcorderConfig.EXTRA_THUMB);
         }
         return true;
     }
 
     private void initView() {
-
         initTitlebar();
 
         mVideoPlayer = new VideoPlayer(findViewById(R.id.fl_video_edit_content), this, mVideoPath);
 
-
-//        mSurfaceView = (SurfaceView) findViewById(R.id.sv_video_preview);
         mVideoView = (VideoView) findViewById(R.id.vv_video_edit_preview);
         mIvThumb = (ImageView) findViewById(R.id.iv_video_edit_thumb);
         mIvFlow = (ImageView) findViewById(R.id.iv_video_edit_flow);
         mIvIcon = (ImageView) findViewById(R.id.iv_video_edit_icon);
 
-//        ViewGroup.LayoutParams lp = mSurfaceView.getLayoutParams();
         ViewGroup.LayoutParams lp = mVideoView.getLayoutParams();
         lp.width = getResources().getDisplayMetrics().widthPixels;
         lp.height = lp.width;
@@ -179,6 +171,10 @@ public class VideoEditActivity extends NoSearchActivity {
         mAdapter = new WatermarkAdapter(this);
 
         mHGridView.setAdapter(mAdapter);
+
+        mAdapter.setCheckedPosition(1); //开始默认无水印
+        mResultVideoPath = mVideoPath;
+        mResultThumbPath = mThumbPath;
 
         mToolbar = (RadioGroup) findViewById(R.id.rg_recorder_toolbar);
         mToolbar.setOnCheckedChangeListener(mOnCheckChangeListener);
@@ -383,12 +379,13 @@ public class VideoEditActivity extends NoSearchActivity {
                             if(StringUtil.isEmpty(mark.getPath())) {
                                 mIvFlow.setImageBitmap(null);
                                 mIvFlow.setVisibility(View.GONE);
-                                FileUtil.deleteFile(mResultVideoPath);
-                                FileUtil.deleteFile(mResultThumbPath);
+                                if(mResultVideoPath != null && !mResultVideoPath.equals(mVideoPath)) {
+                                    FileUtil.deleteFile(mResultVideoPath);
+                                    FileUtil.deleteFile(mResultThumbPath);
+                                }
                                 mResultVideoPath = mVideoPath;
-                                mResultThumbPath = mVideoPath;
+                                mResultThumbPath = mThumbPath;
                             } else {
-//                                mImageResizer.loadImage(mark.getPath(), mIvFlow);
                                 mIvFlow.setImageBitmap(null);
                                 ViewUtil.measureView(mIvFlow);
                                 ViewGroup.LayoutParams lp = mIvFlow.getLayoutParams();
@@ -435,7 +432,7 @@ public class VideoEditActivity extends NoSearchActivity {
                                     }
                                 });
                                 mIvFlow.setVisibility(View.VISIBLE);
-//                                mVideoPlayer.start();
+                                mVideoPlayer.start();
                                 if(null != mAddWatermarkTask) {
                                     mAddWatermarkTask.cancel(true);
                                     mAddWatermarkTask = null;
@@ -596,17 +593,6 @@ public class VideoEditActivity extends NoSearchActivity {
             imageWorker.loadImage(url, mmIvThumb);
         }
 
-//        /**
-//         * 设置缩略图(本地图片)
-//         * @param path
-//         * @param imageResizer
-//         * @param scaleType
-//         */
-//        public void setThumb(String path, ImageResizer imageResizer, ImageView.ScaleType scaleType) {
-//            mmIvThumb.setScaleType(scaleType);
-//            imageResizer.loadImage(path, mmIvThumb);
-//        }
-
         /**
          * 设置标签文字
          * @param text
@@ -732,6 +718,7 @@ public class VideoEditActivity extends NoSearchActivity {
         @Override
         protected void onPreExecute() {
             mPbEditing.setVisibility(View.VISIBLE);
+            mTitlebar.setRightButtonEnabled(false);
             super.onPreExecute();
         }
 
@@ -824,6 +811,7 @@ public class VideoEditActivity extends NoSearchActivity {
         @Override
         protected void onPostExecute(Map<String, String> result) {
             mPbEditing.setVisibility(View.GONE);
+            mTitlebar.setRightButtonEnabled(true);
             if(result == null) {
                 //添加水印操作失败
             } else {
