@@ -140,6 +140,22 @@ public class FileUtil {
     }
 
     /**
+     * Delete file
+     * @param path
+     * @return
+     */
+    public static boolean deleteFile(String path) {
+        if(StringUtil.isEmpty(path)) {
+            return false;
+        }
+        File file = new File(path);
+        if(file.exists()) {
+            return file.delete();
+        }
+        return false;
+    }
+
+    /**
      * Get file size(include directory)
      * @param file
      * @return

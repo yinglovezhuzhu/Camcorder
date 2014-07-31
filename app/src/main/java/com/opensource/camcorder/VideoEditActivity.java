@@ -19,18 +19,26 @@
 package com.opensource.camcorder;
 
 import android.app.AlertDialog;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,17 +50,23 @@ import com.opensource.bitmaploader.ImageResizer;
 import com.opensource.bitmaploader.ImageWorker;
 import com.opensource.bitmaploader.Utils;
 import com.opensource.camcorder.entity.Watermark;
+import com.opensource.camcorder.service.FFmpegService;
 import com.opensource.camcorder.utils.CamcorderUtil;
 import com.opensource.camcorder.utils.FileUtil;
 import com.opensource.camcorder.utils.LogUtil;
 import com.opensource.camcorder.utils.StringUtil;
+import com.opensource.camcorder.utils.ViewUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
 import com.opensource.camcorder.widget.HorizontalGridView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Use:
@@ -72,6 +86,7 @@ public class VideoEditActivity extends NoSearchActivity {
     private ImageView mIvThumb;
     private ImageView mIvFlow;
     private ImageView mIvIcon;
+    private ProgressBar mPbEditing;
     private HorizontalGridView mHGridView;
     private RadioGroup mToolbar;
 
@@ -85,7 +100,14 @@ public class VideoEditActivity extends NoSearchActivity {
     private String mVideoPath;
     private String mThumbPath;
 
+    private String mResultVideoPath;
+    private String mResultThumbPath;
+
     private boolean mEdited = false; //是否进行过编辑
+
+    private int mScreenWidth;
+
+    private AddWatermarkTask mAddWatermarkTask;
 
 
     @Override
@@ -100,9 +122,11 @@ public class VideoEditActivity extends NoSearchActivity {
 
         setContentView(R.layout.activity_video_edit);
 
+        mScreenWidth = getResources().getDisplayMetrics().widthPixels;
+
         initIconFetcher();
 
-        initImageWorker();
+        initImageResizer();
 
         initView();
 
@@ -147,6 +171,8 @@ public class VideoEditActivity extends NoSearchActivity {
         lp.width = getResources().getDisplayMetrics().widthPixels;
         lp.height = lp.width;
 
+        mPbEditing = (ProgressBar) findViewById(R.id.pb_video_edit_progress);
+
         mHGridView = (HorizontalGridView) findViewById(R.id.hgv_video_edit_boxes);
 
         mAdapter = new WatermarkAdapter(this);
@@ -189,7 +215,7 @@ public class VideoEditActivity extends NoSearchActivity {
 
             }
         });
-        mTitlebar.setButton2(0,0,null);
+        mTitlebar.setButton2(0, 0, null);
     }
 
     private RadioGroup.OnCheckedChangeListener mOnCheckChangeListener = new RadioGroup.OnCheckedChangeListener() {
@@ -225,17 +251,17 @@ public class VideoEditActivity extends NoSearchActivity {
         cacheParams.memCacheSize = 1024 * 1024 * Utils.getMemoryClass(this) / 3;
         cacheParams.compressFormat = Bitmap.CompressFormat.PNG;
 
-        mImageFetcher = new ImageFetcher(this, getResources().getDimensionPixelSize(R.dimen.video_edit_box_item_icon_size));
+        mImageFetcher = new ImageFetcher(this, 0);
         mImageFetcher.setImageCache(new ImageCache(this, cacheParams));
 
     }
 
-    private void initImageWorker() {
+    private void initImageResizer() {
         ImageCache.ImageCacheParams cacheParams= new ImageCache.ImageCacheParams("video_thumb");
         cacheParams.memCacheSize = 1024 * 1024 * Utils.getMemoryClass(this) / 3;
         cacheParams.compressFormat = Bitmap.CompressFormat.PNG;
 
-        mImageResizer = new ImageResizer(this, getResources().getDimensionPixelSize(R.dimen.video_edit_box_item_icon_size));
+        mImageResizer = new ImageResizer(this, 0);
         mImageResizer.setImageCache(new ImageCache(this, cacheParams));
 
     }
@@ -344,9 +370,65 @@ public class VideoEditActivity extends NoSearchActivity {
                             if(StringUtil.isEmpty(mark.getPath())) {
                                 mIvFlow.setImageBitmap(null);
                                 mIvFlow.setVisibility(View.GONE);
+                                FileUtil.deleteFile(mResultVideoPath);
+                                FileUtil.deleteFile(mResultThumbPath);
+                                mResultVideoPath = mVideoPath;
+                                mResultThumbPath = mVideoPath;
                             } else {
-                                mImageResizer.loadImage(mark.getPath(), mIvFlow);
+//                                mImageResizer.loadImage(mark.getPath(), mIvFlow);
+                                mIvFlow.setImageBitmap(null);
+                                ViewUtil.measureView(mIvFlow);
+                                ViewGroup.LayoutParams lp = mIvFlow.getLayoutParams();
+                                lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                                lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                                mIvFlow.setLayoutParams(lp);
+                                mImageResizer.loadImage(mark.getPath(), mIvFlow, null, 0, new ImageWorker.LoadListener() {
+
+                                    @Override
+                                    public void onStart(ImageView imageView, Object data) {
+
+                                    }
+
+                                    @Override
+                                    public void onProgressUpdate(Object url, long total, long downloaded) {
+
+                                    }
+
+                                    @Override
+                                    public void onError(Object data, Object errorMsg) {
+
+                                    }
+
+                                    @Override
+                                    public void onLoaded(ImageView imageView, Bitmap bitmap) {
+                                        if(null != bitmap) {
+                                            ViewGroup.LayoutParams lp = imageView.getLayoutParams();
+                                            float scale = mScreenWidth / 480f;
+                                            lp.width = (int) (bitmap.getWidth() * scale);
+                                            lp.height = (int) (bitmap.getHeight() * scale);
+                                            imageView.setLayoutParams(lp);
+                                            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onSet(ImageView imageView, Bitmap bitmap) {
+
+                                    }
+
+                                    @Override
+                                    public void onCanceld(ImageView imageView, Object data) {
+
+                                    }
+                                });
                                 mIvFlow.setVisibility(View.VISIBLE);
+//                                mVideoPlayer.start();
+                                if(null != mAddWatermarkTask) {
+                                    mAddWatermarkTask.cancel(true);
+                                    mAddWatermarkTask = null;
+                                }
+                                mAddWatermarkTask = new AddWatermarkTask();
+                                mAddWatermarkTask.execute(mark);
                             }
                             break;
                     }
@@ -619,6 +701,128 @@ public class VideoEditActivity extends NoSearchActivity {
             mAdapter.clear();
             mAdapter.addAll(results);
             super.onPostExecute(results);
+        }
+    }
+
+    /**
+     * 加水印异步线程
+     */
+    private class AddWatermarkTask extends AsyncTask<Watermark, Integer, Map<String, String>> {
+
+        private static final String KEY_VIDEO = "video";
+        private static final String KEY_THUMB = "thumb";
+        private static final String KEY_RET = "ret";
+
+        private IFFmpegService mmService;
+        private boolean mmServiceConnected = false;
+
+        @Override
+        protected void onPreExecute() {
+            mPbEditing.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Map<String, String> doInBackground(Watermark... params) {
+            if(null == params || params.length < 1) {
+                return null;
+            }
+
+            Map<String, String> result = new HashMap<String, String>(3);
+            Watermark watermark = params[0];
+
+            ServiceConnection conn = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    mmService = IFFmpegService.Stub.asInterface(service);
+                    mmServiceConnected = true;
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    mmService = null;
+                    mmServiceConnected = false;
+                }
+            };
+            bindService(new Intent(VideoEditActivity.this, FFmpegService.class), conn,
+                    Service.BIND_AUTO_CREATE);
+
+            do {
+                publishProgress(10);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } while(!mmServiceConnected && !isCancelled());
+
+
+            String outputVideoPath = mVideoPath.substring(0, mVideoPath.lastIndexOf(".")) + "_watermark" + CamcorderConfig.VIDEO_SUFFIX;
+
+            File outputFile = new File(outputVideoPath);
+            if(outputFile.exists()) {
+                outputFile.delete();
+            }
+
+            int ret = Integer.MIN_VALUE;
+            try {
+                ret = mmService.addWaterMark(mVideoPath, watermark.getPath(), 3, 15, 15, outputVideoPath, "mp4");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            result.put(KEY_RET, String.valueOf(ret));
+            if(ret != 0) {
+                return result;
+            }
+            if(mmServiceConnected) {
+                unbindService(conn);
+            }
+
+            result.put(KEY_VIDEO, outputVideoPath);
+
+            Bitmap bm = ThumbnailUtils.createVideoThumbnail(outputVideoPath, MediaStore.Video.Thumbnails.FULL_SCREEN_KIND);
+            if(null == bm) {
+                result.put(KEY_THUMB, null);
+            } else {
+                String outputThumbPath = mVideoPath.substring(0, mVideoPath.lastIndexOf(".")) + "_watermark" + CamcorderConfig.IMAGE_SUFFIX;
+                File thumbFile = new File(outputThumbPath);
+                if(thumbFile.exists()) {
+                    thumbFile.delete();
+                }
+                try {
+                    boolean state = bm.compress(Bitmap.CompressFormat.JPEG, CamcorderConfig.THUMB_QUALITY, new FileOutputStream(thumbFile));
+                    if(state && thumbFile.exists()) {
+                        result.put(KEY_THUMB, outputThumbPath);
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onCancelled() {
+            mPbEditing.setVisibility(View.GONE);
+            super.onCancelled();
+        }
+
+        @Override
+        protected void onPostExecute(Map<String, String> result) {
+            mPbEditing.setVisibility(View.GONE);
+            if(result == null) {
+                //添加水印操作失败
+            } else {
+                String retStr = result.get(KEY_RET);
+                int ret = Integer.parseInt(retStr);
+                if(ret == 0) {
+                    //添加水印操作成功
+                    mResultVideoPath = result.get(KEY_VIDEO);
+                    mResultThumbPath = result.get(KEY_THUMB);
+                }
+            }
+            super.onPostExecute(result);
         }
     }
 }

@@ -21,14 +21,11 @@ package com.opensource.camcorder;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -73,7 +70,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.googlecode.javacv.FFmpegFrameRecorder;
@@ -294,29 +290,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
     }
 
-    private BroadcastReceiver mReceiver = null;
-
-    private class MyBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(Intent.ACTION_MEDIA_EJECT)) {
-                updateAndShowStorageHint(false);
-//                stopVideoRecording();
-            } else if (action.equals(Intent.ACTION_MEDIA_MOUNTED)) {
-                updateAndShowStorageHint(true);
-            } else if (action.equals(Intent.ACTION_MEDIA_UNMOUNTED)) {
-                // SD card unavailable
-                // handled in ACTION_MEDIA_EJECT
-            } else if (action.equals(Intent.ACTION_MEDIA_SCANNER_STARTED)) {
-                Toast.makeText(CamcorderActivity.this,
-                        getResources().getString(R.string.wait), Toast.LENGTH_LONG).show();
-            } else if (action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED)) {
-                updateAndShowStorageHint(true);
-            }
-        }
-    }
-
     /**
      * 生成一个文件名称
      * @param dateTaken
@@ -436,10 +409,10 @@ public class CamcorderActivity extends NoSearchActivity implements
 			byte[] tempData;
 			if(mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
 				//FIXME 这里需要判断横竖屏
-				tempData = rotateYUV420Degree90(data, mPreviewWidth, mPreviewHeight);
+				tempData = CamcorderUtil.rotateYUV420Degree90(data, mPreviewWidth, mPreviewHeight);
 			} else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 				//FIXME 这里需要判断横竖屏
-				tempData = rotateYUV420Degree270(data, mPreviewWidth, mPreviewHeight);
+				tempData = CamcorderUtil.rotateYUV420Degree270(data, mPreviewWidth, mPreviewHeight);
 			} else {
 				tempData = data;
 			}
@@ -570,6 +543,7 @@ public class CamcorderActivity extends NoSearchActivity implements
         mRecordStartTime = System.currentTimeMillis();
         mCurrentRecordedDuration = 0L;
         mRecorderRecording = true;
+        keepScreenOn();
     }
 
     /**
@@ -726,16 +700,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
         keepScreenOnAwhile();
 
-        // install an intent filter to receive SD card related events.
-        IntentFilter intentFilter =
-                new IntentFilter(Intent.ACTION_MEDIA_MOUNTED);
-        intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
-        intentFilter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
-        intentFilter.addAction(Intent.ACTION_MEDIA_SCANNER_STARTED);
-        intentFilter.addAction(Intent.ACTION_MEDIA_SCANNER_FINISHED);
-        intentFilter.addDataScheme("file");
-        mReceiver = new MyBroadcastReceiver();
-        registerReceiver(mReceiver, intentFilter);
         mStorageStatus = getStorageStatus(true);
 
         mHandler.postDelayed(new Runnable() {
@@ -749,31 +713,12 @@ public class CamcorderActivity extends NoSearchActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        /*mPausing = true;
-
-        // Hide the preview now. Otherwise, the preview may be rotated during
-        // onPause and it is annoying to users.
-        mVideoPreview.setVisibility(View.INVISIBLE);
-
-        // This is similar to what mShutterButton.performClick() does,
-        // but not quite the same.
-        if (mRecorderRecording) {
-            stopVideoRecordingAndGetThumbnail();
-        } else {
-            stopVideoRecording();
-        }
-        closeCamera();*/
-
+        mPausing = true;
         if(mRecorderRecording) {
             stopRecord();
         }
         closeCamera();
 
-
-        if (mReceiver != null) {
-            unregisterReceiver(mReceiver);
-            mReceiver = null;
-        }
         resetScreenOn();
 
     }
@@ -803,7 +748,6 @@ public class CamcorderActivity extends NoSearchActivity implements
             resetRecorder();
         }
         exit();
-//        super.onBackPressed();
     }
 
     @Override
@@ -850,7 +794,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         if (holder.isCreating()) {
             setPreviewDisplay(holder);
         } else {
-//            stopVideoRecording();
             restartPreview();
         }
     }
@@ -903,82 +846,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
     }
 
-    private void cleanupEmptyFile() {
-        if (mVideoFilename != null) {
-            File f = new File(mVideoFilename);
-            if (f.length() == 0 && f.delete()) {
-                Log.v(TAG, "Empty video file deleted: " + mVideoFilename);
-                mVideoFilename = null;
-            }
-        }
-    }
-
-
-    private void createVideoPath() {
-        long dateTaken = System.currentTimeMillis();
-        String title = createName(dateTaken);
-        String filename = title + ".3gp"; // Used when emailing.
-        String cameraDirPath = ImageManager.CAMERA_IMAGE_BUCKET_NAME;
-        String filePath = cameraDirPath + "/" + filename;
-        File cameraDir = new File(cameraDirPath);
-        cameraDir.mkdirs();
-        ContentValues values = new ContentValues(7);
-        values.put(Video.Media.TITLE, title);
-        values.put(Video.Media.DISPLAY_NAME, filename);
-        values.put(Video.Media.DATE_TAKEN, dateTaken);
-        values.put(Video.Media.MIME_TYPE, "video/3gpp");
-        values.put(Video.Media.DATA, filePath);
-        mVideoFilename = filePath;
-        Log.v(TAG, "Current camera video filename: " + mVideoFilename);
-        mCurrentVideoValues = values;
-    }
-
-    /**
-     * 把视频注册到系统的媒体库
-     */
-    private void registerVideo() {
-        if (mVideoFileDescriptor == null) {
-            Uri videoTable = Uri.parse("content://media/external/video/media");
-            mCurrentVideoValues.put(Video.Media.SIZE,
-                    new File(mCurrentVideoFilename).length());
-            try {
-                mCurrentVideoUri = mContentResolver.insert(videoTable,
-                        mCurrentVideoValues);
-            } catch (Exception e) {
-                // We failed to insert into the database. This can happen if
-                // the SD card is unmounted.
-                mCurrentVideoUri = null;
-                mCurrentVideoFilename = null;
-            } finally {
-                Log.v(TAG, "Current video URI: " + mCurrentVideoUri);
-            }
-        }
-        mCurrentVideoValues = null;
-    }
-
-    /**
-     * 删除当前的视频
-     */
-    private void deleteCurrentVideo() {
-        if (mCurrentVideoFilename != null) {
-            deleteVideoFile(mCurrentVideoFilename);
-            mCurrentVideoFilename = null;
-        }
-        if (mCurrentVideoUri != null) {
-            mContentResolver.delete(mCurrentVideoUri, null, null);
-            mCurrentVideoUri = null;
-        }
-        updateAndShowStorageHint(true);
-    }
-
-    private void deleteVideoFile(String fileName) {
-        Log.v(TAG, "Deleting video " + fileName);
-        File f = new File(fileName);
-        if (!f.delete()) {
-            Log.v(TAG, "Could not delete " + fileName);
-        }
-    }
-
     /**
      * 切换摄像头，并且重新开启预览
      * @param cameraId 摄像头id
@@ -1006,17 +873,6 @@ public class CamcorderActivity extends NoSearchActivity implements
         } else if(mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             switchCameraId(Camera.CameraInfo.CAMERA_FACING_BACK);
         }
-    }
-
-
-    private void startVideoRecording() {
-        Log.v(TAG, "startVideoRecording");
-        if (mStorageStatus != STORAGE_STATUS_OK) {
-            Log.v(TAG, "Storage issue, ignore the start request");
-            return;
-        }
-
-        keepScreenOn();
     }
 
     private static void fadeIn(View view) {
@@ -1404,6 +1260,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 		mFFmpegFrameRecorder.setVideoBitrate(recorderParameters.getVideoBitrate());
 		mFFmpegFrameRecorder.setAudioBitrate(recorderParameters.getAudioBitrate());
 
+
         //如果YUVIplImage已经存在，释放它
         if(null != mYUVIplImage) {
             mYUVIplImage.release();
@@ -1515,7 +1372,7 @@ public class CamcorderActivity extends NoSearchActivity implements
         @Override
         protected Map<String, String> doInBackground(String... params) {
 
-            Map<String, String> result = new HashMap<String, String>(2);
+            Map<String, String> result = new HashMap<String, String>(3);
             publishProgress(5);
 
             if(mVideoTmepFilenames.isEmpty()) {
@@ -1582,8 +1439,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                     String [] files = new String[mVideoTmepFilenames.size()];
                     mVideoTmepFilenames.toArray(files);
                     publishProgress(25);
-                    int ret = Integer.MIN_VALUE;
-                    ret = mmService.mergeVideo(videoFile.getParent(),
+                    int ret = mmService.mergeVideo(videoFile.getParent(),
                             mVideoFilename,
                             files);
                     LogUtil.i(TAG, "Merge video result:++>>> " + ret);
@@ -1684,6 +1540,11 @@ public class CamcorderActivity extends NoSearchActivity implements
             short [] audioData = new short[bufferSize];
             int bufferReadResult;
 
+            if(AudioRecord.STATE_UNINITIALIZED == audioRecord.getState()) {
+                audioRecord.release();
+                return;
+            }
+
             Log.d(TAG, "audioRecord.prepare()");
             audioRecord.startRecording();
 
@@ -1720,107 +1581,5 @@ public class CamcorderActivity extends NoSearchActivity implements
             }
         }
 
-    }
-
-	private byte[] rotateYUV420Degree90(byte[] data, int imageWidth, int imageHeight) {
-        byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-        // Rotate the Y luma
-        int i = 0;
-        for (int x = 0; x < imageWidth; x++) {
-            for (int y = imageHeight - 1; y >= 0; y--) {
-                yuv[i] = data[y * imageWidth + x];
-                i++;
-            }
-
-        }
-        // Rotate the U and V color components
-        i = imageWidth * imageHeight * 3 / 2 - 1;
-        for (int x = imageWidth - 1; x > 0; x = x - 2) {
-            for (int y = 0; y < imageHeight / 2; y++) {
-                yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + x];
-                i--;
-                yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + (x - 1)];
-                i--;
-            }
-        }
-        return yuv;
-    }
-
-	private byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {
-        byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-        int i = 0;
-        int count = 0;
-
-        for (i = imageWidth * imageHeight - 1; i >= 0; i--) {
-            yuv[count] = data[i];
-            count++;
-        }
-
-        i = imageWidth * imageHeight * 3 / 2 - 1;
-        for (i = imageWidth * imageHeight * 3 / 2 - 1; i >= imageWidth
-                * imageHeight; i -= 2) {
-            yuv[count++] = data[i - 1];
-            yuv[count++] = data[i];
-        }
-        return yuv;
-    }
-
-	private byte[] rotateYUV420Degree270(byte[] data, int imageWidth, int imageHeight) {
-
-        /*byte [] yuv = new byte[imageWidth*imageHeight*3/2];
-        int nWidth = 0, nHeight = 0;
-        int wh = 0;
-        int uvHeight = 0;
-        if(imageWidth != nWidth || imageHeight != nHeight)
-        {
-            nWidth = imageWidth;
-            nHeight = imageHeight;
-            wh = imageWidth * imageHeight;
-            uvHeight = imageHeight >> 1;//uvHeight = height / 2
-        }
-
-        //旋转Y
-        int k = 0;
-        for(int i = 0; i < imageWidth; i++) {
-            int nPos = 0;
-            for(int j = 0; j < imageHeight; j++) {
-                yuv[k] = data[nPos + i];
-                k++;
-                nPos += imageWidth;
-            }
-        }
-
-        for(int i = 0; i < imageWidth; i+=2){
-            int nPos = wh;
-            for(int j = 0; j < uvHeight; j++) {
-                yuv[k] = data[nPos + i];
-                yuv[k + 1] = data[nPos + i + 1];
-                k += 2;
-                nPos += imageWidth;
-            }
-        }
-        return rotateYUV420Degree180(yuv, imageWidth, imageHeight);*/
-
-        byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
-        // Rotate the Y luma
-        int i = 0;
-        for (int x = imageWidth - 1; x >= 0; x--) {
-            for (int y = 0; y < imageHeight; y++) {
-                yuv[i] = data[y * imageWidth + x];
-                i++;
-            }
-
-        }
-        // Rotate the U and V color components
-        i = imageWidth * imageHeight;
-        for (int x = imageWidth - 1; x > 0; x = x - 2) {
-            for (int y = 0; y < imageHeight / 2; y++) {
-                yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + (x - 1)];
-                i++;
-                yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + x];
-                i++;
-            }
-        }
-        return yuv;
     }
 }

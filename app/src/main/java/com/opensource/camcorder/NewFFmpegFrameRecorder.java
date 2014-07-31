@@ -213,7 +213,7 @@ public class NewFFmpegFrameRecorder extends FrameRecorder {
         this(filename, imageWidth, imageHeight, 0);
     }
     public NewFFmpegFrameRecorder(File file, int imageWidth, int imageHeight, int audioChannels) {
-        this(file.getAbsolutePath(), imageWidth, imageHeight);
+        this(file.getAbsolutePath(), imageWidth, imageHeight, audioChannels);
     }
     public NewFFmpegFrameRecorder(String filename, int imageWidth, int imageHeight, int audioChannels) {
         this.filename      = filename;
