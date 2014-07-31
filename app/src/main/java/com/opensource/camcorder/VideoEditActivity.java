@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -206,6 +207,18 @@ public class VideoEditActivity extends NoSearchActivity {
             @Override
             public void onClick(View v) {
                 //TODO 合成最终效果，跳转至上传页面
+                if(StringUtil.isEmpty(mResultVideoPath)) {
+                    Toast.makeText(VideoEditActivity.this, "视频文件为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                File videoFile = new File(mResultVideoPath);
+                if(videoFile.exists()) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(videoFile), "video/*");
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(VideoEditActivity.this, "视频文件不存在", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         mTitlebar.setButton1(R.drawable.selector_ic_save, 0, new View.OnClickListener() {
