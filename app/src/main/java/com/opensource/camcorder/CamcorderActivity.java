@@ -203,10 +203,24 @@ public class CamcorderActivity extends NoSearchActivity implements
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 Log.w(TAG, "Touch ++ ACTION_DOWN");
+                if(mTBtnFocus.isChecked()) {
+                    mCameraDevice.autoFocus(new Camera.AutoFocusCallback() {
+
+                        @Override
+                        public void onAutoFocus(boolean success, Camera camera) {
+                            System.out.println("Focus success...................................................." + success);
+                        }
+                    });
+                    return true;
+                }
                 startRecord();
                 break;
             case MotionEvent.ACTION_UP:
                 Log.w(TAG, "Touch ++ ACTION_UP");
+                if(mTBtnFocus.isChecked()) {
+                    //如果是对焦模式，忽略下面操作
+                    return true;
+                }
                 stopRecord();
                 break;
             default:
@@ -526,8 +540,10 @@ public class CamcorderActivity extends NoSearchActivity implements
                 setVideoFlash(isChecked);
                 break;
             case R.id.tbtn_camcorder_delay: //延时
+                mTBtnFocus.setChecked(false);
                 break;
             case R.id.tbtn_camcorder_focus: //对焦
+                mTBtnFocus.setChecked(false);
                 break;
             default:
                 break;
@@ -842,6 +858,8 @@ public class CamcorderActivity extends NoSearchActivity implements
         //是否支持打开/关闭闪光灯
         mSettingWindow.setFlashEnabled(isSupportedVideoFlash());
 
+        mTBtnFocus.setEnabled(isSupportedFocus());
+
         layoutPreView();
     }
 
@@ -920,6 +938,44 @@ public class CamcorderActivity extends NoSearchActivity implements
     /**********************************************************************************************/
 
 
+    /******* 对焦相关 ××××**************************************************************************/
+
+    /**
+     * 手动对焦
+     */
+    private void startFocus() {
+        if(null == mCameraDevice) {
+            return;
+        }
+        if(isSupportedFocus()) {
+            List<String> supportedFocusMode = mParameters.getSupportedFocusModes();
+            if(isSupported(Parameters.FOCUS_MODE_AUTO, supportedFocusMode)) {
+                mParameters.setFocusMode(Parameters.FOCUS_MODE_AUTO);
+            } else if(isSupported(Parameters.FOCUS_MODE_MACRO, supportedFocusMode)) {
+                mParameters.setFocusMode(Parameters.FOCUS_MODE_MACRO);
+            }
+            mCameraDevice.setParameters(mParameters);
+            mCameraDevice.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    //TODO 成功对焦后要做的事情
+                    System.out.println("Focus success...................................................." + success);
+                }
+            });
+        }
+    }
+
+    /**
+     * 是否支持手动对焦
+     * @return
+     */
+    private boolean isSupportedFocus() {
+        List<String> supportedFocusMode = mParameters.getSupportedFocusModes();
+        return isSupported(Parameters.FOCUS_MODE_AUTO, supportedFocusMode) || isSupported(Parameters.FOCUS_MODE_MACRO, supportedFocusMode);
+    }
+
+    /**********************************************************************************************/
+
     /** 初始化View、 View相关 ***********************************************************************/
     private void initView() {
 
@@ -949,7 +1005,7 @@ public class CamcorderActivity extends NoSearchActivity implements
         mBtnVideo.setEnabled(false);
         mBtnImage.setEnabled(false);
         mTBtnDelay.setEnabled(false);
-        mTBtnFocus.setEnabled(false);
+        mTBtnFocus.setEnabled(true);
         mBtnDelete.setEnabled(false);
 
         mProgressView.setMaxProgress(VIDEO_MAX_DURATION); //八秒毫秒值8000
