@@ -73,6 +73,7 @@ import com.opensource.camcorder.utils.CamcorderUtil;
 import com.opensource.camcorder.utils.LogUtil;
 import com.opensource.camcorder.utils.StringUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
+import com.opensource.camcorder.widget.FocusView;
 import com.opensource.camcorder.widget.GridView;
 import com.opensource.camcorder.widget.ProgressView;
 import com.opensource.camcorder.widget.SettingPopupWindow;
@@ -140,6 +141,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
     private GridView mGridView;
 
+    private FocusView mFocusView;
 
     private boolean mStartPreviewFail = false;
 
@@ -197,6 +199,7 @@ public class CamcorderActivity extends NoSearchActivity implements
     private ProgressView mProgressView;
     private LinearLayout mToolbar;
 
+    private DisplayMetrics mDisplayMetrics;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -204,22 +207,14 @@ public class CamcorderActivity extends NoSearchActivity implements
             case MotionEvent.ACTION_DOWN:
                 Log.w(TAG, "Touch ++ ACTION_DOWN");
                 if(mTBtnFocus.isChecked()) {
-                    mCameraDevice.autoFocus(new Camera.AutoFocusCallback() {
-
-                        @Override
-                        public void onAutoFocus(boolean success, Camera camera) {
-                            System.out.println("Focus success...................................................." + success);
-                        }
-                    });
-                    return true;
+                    return false; //如果是对焦状态，把触摸事件交给下一级处理
                 }
                 startRecord();
                 break;
             case MotionEvent.ACTION_UP:
                 Log.w(TAG, "Touch ++ ACTION_UP");
                 if(mTBtnFocus.isChecked()) {
-                    //如果是对焦模式，忽略下面操作
-                    return true;
+                    return false;//如果是对焦状态，把触摸事件交给下一级处理
                 }
                 stopRecord();
                 break;
@@ -297,6 +292,8 @@ public class CamcorderActivity extends NoSearchActivity implements
             winParams.screenBrightness = DEFAULT_CAMERA_BRIGHTNESS;
             win.setAttributes(winParams);
         }
+
+        mDisplayMetrics = getResources().getDisplayMetrics();
 
         mNumberOfCameras = CameraHolder.instance().getNumberOfCameras();
 
@@ -543,7 +540,8 @@ public class CamcorderActivity extends NoSearchActivity implements
                 mTBtnFocus.setChecked(false);
                 break;
             case R.id.tbtn_camcorder_focus: //对焦
-                mTBtnFocus.setChecked(false);
+//                mTBtnFocus.setChecked(false);
+                mFocusView.setEnabled(isChecked);
                 break;
             default:
                 break;
@@ -987,6 +985,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         mGridView = (GridView) findViewById(R.id.gv_recorder_grid);
 
+        mFocusView = (FocusView) findViewById(R.id.fv_recorder_focus);
 
         mToolbar = (LinearLayout) findViewById(R.id.ll_recorder_toolbar);
         mBtnVideo = (Button) findViewById(R.id.btn_camcorder_video);
@@ -998,8 +997,8 @@ public class CamcorderActivity extends NoSearchActivity implements
         mVideoPreview.setOnTouchListener(this);
         mBtnVideo.setOnClickListener(this);
         mBtnImage.setOnClickListener(this);
-        mTBtnDelay.setOnClickListener(this);
-        mTBtnFocus.setOnClickListener(this);
+        mTBtnDelay.setOnCheckedChangeListener(this);
+        mTBtnFocus.setOnCheckedChangeListener(this);
         mBtnDelete.setOnClickListener(this);
 
         mBtnVideo.setEnabled(false);
@@ -1025,7 +1024,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                 }
                 String tempFilename = mVideoTmepFilenames.pop();
                 File tempFile = new File(tempFilename);
-                if(null != tempFile && tempFile.exists()) {
+                if(tempFile.exists()) {
                     tempFile.delete();
                 }
             }
@@ -1053,6 +1052,34 @@ public class CamcorderActivity extends NoSearchActivity implements
         initSettingPopWindow(); //初始化设置弹出框
 
         showGridView(mSettingWindow.isGridChecked());
+
+
+        ViewGroup.LayoutParams focusViewLayoutParams = mFocusView.getLayoutParams();
+        focusViewLayoutParams.width = mDisplayMetrics.widthPixels;
+        focusViewLayoutParams.height = mPreviewWidth * mDisplayMetrics.widthPixels / mPreviewHeight;
+        mFocusView.setEnabled(mTBtnFocus.isChecked());
+        mFocusView.setOnFocusListener(new FocusView.OnFocusListener() {
+            @Override
+            public void onFocus(View view, float x, float y) {
+                //TODO 对焦
+                if(null == mCameraDevice) {
+                    return;
+                }
+                mCameraDevice.autoFocus(new Camera.AutoFocusCallback() {
+
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        LogUtil.i(TAG, "Focus success.............................. " + success);
+                        if(success) {
+                            mFocusView.focusSuccessed();
+                        } else {
+                            mFocusView.focusFailed();
+                        }
+                    }
+                });
+            }
+        });
+
     }
 
     /**
@@ -1081,13 +1108,12 @@ public class CamcorderActivity extends NoSearchActivity implements
      * 计算布局预览View
      */
     private void layoutPreView() {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
         ViewGroup.LayoutParams videoPreviewLayoutParams = mVideoPreview.getLayoutParams();
-        videoPreviewLayoutParams.width = dm.widthPixels;
-        videoPreviewLayoutParams.height = mPreviewWidth * dm.widthPixels / mPreviewHeight;
+        videoPreviewLayoutParams.width = mDisplayMetrics.widthPixels;
+        videoPreviewLayoutParams.height = mPreviewWidth * mDisplayMetrics.widthPixels / mPreviewHeight;
 
         FrameLayout.LayoutParams toolbarLayoutParams = (FrameLayout.LayoutParams) mToolbar.getLayoutParams();
-        toolbarLayoutParams.topMargin = mVideoHeight * dm.widthPixels / mPreviewHeight;
+        toolbarLayoutParams.topMargin = mVideoHeight * mDisplayMetrics.widthPixels / mPreviewHeight;
     }
 
     /**

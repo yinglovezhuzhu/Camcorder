@@ -55,6 +55,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"/>
+        <com.opensource.camcorder.widget.FocusView
+            android:id="@+id/fv_recorder_focus"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
         <LinearLayout
             android:id="@+id/ll_recorder_toolbar"
             android:layout_width="match_parent"
