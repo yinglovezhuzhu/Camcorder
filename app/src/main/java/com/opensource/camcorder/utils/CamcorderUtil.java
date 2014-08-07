@@ -153,6 +153,25 @@ public class CamcorderUtil {
     }
 
     /**
+     * 根据系统时间产生一个临时视频目录，用来存放一个操作中的视频
+     * @param parent
+     * @return
+     */
+    public static String createVideosSessionFolder(String parent) {
+        String folder = createFilename(parent, CamcorderConfig.VIDEO_PREFIX, CamcorderConfig.VIDEO_SESSION_FOLDER_SUFFIX);
+        int index = 0;
+        File file = new File(folder + "_" + index);
+        while(file.exists()) {
+            index++;
+            file = new File(folder + "_" + index);
+        }
+        if(file.mkdirs()) {
+            return file.getPath();
+        }
+        return folder;
+    }
+
+    /**
      * 根据系统时间、前缀、后缀产生一个文件名
      * @param folder
      * @param prefix

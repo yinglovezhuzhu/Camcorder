@@ -42,12 +42,13 @@ public class CamcorderConfig {
 
     public static final String DATE_FORMAT_MILLISECOND = "yyyyMMdd_HHmmssmmm";
 
-    public final static String VIDEO_FOLDER = "video";
+    public final static String VIDEO_FOLDER = "videos";
     public final static String TEMP_FOLDER = "temp";
-    public final static String THUMB_FOLDER = "thumb";
+    public final static String THUMB_FOLDER = "thumbs";
 
     public final static String VIDEO_PREFIX = "VID_";
     public final static String IMAGE_PREFIX = "IMG_";
     public final static String VIDEO_SUFFIX = ".mp4";
     public final static String IMAGE_SUFFIX = ".jpg";
+    public final static String VIDEO_SESSION_FOLDER_SUFFIX = "_session";
 }

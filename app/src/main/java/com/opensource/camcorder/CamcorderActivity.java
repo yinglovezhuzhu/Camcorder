@@ -70,6 +70,7 @@ import com.googlecode.javacv.FFmpegFrameRecorder;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.opensource.camcorder.service.FFmpegService;
 import com.opensource.camcorder.utils.CamcorderUtil;
+import com.opensource.camcorder.utils.FileUtil;
 import com.opensource.camcorder.utils.LogUtil;
 import com.opensource.camcorder.utils.StringUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
@@ -162,6 +163,8 @@ public class CamcorderActivity extends NoSearchActivity implements
     private String mVideoFilename;
     /** 合成的视频缩略图 **/
     private String mVideoThumbFilename;
+    /** 当前拍摄所有断点视频的保存目录 */
+    private String mSessionFolder;
 
     boolean mPausing = false;
     boolean mPreviewing = false; // True if preview is started.
@@ -1143,7 +1146,11 @@ public class CamcorderActivity extends NoSearchActivity implements
 	 * 初始化Recorder
 	 */
 	private void initRecorder() {
-        mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
+        if(StringUtil.isEmpty(mSessionFolder)) {
+            File parent = new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.VIDEO_FOLDER);
+            mSessionFolder = CamcorderUtil.createVideosSessionFolder(parent.getPath());
+        }
+        mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(mSessionFolder);
 
 		CamcorderParameters recorderParameters = CamcorderUtil.getRecorderParameter(currentResolution);
 		mAudioSampleRate = recorderParameters.getAudioSamplingRate();
@@ -1205,15 +1212,16 @@ public class CamcorderActivity extends NoSearchActivity implements
                 }
             }
         }
-        while(!mVideoTmepFilenames.isEmpty()) {
-            String videoFile = mVideoTmepFilenames.pop();
-            File file = new File(videoFile);
-            if(file.exists()) {
-                if(!file.delete()) {
-                    LogUtil.w(TAG, "Could not delete file:" + file.getAbsolutePath());
-                }
-            }
-        }
+//        while(!mVideoTmepFilenames.isEmpty()) {
+//            String videoFile = mVideoTmepFilenames.pop();
+//            File file = new File(videoFile);
+//            if(file.exists()) {
+//                if(!file.delete()) {
+//                    LogUtil.w(TAG, "Could not delete file:" + file.getAbsolutePath());
+//                }
+//            }
+//        }
+        FileUtil.deleteFile(new File(mSessionFolder)); //把所有的中间拍摄的视频放在一个目录下，可以删除目录一下删除
     }
 
     /**
@@ -1507,7 +1515,8 @@ public class CamcorderActivity extends NoSearchActivity implements
 
             publishProgress(20);
 
-            mVideoFilename = CamcorderUtil.createVideoFilename(new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.TEMP_FOLDER).getAbsolutePath());
+            mVideoFilename = CamcorderUtil.createVideoFilename(
+                    new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
             if(mVideoTmepFilenames.size() == 1) { //如果只有一个视频文件，直接拷贝一个副本
                 try {
                     File sourceFile = new File(mVideoTmepFilenames.peek());
@@ -1528,11 +1537,10 @@ public class CamcorderActivity extends NoSearchActivity implements
                 }
             } else {
                 try {
-                    File videoFile = new File(mVideoFilename);
                     String [] files = new String[mVideoTmepFilenames.size()];
                     mVideoTmepFilenames.toArray(files);
                     publishProgress(25);
-                    int ret = mmService.mergeVideo(videoFile.getParent(),
+                    int ret = mmService.mergeVideo(mSessionFolder,
                             mVideoFilename,
                             files);
                     LogUtil.i(TAG, "Merge video result:++>>> " + ret);
@@ -1565,7 +1573,8 @@ public class CamcorderActivity extends NoSearchActivity implements
                 result.put(KEY_THUMB, null);
             } else {
                 publishProgress(75);
-                mVideoThumbFilename = CamcorderUtil.createImageFilename(new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.THUMB_FOLDER).getAbsolutePath());
+                mVideoThumbFilename = CamcorderUtil.createImageFilename(
+                        new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.THUMB_FOLDER).getAbsolutePath());
                 File thumbFile = new File(mVideoThumbFilename);
                 try {
                     boolean state = bm.compress(Bitmap.CompressFormat.JPEG, CamcorderConfig.THUMB_QUALITY, new FileOutputStream(thumbFile));
