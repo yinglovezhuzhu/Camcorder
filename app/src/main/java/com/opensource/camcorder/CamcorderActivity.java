@@ -1143,7 +1143,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 	 * 初始化Recorder
 	 */
 	private void initRecorder() {
-        mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
+        mCurrentVideoTempFilename = CamcorderUtil.createVideoFilename(new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.VIDEO_FOLDER).getAbsolutePath());
 
 		CamcorderParameters recorderParameters = CamcorderUtil.getRecorderParameter(currentResolution);
 		mAudioSampleRate = recorderParameters.getAudioSamplingRate();
@@ -1507,7 +1507,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
             publishProgress(20);
 
-            mVideoFilename = CamcorderUtil.createVideoFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.TEMP_FOLDER).getAbsolutePath());
+            mVideoFilename = CamcorderUtil.createVideoFilename(new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.TEMP_FOLDER).getAbsolutePath());
             if(mVideoTmepFilenames.size() == 1) { //如果只有一个视频文件，直接拷贝一个副本
                 try {
                     File sourceFile = new File(mVideoTmepFilenames.peek());
@@ -1565,7 +1565,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                 result.put(KEY_THUMB, null);
             } else {
                 publishProgress(75);
-                mVideoThumbFilename = CamcorderUtil.createImageFilename(new File(CamcorderApp.APP_FOLDER, CamcorderConfig.THUMB_FOLDER).getAbsolutePath());
+                mVideoThumbFilename = CamcorderUtil.createImageFilename(new File(CamcorderUtil.getExternalFilesDir(CamcorderActivity.this), CamcorderConfig.THUMB_FOLDER).getAbsolutePath());
                 File thumbFile = new File(mVideoThumbFilename);
                 try {
                     boolean state = bm.compress(Bitmap.CompressFormat.JPEG, CamcorderConfig.THUMB_QUALITY, new FileOutputStream(thumbFile));
