@@ -38,6 +38,8 @@ import java.io.InputStream;
  */
 public class FileUtil {
 
+    private static final String TAG = "FileUtils";
+
     private FileUtil() {}
 
     /**
@@ -135,7 +137,9 @@ public class FileUtil {
                     deleteFile(file2);
                 }
             }
-            file.delete();
+            if(!file.delete()) {
+                LogUtil.e(TAG, "Delete file failed, path:" + file.getPath());
+            }
         }
     }
 
