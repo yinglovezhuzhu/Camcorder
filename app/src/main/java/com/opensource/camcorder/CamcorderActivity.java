@@ -119,8 +119,8 @@ public class CamcorderActivity extends NoSearchActivity implements
     private static final int STORAGE_STATUS_FAIL = 3;
 
     private static final int CLEAR_SCREEN_DELAY = 4;
-    private static final int UPDATE_RECORD_TIME = 5;
-    private static final int ENABLE_SHUTTER_BUTTON = 6;
+    private static final int INIT_AUDIO_RECORDER_ERROR = 5;
+    private static final int START_AUDIO_RECORDER_ERROR = 6;
     private static final int UPDATE_PROGRESS = 7;
 
     private static final long VIDEO_MIN_DURATION = 2 * 1000;
@@ -231,14 +231,14 @@ public class CamcorderActivity extends NoSearchActivity implements
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-
-                case ENABLE_SHUTTER_BUTTON: //Enable shutter button
-                    break;
-
                 case CLEAR_SCREEN_DELAY: {
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     break;
                 }
+                case INIT_AUDIO_RECORDER_ERROR: //初始化音频失败
+                    break;
+                case START_AUDIO_RECORDER_ERROR: //启动音频录音失败
+                    break;
                 case UPDATE_PROGRESS:
                     if(mRecorderRecording) {
                         mProgressView.setProgress(mProgressView.peekSplit() + (Long) msg.obj);
@@ -336,8 +336,6 @@ public class CamcorderActivity extends NoSearchActivity implements
             holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         }
 
-//        mOrientationListener = new MainOrientationEventListener(CamcorderActivity.this);
-
         // Make sure preview is started.
         try {
             startPreviewThread.join();
@@ -361,6 +359,12 @@ public class CamcorderActivity extends NoSearchActivity implements
         if (!mPreviewing && !mStartPreviewFail) {
             if (!restartPreview()) return;
         }
+
+        if(null == mAudioRecordThread || mAudioRecordThread.isInterrupted()) {
+            mAudioRecordThread = new AudioRecordThread();
+            mAudioRecordThread.start();
+        }
+
         keepScreenOnAwhile();
     }
 
@@ -372,6 +376,11 @@ public class CamcorderActivity extends NoSearchActivity implements
             stopRecord();
         }
         closeCamera();
+
+        if(null != mAudioRecordThread) {
+            mAudioRecordThread.interrupt();
+            mAudioRecordThread = null;
+        }
 
         resetScreenOn();
 
@@ -549,20 +558,6 @@ public class CamcorderActivity extends NoSearchActivity implements
     }
 
     /**
-     * 初始化完成，启动画面录制线程和音频录制线程
-     */
-    public void prepare() {
-        try {
-            mFFmpegFrameRecorder.start();
-            mAudioRecordThread.start();
-        } catch (FFmpegFrameRecorder.Exception e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * 开始录制
      */
     private void startRecord() {
@@ -630,12 +625,12 @@ public class CamcorderActivity extends NoSearchActivity implements
         mFFmpegFrameRecorder = null;
         mYUVIplImage = null;
 
-        if(mAudioRecordThread != null) {
-            if(mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
-                mAudioRecordThread.interrupt();
-            }
-            mAudioRecordThread = null;
-        }
+//        if(mAudioRecordThread != null) {
+//            if(mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
+//                mAudioRecordThread.interrupt();
+//            }
+//            mAudioRecordThread = null;
+//        }
 
     }
 
@@ -812,7 +807,7 @@ public class CamcorderActivity extends NoSearchActivity implements
      * @return
      */
     private static boolean isSupported(String value, List<String> supported) {
-        return supported == null ? false : supported.indexOf(value) >= 0;
+        return supported != null && supported.indexOf(value) >= 0;
     }
 
     /**
@@ -1173,14 +1168,21 @@ public class CamcorderActivity extends NoSearchActivity implements
         }
         mYUVIplImage = IplImage.create(mPreviewHeight, mPreviewWidth,IPL_DEPTH_8U, 2);
 
-        //如果音频录制线程正在运行，则中断它
-        if(null != mAudioRecordThread && mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
-            mAudioRecordThread.interrupt();
-            mAudioRecordThread = null;
-        }
-		mAudioRecordThread = new AudioRecordThread();
+//        //如果音频录制线程正在运行，则中断它
+//        if(null != mAudioRecordThread && mAudioRecordThread.isAlive() && !mAudioRecordThread.isInterrupted()) {
+//            mAudioRecordThread.interrupt();
+//            mAudioRecordThread = null;
+//        }
+//		mAudioRecordThread = new AudioRecordThread();
 
-        prepare();
+        try {
+            mFFmpegFrameRecorder.start();
+//            mAudioRecordThread.start();
+        } catch (FFmpegFrameRecorder.Exception e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 
     /**
@@ -1225,13 +1227,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                   clearFiles();
-                                }
-                            });
-                            finish();
+                            exitSilently();
                         }
                     })
                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -1242,11 +1238,200 @@ public class CamcorderActivity extends NoSearchActivity implements
                         }
                     }).show();
         } else {
-            finish();
+            exitSilently();
+        }
+    }
+
+    /**
+     * 静默模式退出
+     */
+    private void exitSilently() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                clearFiles();
+            }
+        });
+        finish();
+    }
+
+
+    public static class SizeComparator implements Comparator<Size> {
+        @Override
+        public int compare(Camera.Size size1, Camera.Size size2) {
+            if (size1.height != size2.height)
+                return size1.height - size2.height;
+            else
+                return size1.width - size2.width;
         }
     }
 
 
+//    /**
+//     * 录制音频的线程
+//     */
+//    private class AudioRecordThread extends Thread {
+//
+//        @Override
+//        public void run() {
+//            super.run();
+//            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+//
+//            int bufferSize = AudioRecord.getMinBufferSize(mAudioSampleRate, AudioFormat.CHANNEL_IN_MONO,
+//                    AudioFormat.ENCODING_PCM_16BIT);
+//
+//             /* audio data getting thread */
+//            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mAudioSampleRate,
+//                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+//            short [] audioData = new short[bufferSize];
+//            int bufferReadResult;
+//
+//            if(AudioRecord.STATE_UNINITIALIZED == audioRecord.getState()) {
+//                audioRecord.release();
+//                return;
+//            }
+//
+//            Log.d(TAG, "audioRecord.prepare()");
+//            audioRecord.startRecording();
+//
+//			/* ffmpeg_audio encoding loop */
+//            while (!mRecordFinished && !interrupted()) {
+//                // Log.v(LOG_TAG,"recording? " + recording);
+//                bufferReadResult = audioRecord.read(audioData, 0, audioData.length);
+//                if (bufferReadResult > 0) {
+//                    // Log.v(LOG_TAG, "mmBufferReadResult: " + mmBufferReadResult);
+//                    // If "recording" isn't true when start this thread, it
+//                    // never get's set according to this if statement...!!!
+//                    // Why? Good question...
+//                    if (mRecorderRecording) {
+//                        try {
+//                            Buffer[] barray = new Buffer[1];
+//                            barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
+//                            mFFmpegFrameRecorder.record(barray);
+//                            // Log.v(LOG_TAG,"recording " + 1024*i + " to " +
+//                            // 1024*i+1024);
+//                        } catch (FFmpegFrameRecorder.Exception e) {
+//                            Log.v(TAG, e.getMessage());
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
+//            Log.v(TAG, "AudioThread Finished, release audioRecord");
+//
+//			/* encoding finish, release audio recorder */
+//            if (audioRecord != null) {
+//                audioRecord.stop();
+//                audioRecord.release();
+//                Log.v(TAG, "audioRecord released");
+//            }
+//        }
+//
+//    }
+
+    /**
+     * 录制音频的线程
+     */
+    private class AudioRecordThread extends Thread {
+
+        private AudioRecord mmAudioRecord;
+        private boolean mmListening = true;
+
+        @Override
+        public synchronized void start() {
+            mmListening = true;
+            super.start();
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+
+            int bufferSize = AudioRecord.getMinBufferSize(mAudioSampleRate, AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT);
+
+            try {
+                 /* audio data getting thread */
+                mmAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mAudioSampleRate,
+                        AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+            } catch (IllegalStateException e) {
+                mHandler.sendEmptyMessage(INIT_AUDIO_RECORDER_ERROR);
+                e.printStackTrace();
+            }
+
+            if(null != mmAudioRecord && AudioRecord.STATE_UNINITIALIZED == mmAudioRecord.getState()) {
+                //TODO 初始化音频失败
+                mHandler.sendEmptyMessage(INIT_AUDIO_RECORDER_ERROR);
+                mmAudioRecord.release();
+                mmAudioRecord = null;
+                return;
+            }
+
+            short [] audioData = new short[bufferSize];
+            int bufferReadResult;
+            Log.d(TAG, "audioRecord.prepare()");
+            try {
+                mmAudioRecord.startRecording();
+            } catch (IllegalStateException e) {
+                mHandler.sendEmptyMessage(START_AUDIO_RECORDER_ERROR);
+                e.printStackTrace();
+                //TODO 启动录音失败
+            }
+
+			/* ffmpeg_audio encoding loop */
+            while (mmListening && !interrupted()) {
+                if(mRecorderRecording) {
+                    LogUtil.i(TAG, "Recorder recoding");
+                    bufferReadResult = mmAudioRecord.read(audioData, 0, audioData.length);
+                    LogUtil.v(TAG, "mmBufferReadResult: " + bufferReadResult);
+                    if (bufferReadResult > 0) {
+                        // If "recording" isn't true when start this thread, it
+                        // never get's set according to this if statement...!!!
+                        // Why? Good question...
+                        try {
+                            Buffer[] barray = new Buffer[1];
+                            barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
+                            if(mRecorderRecording && null != mFFmpegFrameRecorder) {
+                                mFFmpegFrameRecorder.record(barray);
+                            }
+                            // Log.v(LOG_TAG,"recording " + 1024*i + " to " +
+                            // 1024*i+1024);
+                        } catch (FFmpegFrameRecorder.Exception e) {
+                            Log.v(TAG, e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            Log.v(TAG, "AudioThread Finished, release audioRecord");
+
+			/* encoding finish, release audio recorder */
+            if (null != mmAudioRecord) {
+                if(AudioRecord.RECORDSTATE_RECORDING == mmAudioRecord.getRecordingState()) {
+                    try {
+                        mmAudioRecord.stop();
+                    } catch (IllegalStateException e) {
+                        //TODO 停止录音失败
+                        e.printStackTrace();
+                    }
+                }
+                mmAudioRecord.release();
+                Log.v(TAG, "audioRecord released");
+            }
+        }
+
+        @Override
+        public void interrupt() {
+            mmListening = false;
+            super.interrupt();
+        }
+    }
+
+
+    /**
+     * 拍摄完成后合成视频等操作的异步线程类
+     */
     public class DealFinishWorkTask extends AsyncTask<String, Integer, Map<String, String>> {
         private static final String KEY_VIDEO = "video";
         private static final String KEY_THUMB = "thumb";
@@ -1261,12 +1446,12 @@ public class CamcorderActivity extends NoSearchActivity implements
         protected void onPreExecute() {
             //创建处理进度条
             mmDialog= new Dialog(CamcorderActivity.this,R.style.DialogLoadingNoDim);
-			Window dialogWindow = mmDialog.getWindow();
-			WindowManager.LayoutParams lp = dialogWindow.getAttributes();
-			lp.width = (int) (getResources().getDisplayMetrics().density*240);
-			lp.height = (int) (getResources().getDisplayMetrics().density*80);
-			lp.gravity = Gravity.CENTER;
-			dialogWindow.setAttributes(lp);
+            Window dialogWindow = mmDialog.getWindow();
+            WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+            lp.width = (int) (getResources().getDisplayMetrics().density*240);
+            lp.height = (int) (getResources().getDisplayMetrics().density*80);
+            lp.gravity = Gravity.CENTER;
+            dialogWindow.setAttributes(lp);
             mmDialog.setCanceledOnTouchOutside(false);
             mmDialog.setContentView(R.layout.layout_deal_progress);
 
@@ -1386,7 +1571,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                     boolean state = bm.compress(Bitmap.CompressFormat.JPEG, CamcorderConfig.THUMB_QUALITY, new FileOutputStream(thumbFile));
                     publishProgress(90);
                     if(state && thumbFile.exists()) {
-                    result.put(KEY_THUMB, thumbFile.getAbsolutePath());
+                        result.put(KEY_THUMB, thumbFile.getAbsolutePath());
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -1416,79 +1601,6 @@ public class CamcorderActivity extends NoSearchActivity implements
             }
             super.onPostExecute(results);
         }
-    }
-
-    public static class SizeComparator implements Comparator<Size> {
-        @Override
-        public int compare(Camera.Size size1, Camera.Size size2) {
-            if (size1.height != size2.height)
-                return size1.height - size2.height;
-            else
-                return size1.width - size2.width;
-        }
-    }
-
-
-    /**
-     * 录制音频的线程
-     */
-    private class AudioRecordThread extends Thread {
-
-        @Override
-        public void run() {
-            super.run();
-            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-
-            int bufferSize = AudioRecord.getMinBufferSize(mAudioSampleRate, AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT);
-
-             /* audio data getting thread */
-            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mAudioSampleRate,
-                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-            short [] audioData = new short[bufferSize];
-            int bufferReadResult;
-
-            if(AudioRecord.STATE_UNINITIALIZED == audioRecord.getState()) {
-                audioRecord.release();
-                return;
-            }
-
-            Log.d(TAG, "audioRecord.prepare()");
-            audioRecord.startRecording();
-
-			/* ffmpeg_audio encoding loop */
-            while (!mRecordFinished && !interrupted()) {
-                // Log.v(LOG_TAG,"recording? " + recording);
-                bufferReadResult = audioRecord.read(audioData, 0, audioData.length);
-                if (bufferReadResult > 0) {
-                    // Log.v(LOG_TAG, "mmBufferReadResult: " + mmBufferReadResult);
-                    // If "recording" isn't true when start this thread, it
-                    // never get's set according to this if statement...!!!
-                    // Why? Good question...
-                    if (mRecorderRecording) {
-                        try {
-                            Buffer[] barray = new Buffer[1];
-                            barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
-                            mFFmpegFrameRecorder.record(barray);
-                            // Log.v(LOG_TAG,"recording " + 1024*i + " to " +
-                            // 1024*i+1024);
-                        } catch (FFmpegFrameRecorder.Exception e) {
-                            Log.v(TAG, e.getMessage());
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-            Log.v(TAG, "AudioThread Finished, release audioRecord");
-
-			/* encoding finish, release audio recorder */
-            if (audioRecord != null) {
-                audioRecord.stop();
-                audioRecord.release();
-                Log.v(TAG, "audioRecord released");
-            }
-        }
-
     }
 
 }

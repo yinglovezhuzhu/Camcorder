@@ -398,8 +398,8 @@ containing a value of this type.
         public static final int btn_camcorder_title_right=0x7f060023;
         public static final int btn_camcorder_video=0x7f060007;
         public static final int fl_video_edit_content=0x7f06000d;
-        public static final int fv_recorder_focus=0x7f060005;
-        public static final int gv_recorder_grid=0x7f060004;
+        public static final int fv_recorder_focus=0x7f060004;
+        public static final int gv_recorder_grid=0x7f060005;
         public static final int hgv_video_edit_boxes=0x7f060013;
         public static final int iv_item_box_download_icon=0x7f06001c;
         public static final int iv_item_box_thumb=0x7f06001a;
