@@ -1221,6 +1221,9 @@ public class CamcorderActivity extends NoSearchActivity implements
 //                }
 //            }
 //        }
+        if(StringUtil.isEmpty(mSessionFolder)) {
+            return;
+        }
         FileUtil.deleteFile(new File(mSessionFolder)); //把所有的中间拍摄的视频放在一个目录下，可以删除目录一下删除
     }
 
