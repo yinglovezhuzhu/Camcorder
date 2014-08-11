@@ -153,10 +153,11 @@ public class FileUtil {
             return false;
         }
         File file = new File(path);
-        if(file.exists()) {
-            return file.delete();
+        boolean result = file.delete();
+        if(!result) {
+            LogUtil.e(TAG, "Delete file failed, path:" + file.getPath());
         }
-        return false;
+        return result;
     }
 
     /**

@@ -54,7 +54,6 @@ import com.opensource.camcorder.entity.Watermark;
 import com.opensource.camcorder.service.FFmpegService;
 import com.opensource.camcorder.utils.CamcorderUtil;
 import com.opensource.camcorder.utils.FileUtil;
-import com.opensource.camcorder.utils.LogUtil;
 import com.opensource.camcorder.utils.StringUtil;
 import com.opensource.camcorder.utils.ViewUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
@@ -281,22 +280,10 @@ public class VideoEditActivity extends NoSearchActivity {
      * 下一次进入的时候会重新合并视频和生成缩略图。
      */
     private void deleteFiles() {
-        if(!StringUtil.isEmpty(mVideoPath)) {
-            File videoFile = new File(mVideoPath);
-            if(videoFile.exists()) {
-                if(!videoFile.delete()) {
-                    LogUtil.w(TAG, "Delete file failed: path -> " + mVideoPath);
-                }
-            }
-        }
-        if(!StringUtil.isEmpty(mThumbPath)) {
-            File thumbFile = new File(mThumbPath);
-            if(thumbFile.exists()) {
-                if(!thumbFile.delete()) {
-                    LogUtil.w(TAG, "Delete file failed: path -> " + mThumbPath);
-                }
-            }
-        }
+        FileUtil.deleteFile(mVideoPath);
+        FileUtil.deleteFile(mThumbPath);
+        FileUtil.deleteFile(mResultVideoPath);
+        FileUtil.deleteFile(mResultThumbPath);
     }
 
     /**
@@ -309,8 +296,7 @@ public class VideoEditActivity extends NoSearchActivity {
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            deleteFiles();
-                            finish();
+                            exitSiltently();
                         }
                     })
                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -320,9 +306,16 @@ public class VideoEditActivity extends NoSearchActivity {
                         }
                     }).show();
         } else {
-            deleteFiles();
-            finish();
+            exitSiltently();
         }
+    }
+
+    /**
+     * 静默退出
+     */
+    private void exitSiltently() {
+        deleteFiles();
+        finish();
     }
 
 
@@ -371,6 +364,10 @@ public class VideoEditActivity extends NoSearchActivity {
                             //TODO 打开水印库
                             break;
                         default:
+                            if(position == mmCheckedPosition) {
+                                return;
+                            }
+                            mEdited = true;
                             int lastPosition = mmCheckedPosition;
                             mmCheckedPosition = position;
                             notifyItemChanged(lastPosition);
@@ -757,7 +754,9 @@ public class VideoEditActivity extends NoSearchActivity {
             } while(!mmServiceConnected && !isCancelled());
 
 
-            String outputVideoPath = mVideoPath.substring(0, mVideoPath.lastIndexOf(".")) + "_watermark" + CamcorderConfig.VIDEO_SUFFIX;
+            File tempFileDir = new File(CamcorderUtil.getExternalFilesDir(VideoEditActivity.this), CamcorderConfig.TEMP_FOLDER);
+            String outputVideoPath = CamcorderUtil.createVideoFilename(tempFileDir.getPath());
+
 
             File outputFile = new File(outputVideoPath);
             if(outputFile.exists()) {
@@ -784,7 +783,7 @@ public class VideoEditActivity extends NoSearchActivity {
             if(null == bm) {
                 result.put(KEY_THUMB, null);
             } else {
-                String outputThumbPath = mVideoPath.substring(0, mVideoPath.lastIndexOf(".")) + "_watermark" + CamcorderConfig.IMAGE_SUFFIX;
+                String outputThumbPath = CamcorderUtil.createImageFilename(tempFileDir.getPath());
                 File thumbFile = new File(outputThumbPath);
                 if(thumbFile.exists()) {
                     thumbFile.delete();
