@@ -331,6 +331,11 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         mNumberOfCameras = CameraHolder.instance().getNumberOfCameras();
 
+        requestWindowFeature(Window.FEATURE_PROGRESS);
+        setContentView(R.layout.activity_camcorder);
+
+        initView();
+
         /*
          * To reduce startup time, we start the preview in another thread.
          * We make sure the preview is started at the end of onCreate.
@@ -366,11 +371,6 @@ public class CamcorderActivity extends NoSearchActivity implements
             }
         });
         initRecorderThread.start();
-
-        requestWindowFeature(Window.FEATURE_PROGRESS);
-        setContentView(R.layout.activity_camcorder);
-
-        initView();
 
 
         // don't set mSurfaceHolder here. We have it set ONLY within
