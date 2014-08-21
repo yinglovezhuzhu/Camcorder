@@ -1,0 +1,66 @@
+{
+  "result": 0,
+  "msg": "请求成功",
+  "pageList": [
+    {
+      "id": "1",
+      "name": "KISS",
+      "iconurl": "ic_watermark_kiss.jpg",
+      "tag": "",
+      "isNew": 0,
+      "isHot": 0,
+      "version": ";;;",
+      "status": "1",
+      "weight": 1,
+      "dataUrl": "watermark_kiss.zip"
+    },
+    {
+      "id": "2",
+      "name": "录制",
+      "iconurl": "ic_watermark_record.jpg",
+      "tag": "",
+      "isNew": 0,
+      "isHot": 0,
+      "version": ";;;",
+      "status": "1",
+      "weight": 2,
+      "dataUrl": "watermark_record.zip"
+    },
+    {
+      "id": "3",
+      "name": "明信片",
+      "iconurl": "ic_watermark_post.jpg",
+      "tag": "",
+      "isNew": 0,
+      "isHot": 0,
+      "version": ";;;",
+      "status": "1",
+      "weight": 3,
+      "dataUrl": "watermark_post.zip"
+    },
+    {
+      "id": "4",
+      "name": "早上好",
+      "iconurl": "ic_watermark_morning.jpg",
+      "tag": "",
+      "isNew": 0,
+      "isHot": 0,
+      "version": ";;;",
+      "status": "1",
+      "weight": 4,
+      "dataUrl": "watermark_morning.zip"
+    }
+  ],
+  "pageTurn": {
+    "currentPage": 1,
+    "end": 0,
+    "firstPage": 0,
+    "nextPage": 0,
+    "page": 1,
+    "pageCount": 0,
+    "pageSize": 3,
+    "prevPage": 0,
+    "rowCount": 0,
+    "start": 0
+  }
+}

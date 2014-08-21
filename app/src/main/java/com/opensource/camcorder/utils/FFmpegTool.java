@@ -18,12 +18,20 @@
 
 package com.opensource.camcorder.utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 /**
  * Usage 
  * 
  * @author yinglovezhuzhu@gmail.com
  */
-public class FFmpegTool {
+public final class FFmpegTool {
+
+    private static final String TAG= "FFmpegTool";
 	
 	private FFmpegTool() {}
 	
@@ -94,7 +102,67 @@ public class FFmpegTool {
 	public static native int fetchAudio(String input, String output, String format);
 	
 	public static native int addAudio(String video, String audio, String output, String format);
-	
-	
+
+    /**
+     * Use the command of FFMpeg directory
+     * @param args
+     * @return
+     */
 	public static native int ffmpeg(String... args);
+
+
+    private static final String MERGE_LIST = "merge-list";
+    private static final String CHARSET = "UTF-8";
+
+    /**
+     * Write files to a list file, with format "file 'file_name'"
+     * @param path The folder path where list-file to create
+     * @param files File lists
+     * @return The path of list-file;
+     */
+    public static String createListFile(String path, String ... files) {
+        File folder = new File(path);
+        if(folder.exists()) {
+            File listFile = new File(folder, MERGE_LIST);
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(listFile);
+                for(String file : files) {
+                    if(StringUtil.isEmpty(file)) {
+                        continue;
+                    }
+                    String line = "file '";
+                    line += file;
+                    line += "'\n";
+                    fos.write(line.getBytes(CHARSET));
+                }
+                return listFile.getPath();
+            } catch (FileNotFoundException e) {
+                LogUtil.e(TAG, "Open file failed, file not found:" + listFile.getPath());
+                e.printStackTrace();
+                return null;
+            } catch (UnsupportedEncodingException e) {
+                LogUtil.e(TAG, "UnsupportedEncodingException");
+                e.printStackTrace();
+                return null;
+            } catch (IOException e) {
+                LogUtil.e(TAG, "Open file failed, printStackTrace:" + listFile.getPath());
+                e.printStackTrace();
+                return null;
+            } finally {
+                if(null != fos) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } else {
+            if(!folder.mkdirs()) {
+                return null;
+            }
+        }
+        return null;
+    }
 }

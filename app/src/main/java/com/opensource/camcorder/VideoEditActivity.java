@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -55,7 +56,6 @@ import com.opensource.camcorder.service.FFmpegService;
 import com.opensource.camcorder.utils.CamcorderUtil;
 import com.opensource.camcorder.utils.FileUtil;
 import com.opensource.camcorder.utils.StringUtil;
-import com.opensource.camcorder.utils.ViewUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
 import com.opensource.camcorder.widget.HorizontalGridView;
 
@@ -163,6 +163,10 @@ public class VideoEditActivity extends NoSearchActivity {
         lp.width = getResources().getDisplayMetrics().widthPixels;
         lp.height = lp.width;
 
+        ViewGroup.LayoutParams flowLp = mIvFlow.getLayoutParams();
+        flowLp.width = getResources().getDisplayMetrics().widthPixels;
+        flowLp.height = lp.width;
+
         mPbEditing = (ProgressBar) findViewById(R.id.pb_video_edit_progress);
 
         mHGridView = (HorizontalGridView) findViewById(R.id.hgv_video_edit_boxes);
@@ -233,7 +237,9 @@ public class VideoEditActivity extends NoSearchActivity {
             switch (checkedId) {
                 case R.id.rbtn_video_edit_watermark:
                     mAdapter.clear();
-                    new InitWatermarkDataTask(VideoEditActivity.this).execute();
+//                    new InitWatermarkDataTask(VideoEditActivity.this).execute();
+                    mAdapter.clear();
+                    mAdapter.addAll((Collection<Watermark>) CamcorderApp.getDecorations("watermark"));
                     mAdapter.setCheckedPosition(mAdapter.getCheckedPosition());
                     break;
                 case R.id.rbtn_video_edit_music:
@@ -373,7 +379,7 @@ public class VideoEditActivity extends NoSearchActivity {
                             notifyItemChanged(lastPosition);
                             notifyItemChanged(mmCheckedPosition);
                             Watermark mark = mmWatermarkDatas.get(mmCheckedPosition);
-                            if(StringUtil.isEmpty(mark.getPath())) {
+                            if(StringUtil.isEmpty(mark.getIconUrl())) {
                                 mIvFlow.setImageBitmap(null);
                                 mIvFlow.setVisibility(View.GONE);
                                 if(mResultVideoPath != null && !mResultVideoPath.equals(mVideoPath)) {
@@ -384,50 +390,29 @@ public class VideoEditActivity extends NoSearchActivity {
                                 mResultThumbPath = mThumbPath;
                             } else {
                                 mIvFlow.setImageBitmap(null);
-                                ViewUtil.measureView(mIvFlow);
-                                ViewGroup.LayoutParams lp = mIvFlow.getLayoutParams();
-                                lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-                                lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                                mIvFlow.setLayoutParams(lp);
-                                mImageResizer.loadImage(mark.getPath(), mIvFlow, null, 0, new ImageWorker.LoadListener() {
-
-                                    @Override
-                                    public void onStart(ImageView imageView, Object data) {
-
+                                Watermark.WatermarkData data = mark.getUserData();
+                                List<Watermark.ElementData> elements = data.getElements();
+                                if(elements.isEmpty()) {
+                                    return;
+                                }
+                                Watermark.ElementData element = elements.get(0);
+                                Watermark.Rect rect = element.getRect();
+                                if(rect.getWidth() > 480 || rect.getHeight() > 480) {
+                                    mIvFlow.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                                    mImageResizer.loadImage(element.getDefaultValue(), mIvFlow);
+                                } else {
+                                    if(rect.getWidth() + rect.getX() > 480) {
+                                        rect.setX(480 - rect.getWidth());
                                     }
-
-                                    @Override
-                                    public void onProgressUpdate(Object url, long total, long downloaded) {
-
+                                    if(rect.getHeight() + rect.getY() > 480) {
+                                        rect.setY(480 - rect.getHeight());
                                     }
-
-                                    @Override
-                                    public void onError(Object data, Object errorMsg) {
-
-                                    }
-
-                                    @Override
-                                    public void onLoaded(ImageView imageView, Bitmap bitmap) {
-                                        if(null != bitmap) {
-                                            ViewGroup.LayoutParams lp = imageView.getLayoutParams();
-                                            float scale = mScreenWidth / 480f;
-                                            lp.width = (int) (bitmap.getWidth() * scale);
-                                            lp.height = (int) (bitmap.getHeight() * scale);
-                                            imageView.setLayoutParams(lp);
-                                            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onSet(ImageView imageView, Bitmap bitmap) {
-
-                                    }
-
-                                    @Override
-                                    public void onCanceld(ImageView imageView, Object data) {
-
-                                    }
-                                });
+                                    mIvFlow.setScaleType(ImageView.ScaleType.MATRIX);
+                                    Matrix m = mIvFlow.getImageMatrix();
+                                    m.setTranslate(mScreenWidth * rect.getX() / 480, mScreenWidth * rect.getY() / 480);
+                                    mIvFlow.setImageMatrix(m);
+                                    mImageResizer.loadImage(element.getDefaultValue(), mIvFlow);
+                                }
                                 mIvFlow.setVisibility(View.VISIBLE);
                                 mVideoPlayer.start();
                                 if(null != mAddWatermarkTask) {
@@ -460,7 +445,7 @@ public class VideoEditActivity extends NoSearchActivity {
                     holder.showTip(null, ViewHolder.TIP_TYPE_NONE);
                     break;
                 default:
-                    holder.setThumb(mark.getPath(), mImageResizer, ImageView.ScaleType.CENTER_CROP);
+                    holder.setThumb(mark.getIconUrl(), mImageResizer, ImageView.ScaleType.CENTER_CROP);
                     if(position % 3 == 0) {
                         holder.showTip("HOT", ViewHolder.TIP_TYPE_HOT);
                     } else {
@@ -640,65 +625,71 @@ public class VideoEditActivity extends NoSearchActivity {
         }
     }
 
-    private class InitWatermarkDataTask extends AsyncTask<Void, Integer, List<Watermark>> {
-
-        private Context mmContext;
-
-        public InitWatermarkDataTask(Context context) {
-            this.mmContext = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected List<Watermark> doInBackground(Void... params) {
-            List<Watermark> results = new ArrayList<Watermark>();
-            results.add(new Watermark("水印库"));
-            results.add(new Watermark("无水印"));
-            File cacheFolder = CamcorderUtil.getExternalLocalCacheDir(mmContext);
-            if(null != cacheFolder) {
-                if(!cacheFolder.exists()) {
-                    cacheFolder.mkdirs();
-                }
-                File file1 = new File(cacheFolder, "watermark_black.png");
-                File file2 = new File(cacheFolder, "watermark_kiss.png");
-                Watermark mark1 = new Watermark("加黑");
-                Watermark mark2 = new Watermark("KISS");
-                if(file1.exists()) {
-                    mark1.setPath(file1.getAbsolutePath());
-                    results.add(mark1);
-                } else {
-                    if(FileUtil.copyRaw2Dir(mmContext, R.raw.watermark_black, file1)) {
-                        mark1.setPath(file1.getAbsolutePath());
-                        results.add(mark1);
-                    }
-                }
-                if(file2.exists()) {
-                    mark2.setPath(file2.getAbsolutePath());
-                    results.add(mark2);
-                } else {
-                    if(FileUtil.copyRaw2Dir(mmContext, R.raw.watermark_kiss, file2)) {
-                        mark2.setPath(file2.getAbsolutePath());
-                        results.add(mark2);
-                    }
-                }
-            }
-            return results;
-        }
-
-        @Override
-        protected void onPostExecute(List<Watermark> results) {
-            if(isCancelled()) {
-                return;
-            }
-            mAdapter.clear();
-            mAdapter.addAll(results);
-            super.onPostExecute(results);
-        }
-    }
+//    private class InitWatermarkDataTask extends AsyncTask<Void, Integer, List<Watermark>> {
+//
+//        private Context mmContext;
+//
+//        public InitWatermarkDataTask(Context context) {
+//            this.mmContext = context;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+//
+//        @Override
+//        protected List<Watermark> doInBackground(Void... params) {
+//            List<Watermark> results = new ArrayList<Watermark>();
+//            Watermark wm = new Watermark();
+//            wm.setName("水印库");
+//            results.add(wm);
+//            wm = new Watermark();
+//            wm.setName("无水印");
+//            results.add(wm);
+//            File cacheFolder = CamcorderUtil.getExternalLocalCacheDir(mmContext);
+//            if(null != cacheFolder) {
+//                if(!cacheFolder.exists()) {
+//                    cacheFolder.mkdirs();
+//                }
+//                File file1 = new File(cacheFolder, "watermark_black.png");
+//                File file2 = new File(cacheFolder, "pic_watermark_kisskiss.png");
+//                Watermark mark1 = new Watermark();
+//                mark1.setName("加黑");
+//                Watermark mark2 = new Watermark();
+//                mark2.setName("KISS");
+//                if(file1.exists()) {
+//                    mark1.setIconUrl(file1.getPath());
+//                    results.add(mark1);
+//                } else {
+//                    if(FileUtil.copyRaw2Dir(mmContext, R.raw.watermark_black, file1)) {
+//                        mark1.setIconUrl(file1.getAbsolutePath());
+//                        results.add(mark1);
+//                    }
+//                }
+//                if(file2.exists()) {
+//                    mark2.setIconUrl(file2.getAbsolutePath());
+//                    results.add(mark2);
+//                } else {
+//                    if(FileUtil.copyRaw2Dir(mmContext, R.raw.pic_watermark_kiss, file2)) {
+//                        mark2.setIconUrl(file2.getAbsolutePath());
+//                        results.add(mark2);
+//                    }
+//                }
+//            }
+//            return results;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(List<Watermark> results) {
+//            if(isCancelled()) {
+//                return;
+//            }
+//            mAdapter.clear();
+//            mAdapter.addAll(results);
+//            super.onPostExecute(results);
+//        }
+//    }
 
     /**
      * 加水印异步线程
@@ -728,6 +719,26 @@ public class VideoEditActivity extends NoSearchActivity {
             Map<String, String> result = new HashMap<String, String>(3);
             Watermark watermark = params[0];
 
+            Watermark.WatermarkData data = watermark.getUserData();
+            List<Watermark.ElementData> elements = data.getElements();
+            if(elements.isEmpty()) {
+                return null;
+            }
+            Watermark.ElementData element = elements.get(0);
+            if(StringUtil.isEmpty(element.getDefaultValue())) {
+                return null;
+            }
+            Watermark.Rect rect = element.getRect();
+            String filterStr = null;
+            if(rect.getWidth() > 480 || rect.getHeight() > 480) {
+                filterStr = "[1]scale=w=480:h=480[wm];[0][wm]overlay=x=0:y=0, crop=x=0:y=0:w=480:h=480";
+            } else {
+                filterStr = "overlay=x=" + rect.getX() + ":y=" + rect.getY();
+            }
+            if(StringUtil.isEmpty(filterStr)) {
+                return null;
+            }
+
             ServiceConnection conn = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
@@ -744,8 +755,8 @@ public class VideoEditActivity extends NoSearchActivity {
             bindService(new Intent(VideoEditActivity.this, FFmpegService.class), conn,
                     Service.BIND_AUTO_CREATE);
 
+            publishProgress(10);
             do {
-                publishProgress(10);
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -765,7 +776,11 @@ public class VideoEditActivity extends NoSearchActivity {
 
             int ret = Integer.MIN_VALUE;
             try {
-                ret = mmService.addWaterMark(mVideoPath, watermark.getPath(), 3, 15, 15, outputVideoPath, "mp4");
+                String [] args = new String [] {"ffmpeg", "-y", "-i", mVideoPath, "-i", element.getDefaultValue(),
+                        "-filter_complex", filterStr,
+                        "-c:v", "mpeg4", "-c:a", "copy", "-b:v", "1000k", "-s", "480x480",
+                        "-f", "mp4", outputVideoPath, };
+                ret = mmService.ffmpeg(args);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }

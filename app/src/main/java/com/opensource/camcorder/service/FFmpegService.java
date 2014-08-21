@@ -36,19 +36,6 @@ public class FFmpegService extends Service {
 	
 	private static final String TAG = "FFmpegService";
 	
-	/** 合并视频 */
-	public static final int CMD_MERGE_VIDEO 	= 0;
-	/** 裁剪视频 **/
-	public static final int CMD_CUT_VIDEO		= 1;
-	/** 添加水印 */
-	public static final int CMD_ADD_WATERMARK	= 2;
-	/**  */
-	public static final int CMD_REMOVE_AUDIO	= 3;
-	/**  */
-	public static final int CMD_FETCH_AUDIO	= 4;
-	/**  */
-	public static final int CMD_ADD_AUDIO 		= 5;
-	
 	private final LocalBinder mBinder = new LocalBinder();
 	
 	@Override
@@ -109,7 +96,7 @@ public class FFmpegService extends Service {
 			stopSelf();
 			return ret;
 		}
-		
+
 		@Override
 		public int addWaterMark(String videoPath, String imagePath,
 				int position, int verticalMarging, int horizontalMarging,
@@ -146,6 +133,14 @@ public class FFmpegService extends Service {
 			stopSelf();
 			return ret;
 		}
-		
-	}
+
+        @Override
+        public int ffmpeg(String[] args) throws RemoteException {
+            int ret = Integer.MAX_VALUE;
+            ret = FFmpegTool.ffmpeg(args);
+            stopSelf();
+            return ret;
+        }
+
+    }
 }

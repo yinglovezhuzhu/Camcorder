@@ -41,7 +41,7 @@
         progress:progress="0"
         progress:max="100"
         progress:minMask="15"
-        progress:cursorWidth="5dip"/>
+        progress:cursorWidth="3dip"/>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
@@ -50,19 +50,31 @@
             android:id="@+id/sv_recorder_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-        <com.opensource.camcorder.widget.FocusView
-            android:id="@+id/fv_recorder_focus"
+        <FrameLayout
+            android:id="@+id/fl_recorder_widget_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-        <com.opensource.camcorder.widget.GridView
-            android:id="@+id/gv_recorder_grid"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"/>
+            android:layout_height="match_parent">
+            <com.opensource.camcorder.widget.FocusView
+                android:id="@+id/fv_recorder_focus"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <com.opensource.camcorder.widget.GridView
+                android:id="@+id/gv_recorder_grid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"/>
+            <TextSwitcher
+                android:id="@+id/ts_recorder_time_show"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:inAnimation="@anim/anim_time_show_out" />
+        </FrameLayout>
         <LinearLayout
             android:id="@+id/ll_recorder_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="400dip"
             android:paddingTop="10dip"
             android:paddingBottom="10dip"
             android:background="@color/content_backgroud_recorder"
@@ -85,16 +97,15 @@
                 android:drawableTop="@drawable/selector_ic_image"
                 android:text="@string/image"/>
 
-            <ToggleButton
+            <Button
                 style="@style/RecorderToolbarButton"
-                android:id="@+id/tbtn_camcorder_delay"
+                android:id="@+id/btn_camcorder_delay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:drawableTop="@drawable/selector_ic_delay"
                 android:textColor="@color/rbtn_text_color_gray_red"
-                android:textOn="@string/delay"
-                android:textOff="@string/delay"/>
+                android:text="@string/delay"/>
             <ToggleButton
                 style="@style/RecorderToolbarButton"
                 android:id="@+id/tbtn_camcorder_focus"

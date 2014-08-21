@@ -28,9 +28,12 @@ import android.provider.MediaStore;
 import android.text.format.Formatter;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Use:
@@ -267,7 +270,7 @@ public class FileUtil {
         try {
             InputStream is = context.getResources().openRawResource(id);
             FileOutputStream fos = new FileOutputStream(dist);
-            byte [] buffer = new byte[2048];
+            byte [] buffer = new byte[1024*1024];
             int size;
             while((size = is.read(buffer)) != -1) {
                 fos.write(buffer, 0, size);
@@ -280,5 +283,111 @@ public class FileUtil {
             return false;
         }
         return true;
+    }
+
+    /**
+     *
+     * @param context
+     * @param name
+     * @param dist
+     * @return
+     */
+    public static boolean copyAssets2Dir(Context context, String name, File dist) {
+        try {
+            InputStream is = context.getResources().getAssets().open(name);
+            FileOutputStream fos = new FileOutputStream(dist);
+            byte [] buffer = new byte[1024*1024];
+            int size;
+            while((size = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, size);
+            }
+            fos.flush();
+            fos.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 读取文本文件内容到String中
+     * @param filePath
+     * @return
+     */
+    public static String readStringFromFile(String filePath) {
+        File file = new File(filePath);
+        if(!file.exists()) {
+            return null;
+        }
+        FileInputStream fileInputStream = null;
+        InputStreamReader inputStreamReader = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+            inputStreamReader = new InputStreamReader(fileInputStream);
+            StringBuilder sb = new StringBuilder();
+            char [] buffer = new char[1024*1024];
+            int len = 0;
+            while((len = inputStreamReader.read(buffer)) != -1) {
+                sb.append(buffer, 0, len);
+            }
+            return sb.toString();
+        } catch (FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+        } catch (IOException ioe) {
+
+        } finally {
+            if(null != inputStreamReader) {
+                try {
+                    inputStreamReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(null != fileInputStream) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public static String readStringFromAssetFile(Context context, String name) {
+        InputStream inputStream = null;
+        InputStreamReader inputStreamReader = null;
+        int len = 0;
+        try {
+            inputStream = context.getResources().getAssets().open(name);
+            inputStreamReader = new InputStreamReader(inputStream);
+            StringBuilder sb = new StringBuilder();
+            char [] buffer =  new char[1024*1024];
+            while((len = inputStreamReader.read(buffer)) != -1) {
+                sb.append(buffer, 0, len);
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(null != inputStreamReader) {
+                try {
+                    inputStreamReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(null != inputStream) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

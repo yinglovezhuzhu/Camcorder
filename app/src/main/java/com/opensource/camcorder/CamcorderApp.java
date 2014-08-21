@@ -23,8 +23,13 @@ import android.os.Environment;
 import android.os.Process;
 import android.widget.Toast;
 
+import com.opensource.camcorder.entity.Decoration;
 import com.opensource.camcorder.utils.CamcorderUtil;
 import com.opensource.camcorder.utils.StringUtil;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Use:
@@ -33,6 +38,8 @@ import com.opensource.camcorder.utils.StringUtil;
 public class CamcorderApp extends Application {
 
     public static String APP_FOLDER = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+    private static Map<String, List<? extends Decoration>> mDecorations = new HashMap<String, List<? extends Decoration>>();
 
     @Override
     public void onCreate() {
@@ -43,5 +50,13 @@ public class CamcorderApp extends Application {
             Process.killProcess(Process.myPid());
         }
         super.onCreate();
+    }
+
+    public static void putDecorations(String key, List<? extends Decoration> decorations) {
+        mDecorations.put(key, decorations);
+    }
+
+    public static List<? extends Decoration> getDecorations(String key) {
+        return mDecorations.get(key);
     }
 }

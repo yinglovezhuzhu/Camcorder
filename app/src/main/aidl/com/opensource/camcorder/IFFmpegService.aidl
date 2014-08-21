@@ -16,4 +16,7 @@ interface IFFmpegService {
     int fetchAudio(String input, String output, String format);
 
     int addAudio(String video, String audio, String output, String format);
+
+    /** Use this to use ffmpeg command line  **/
+    int ffmpeg(in String [] args);
 }
