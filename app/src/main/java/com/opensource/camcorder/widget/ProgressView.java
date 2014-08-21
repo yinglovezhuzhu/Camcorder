@@ -282,7 +282,7 @@ public class ProgressView extends View {
      * @param progress
      */
     public void pushSplit(float progress) {
-        if(progress == 0 || mSplits.contains(progress)) {
+        if(progress == 0 || mSplits.contains(progress) || progress >= mMaxProgress) {
             return;
         }
         mSplits.push(progress);
