@@ -329,6 +329,7 @@ public class ProgressView extends View {
         if(mConfirming) {
             mLastSplitPosition = INVALID_POSITION;
             mConfirming = false;
+            postInvalidate();
         }
     }
 
