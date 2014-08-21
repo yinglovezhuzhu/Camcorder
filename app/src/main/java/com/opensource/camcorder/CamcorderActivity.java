@@ -1084,13 +1084,13 @@ public class CamcorderActivity extends NoSearchActivity implements
 
             @Override
             public void onDelete(float lastProgress, float progress) {
-                mRecordedDuration = (long)lastProgress;
-                if(mVideoTmepFilenames.isEmpty()) {
+                mRecordedDuration = (long) lastProgress;
+                if (mVideoTmepFilenames.isEmpty()) {
                     return;
                 }
                 String tempFilename = mVideoTmepFilenames.pop();
                 File tempFile = new File(tempFilename);
-                if(tempFile.exists()) {
+                if (tempFile.exists()) {
                     tempFile.delete();
                 }
                 mBtnDelete.setEnabled(progress > 0);
@@ -1502,18 +1502,6 @@ public class CamcorderActivity extends NoSearchActivity implements
                     mmServiceConnected = false;
                 }
             };
-            bindService(new Intent(CamcorderActivity.this, FFmpegService.class), conn,
-                    Service.BIND_AUTO_CREATE);
-
-
-            publishProgress(10);
-            do {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } while(!mmServiceConnected && !isCancelled());
 
             if(isCancelled()) {
                 //取消操作
@@ -1544,6 +1532,17 @@ public class CamcorderActivity extends NoSearchActivity implements
                     e.printStackTrace();
                 }
             } else {
+                bindService(new Intent(CamcorderActivity.this, FFmpegService.class), conn,
+                        Service.BIND_AUTO_CREATE);
+
+                publishProgress(10);
+                do {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } while(!mmServiceConnected && !isCancelled());
                 try {
                     String [] files = new String[mVideoTmepFilenames.size()];
                     mVideoTmepFilenames.toArray(files);
