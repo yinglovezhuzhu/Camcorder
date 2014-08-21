@@ -80,7 +80,6 @@ import com.opensource.camcorder.utils.FFmpegTool;
 import com.opensource.camcorder.utils.FileUtil;
 import com.opensource.camcorder.utils.LogUtil;
 import com.opensource.camcorder.utils.StringUtil;
-import com.opensource.camcorder.utils.ZipUtil;
 import com.opensource.camcorder.widget.CamcorderTitlebar;
 import com.opensource.camcorder.widget.FocusView;
 import com.opensource.camcorder.widget.GridView;
@@ -1640,19 +1639,20 @@ public class CamcorderActivity extends NoSearchActivity implements
                     wm3.setName("信封");
                     wm4.setName("早安");
 
-                    File file1 = new File(waterFolder, "watermark_kiss.zip");
-                    File file2 = new File(waterFolder, "watermark_record.zip");
-                    File file3 = new File(waterFolder, "watermark_post.zip");
-                    File file4 = new File(waterFolder, "watermark_morning.zip");
-//                    File file1 = new File(waterFolder, "pic_watermark_kisskiss.png");
-//                    File file2 = new File(waterFolder, "pic_watermark_record.png.png");
-//                    File file3 = new File(waterFolder, "pic_watermark_postpost.png");
-//                    File file4 = new File(waterFolder, "pic_watermark_morningning.png");
+//                    File file1 = new File(waterFolder, "watermark_kiss.zip");
+//                    File file2 = new File(waterFolder, "watermark_record.zip");
+//                    File file3 = new File(waterFolder, "watermark_post.zip");
+//                    File file4 = new File(waterFolder, "watermark_morning.zip");
+                    File file1 = new File(waterFolder, "pic_watermark_kisskiss.png");
+                    File file2 = new File(waterFolder, "pic_watermark_record.png.png");
+                    File file3 = new File(waterFolder, "pic_watermark_postpost.png");
+                    File file4 = new File(waterFolder, "pic_watermark_morningning.png");
 
                     if(!file1.exists()) {
-                        if(FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.watermark_kiss, file1)) {
-                            ZipUtil.unZipFile(file1.getPath(), waterFolder.getPath(), null);
-                        }
+//                        if(FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.watermark_kiss, file1)) {
+//                            ZipUtil.unZipFile(file1.getPath(), waterFolder.getPath(), null);
+//                        }
+                        FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.pic_watermark_kiss, file1);
                     }
                     Watermark.WatermarkData d1 = new Watermark.WatermarkData();
                     wm1.setUserData(d1);
@@ -1670,7 +1670,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                     e1.setRect(rect1);
 
                     if(!file2.exists()) {
-                        FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.watermark_record, file2);
+                        FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.pic_watermark_record, file2);
                     }
                     Watermark.WatermarkData d2 = new Watermark.WatermarkData();
                     wm2.setUserData(d2);
@@ -1687,7 +1687,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                     rect2.setY(0);
                     e2.setRect(rect2);
                     if(!file3.exists()) {
-                        FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.watermark_post, file3);
+                        FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.pic_watermark_post, file3);
                     }
                     Watermark.WatermarkData d3 = new Watermark.WatermarkData();
                     wm3.setUserData(d3);
@@ -1705,7 +1705,7 @@ public class CamcorderActivity extends NoSearchActivity implements
                     e3.setRect(rect3);
 
                     if(!file4.exists()) {
-                        FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.watermark_morning, file4);
+                        FileUtil.copyRaw2Dir(CamcorderActivity.this, R.raw.pic_watermark_morning, file4);
                     }
                     Watermark.WatermarkData d4 = new Watermark.WatermarkData();
                     wm4.setUserData(d4);
