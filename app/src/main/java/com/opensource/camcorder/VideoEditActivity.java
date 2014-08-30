@@ -38,6 +38,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -152,20 +153,28 @@ public class VideoEditActivity extends NoSearchActivity {
     private void initView() {
         initTitlebar();
 
-        mVideoPlayer = new VideoPlayer(findViewById(R.id.fl_video_edit_content), this, mVideoPath);
+        FrameLayout contentLayout = (FrameLayout) findViewById(R.id.fl_video_edit_content);
+        ViewGroup.LayoutParams contentLp = contentLayout.getLayoutParams();
+        contentLp.width = getResources().getDisplayMetrics().widthPixels;
+        contentLp.height = contentLp.width;
+        contentLayout.setLayoutParams(contentLp);
+
+        mVideoPlayer = new VideoPlayer(contentLayout, this, mVideoPath);
 
         mVideoView = (VideoView) findViewById(R.id.vv_video_edit_preview);
         mIvThumb = (ImageView) findViewById(R.id.iv_video_edit_thumb);
         mIvFlow = (ImageView) findViewById(R.id.iv_video_edit_flow);
         mIvIcon = (ImageView) findViewById(R.id.iv_video_edit_icon);
 
-        ViewGroup.LayoutParams lp = mVideoView.getLayoutParams();
-        lp.width = getResources().getDisplayMetrics().widthPixels;
-        lp.height = lp.width;
+        ViewGroup.LayoutParams videoViewLp = mVideoView.getLayoutParams();
+        videoViewLp.width = getResources().getDisplayMetrics().widthPixels;
+        videoViewLp.height = videoViewLp.width;
+        mVideoView.setLayoutParams(videoViewLp);
 
         ViewGroup.LayoutParams flowLp = mIvFlow.getLayoutParams();
         flowLp.width = getResources().getDisplayMetrics().widthPixels;
-        flowLp.height = lp.width;
+        flowLp.height = flowLp.width;
+        mIvFlow.setLayoutParams(flowLp);
 
         mPbEditing = (ProgressBar) findViewById(R.id.pb_video_edit_progress);
 
@@ -381,7 +390,7 @@ public class VideoEditActivity extends NoSearchActivity {
                             Watermark mark = mmWatermarkDatas.get(mmCheckedPosition);
                             if(StringUtil.isEmpty(mark.getIconUrl())) {
                                 mIvFlow.setImageBitmap(null);
-                                mIvFlow.setVisibility(View.GONE);
+                                mIvFlow.setVisibility(View.INVISIBLE);
                                 if(mResultVideoPath != null && !mResultVideoPath.equals(mVideoPath)) {
                                     FileUtil.deleteFile(mResultVideoPath);
                                     FileUtil.deleteFile(mResultThumbPath);
@@ -398,7 +407,7 @@ public class VideoEditActivity extends NoSearchActivity {
                                 Watermark.ElementData element = elements.get(0);
                                 Watermark.Rect rect = element.getRect();
                                 if(rect.getWidth() > 480 || rect.getHeight() > 480) {
-                                    mIvFlow.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                                    mIvFlow.setScaleType(ImageView.ScaleType.FIT_XY);
                                     mImageResizer.loadImage(element.getDefaultValue(), mIvFlow);
                                 } else {
                                     if(rect.getWidth() + rect.getX() > 480) {
