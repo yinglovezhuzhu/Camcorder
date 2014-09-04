@@ -1179,10 +1179,10 @@ public class CamcorderActivity extends NoSearchActivity implements
     private void layoutPreView() {
         ViewGroup.LayoutParams videoPreviewLayoutParams = mVideoPreview.getLayoutParams();
         videoPreviewLayoutParams.width = mDisplayMetrics.widthPixels;
-        videoPreviewLayoutParams.height = mPreviewWidth * mDisplayMetrics.widthPixels / mPreviewHeight;
+        videoPreviewLayoutParams.height = mDisplayMetrics.widthPixels;
 
         FrameLayout.LayoutParams toolbarLayoutParams = (FrameLayout.LayoutParams) mToolbar.getLayoutParams();
-        toolbarLayoutParams.topMargin = mVideoHeight * mDisplayMetrics.widthPixels / mPreviewHeight;
+        toolbarLayoutParams.topMargin = mDisplayMetrics.widthPixels;
     }
 
     /**
