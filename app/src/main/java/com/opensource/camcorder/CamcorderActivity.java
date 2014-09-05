@@ -1414,6 +1414,9 @@ public class CamcorderActivity extends NoSearchActivity implements
                         } catch (FFmpegFrameRecorder.Exception e) {
                             Log.v(TAG, e.getMessage());
                             e.printStackTrace();
+                        } catch (Exception e) {
+                            Log.v(TAG, e.getMessage());
+                            e.printStackTrace();
                         }
                     }
                 }
