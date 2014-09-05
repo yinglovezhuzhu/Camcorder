@@ -128,7 +128,7 @@ public final class FFmpegTool {
             try {
                 fos = new FileOutputStream(listFile);
                 for(String file : files) {
-                    if(StringUtil.isEmpty(file)) {
+                    if(StringUtil.isEmpty(file) || !new File(file).exists()) {
                         continue;
                     }
                     String line = "file '";
