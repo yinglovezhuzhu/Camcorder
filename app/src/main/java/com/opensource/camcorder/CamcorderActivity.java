@@ -206,7 +206,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
 	//音频录制
 	//录制音频的线程
-	private Thread mAudioRecordThread;
+	private AudioRecordThread mAudioRecordThread;
 	/** 音频采样平率Hz **/
 	private int mAudioSampleRate = 44100;
     /**  **/
@@ -440,7 +440,7 @@ public class CamcorderActivity extends NoSearchActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        resetRecorder();
+        releaseResources();
         closeCamera();
     }
 
@@ -538,7 +538,8 @@ public class CamcorderActivity extends NoSearchActivity implements
         if (mPausing) {
             return;
         }
-        resetRecorder();
+        stopRecord();
+        releaseResources();
         exit();
     }
 
@@ -567,7 +568,8 @@ public class CamcorderActivity extends NoSearchActivity implements
                 exit();
                 break;
             case R.id.btn_camcorder_title_right: //下一步
-                resetRecorder();
+                stopRecord();
+                releaseResources();
                 new DealFinishWorkTask().execute();
                 break;
             case R.id.btn_camcorder_video: //视频
@@ -654,19 +656,9 @@ public class CamcorderActivity extends NoSearchActivity implements
                 mRecordedDuration += mCurrentRecordedDuration;
                 mCurrentRecordedDuration = 0L;
             }
-            if(null != mFFmpegFrameRecorder) {
-                resetRecorder();
-            }
+            releaseResources();
         }
         mBtnDelete.setEnabled(true);
-    }
-
-    /**
-     * 重置，会释放资源
-     */
-    private void resetRecorder() {
-        stopRecord();
-        releaseResources();
     }
 
     /**
@@ -676,6 +668,10 @@ public class CamcorderActivity extends NoSearchActivity implements
         mRecorderRecording = false;
         try {
             if(mFFmpegFrameRecorder != null) {
+                while(null != mAudioRecordThread && mAudioRecordThread.isWritingData()) {
+                    //TODO nothing
+                    //Wait for audio data finish write.
+                }
                 mFFmpegFrameRecorder.stop();
                 mFFmpegFrameRecorder.release();
             }
@@ -1350,6 +1346,7 @@ public class CamcorderActivity extends NoSearchActivity implements
 
         private AudioRecord mmAudioRecord;
         private boolean mmListening = true;
+        private boolean mmWritingData = false;
 
         @Override
         public synchronized void start() {
@@ -1407,7 +1404,9 @@ public class CamcorderActivity extends NoSearchActivity implements
                             Buffer[] barray = new Buffer[1];
                             barray[0] = ShortBuffer.wrap(audioData, 0, bufferReadResult);
                             if(mRecorderRecording && null != mFFmpegFrameRecorder) {
+                                mmWritingData = true;
                                 mFFmpegFrameRecorder.record(barray);
+                                mmWritingData = false;
                             }
                             // Log.v(LOG_TAG,"recording " + 1024*i + " to " +
                             // 1024*i+1024);
@@ -1442,6 +1441,10 @@ public class CamcorderActivity extends NoSearchActivity implements
         public void interrupt() {
             mmListening = false;
             super.interrupt();
+        }
+
+        public boolean isWritingData() {
+            return mmWritingData;
         }
     }
 
