@@ -33,21 +33,26 @@ public class ZipUtil {
 	private ZipUtil() { }
 
     /**
-     * UnZip files from zip file.
+     * 从ZIP压缩包中解压指定的文件，如果selectedEntries为null，将解压整个zip
      * @param zipFilePath
      * @param folderPath
      * @param selectedEntries
+     * @throws ZipException
+     * @throws IOException 
+     * @throws IllegalStateException
      */
-	public static void unZipFile(String zipFilePath, String folderPath, List<String> selectedEntries) {
+	public static void unZipFile(String zipFilePath, String folderPath,
+			List<String> selectedEntries) throws ZipException, IOException,
+			IllegalStateException {
 		File folder = new File(folderPath);
 		if(!folder.exists() && !folder.mkdirs()) {
 			//无法解压到此目录
-			return;
+			throw new IOException("Can not exact files to folder:" + folder);
 		}
 		File srcFile = new File(zipFilePath);
 		if(!srcFile.exists() || srcFile.isDirectory()) {
 			//文件不存在或者文件是目录
-			return;
+			throw new IOException("Source file is not a zip file:" + srcFile);
 		}
 		ZipFile zipFile = null;
 		try {
@@ -68,12 +73,12 @@ public class ZipUtil {
 				}
 			}
 		} catch (ZipException ze) {
-			ze.printStackTrace();
+			throw ze;
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			throw ioe;
 		} catch (IllegalStateException ise) {
 			//Like do some work when zip file is closed.
-			ise.printStackTrace();
+			throw ise;
 		} finally {
 			if(null != zipFile) {
 				try {
@@ -86,17 +91,18 @@ public class ZipUtil {
 	}
 	
 	/**
-	 * UnZip a file from a Zip file.
+	 * 从ZIP压缩包中解压指定的文件
 	 * @param zipFile
 	 * @param entry
 	 * @param folder
+	 * @throws IOException 
 	 */
-	private static void unZipFileFromZip(ZipFile zipFile, ZipEntry entry, File folder) {
+	private static void unZipFileFromZip(ZipFile zipFile, ZipEntry entry, File folder) throws IOException {
 		File file = new File(folder, entry.getName());
 		if(entry.isDirectory()) {
 			if(!file.exists() && !file.mkdirs()) {
 				//创建文件夹失败
-				System.out.println("Craete folder failed, no write permission");
+				throw new IOException("Can not exact files to folder:" + folder);
 			}
 		} else {
 			int readLen = 0;
@@ -111,7 +117,7 @@ public class ZipUtil {
 				}
 			} catch (IOException e) {
 				// TODO 复制文件失败
-				e.printStackTrace();
+				throw e;
 			} finally {
 				try {
 					if(null != is) {
