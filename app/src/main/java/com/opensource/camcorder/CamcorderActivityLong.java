@@ -1518,7 +1518,11 @@ public class CamcorderActivityLong extends NoSearchActivity implements
 
                     if(!file1.exists()) {
                         if(FileUtil.copyRaw2Dir(CamcorderActivityLong.this, R.raw.watermark_kiss, file1)) {
-                            ZipUtil.unZipFile(file1.getPath(), waterFolder.getPath(), null);
+                            try {
+                                ZipUtil.unZipFile(file1.getPath(), waterFolder.getPath(), null);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                     Watermark.WatermarkData d1 = new Watermark.WatermarkData();
@@ -1619,7 +1623,7 @@ public class CamcorderActivityLong extends NoSearchActivity implements
                     mmWatermarks.add(wm4);
                 }
             }
-            publishProgress(99);
+            publishProgress(100);
             return result;
         }
 
@@ -1632,7 +1636,6 @@ public class CamcorderActivityLong extends NoSearchActivity implements
         @Override
         protected void onPostExecute(Map<String, String> results) {
 
-            publishProgress(100);
             mmDialog.cancel();
 
             //TODO 处理完成,跳转至编辑界面

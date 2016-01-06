@@ -1,41 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<pre-dex-items>
+<items version="2" >
 
     <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/android-support-v7-recyclerview-43090332c9ba028ffffa383112e09bcc84beda07.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/android-support-v7-recyclerview.jar"
+        jar="E:\AndroidStudioProjects\Camcorder\app\libs\android-support-v4.jar"
         jumboMode="false"
-        revision="20.0.0"
-        sha1="14d500eeb7128db6c0f9b55f166c42eacf00f3b6"/>
+        revision="23.0.1"
+        sha1="efec67655f6db90757faa37201efcee2a9ec3507">
+        <dex dex="E:\AndroidStudioProjects\Camcorder\app\build\intermediates\pre-dexed\debug\android-support-v4-512bae482579d151431b909bf749fc8b84c5adc2.jar" />
+    </item>
     <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/javacv-c37ae8e8afd6d448bb22c03d9e78234a81021ccb.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/javacv.jar"
+        jar="E:\AndroidStudioProjects\Camcorder\app\libs\javacpp.jar"
         jumboMode="false"
-        revision="20.0.0"
-        sha1="310927e25b52136954b65608f341dfd5e5ad9d64"/>
+        revision="23.0.1"
+        sha1="ff8f2a518e524ae8de093d6556fc21a6ab8f05b2">
+        <dex dex="E:\AndroidStudioProjects\Camcorder\app\build\intermediates\pre-dexed\debug\javacpp-22966b4bc93f0a00299e2e8200c659c6c17e34de.jar" />
+    </item>
     <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/bitmaploader_v1.1_build201407231714-f3f89024546b1d642cc32295507d3cc1d651a572.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/bitmaploader_v1.1_build201407231714.jar"
+        jar="E:\AndroidStudioProjects\Camcorder\app\libs\bitmaploader_v1.1_build201407231714.jar"
         jumboMode="false"
-        revision="20.0.0"
-        sha1="971083e5963c29a33a6b458b18df563216bb6549"/>
+        revision="23.0.1"
+        sha1="971083e5963c29a33a6b458b18df563216bb6549">
+        <dex dex="E:\AndroidStudioProjects\Camcorder\app\build\intermediates\pre-dexed\debug\bitmaploader_v1.1_build201407231714-5b70bc9335404cb92be5fc980e08a53bed703d6f.jar" />
+    </item>
     <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/gson-2.2.4-3a483b8e9ae248ff17693705a537721298988726.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/gson-2.2.4.jar"
+        jar="E:\AndroidStudioProjects\Camcorder\app\libs\android-support-v7-recyclerview.jar"
         jumboMode="false"
-        revision="20.0.0"
-        sha1="973e832af433b44c3ed11c426f2f390b29f3f3f8"/>
+        revision="23.0.1"
+        sha1="14d500eeb7128db6c0f9b55f166c42eacf00f3b6">
+        <dex dex="E:\AndroidStudioProjects\Camcorder\app\build\intermediates\pre-dexed\debug\android-support-v7-recyclerview-8ab1d4999344e20a929f37d9bf43439c2cd8c24f.jar" />
+    </item>
     <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/javacpp-efefa300d7938ab768adc1871e51cb37c68e8f47.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/javacpp.jar"
+        jar="E:\AndroidStudioProjects\Camcorder\app\libs\gson-2.2.4.jar"
         jumboMode="false"
-        revision="20.0.0"
-        sha1="ff8f2a518e524ae8de093d6556fc21a6ab8f05b2"/>
+        revision="23.0.1"
+        sha1="973e832af433b44c3ed11c426f2f390b29f3f3f8">
+        <dex dex="E:\AndroidStudioProjects\Camcorder\app\build\intermediates\pre-dexed\debug\gson-2.2.4-a8e7792ac6bb9006762fd6b797943078d298b7db.jar" />
+    </item>
     <item
-        dex="/home/xiaoying/AndroidStudioProjects/Camcorder/app/build/intermediates/pre-dexed/debug/android-support-v4-2935c96979c01084c61f1fc81106eb09fb880141.jar"
-        jar="/home/xiaoying/AndroidStudioProjects/Camcorder/app/libs/android-support-v4.jar"
+        jar="E:\AndroidStudioProjects\Camcorder\app\libs\javacv.jar"
         jumboMode="false"
-        revision="20.0.0"
-        sha1="efec67655f6db90757faa37201efcee2a9ec3507"/>
+        revision="23.0.1"
+        sha1="310927e25b52136954b65608f341dfd5e5ad9d64">
+        <dex dex="E:\AndroidStudioProjects\Camcorder\app\build\intermediates\pre-dexed\debug\javacv-63e23279a23ba3a0327d59f4170e93e367884cda.jar" />
+    </item>
 
-</pre-dex-items>
+</items>
